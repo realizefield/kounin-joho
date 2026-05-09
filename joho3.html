@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報1 第3章 暗記プログラム</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffe4e6 100%);
+  min-height: 100vh; padding: 20px; color: #1e293b;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { text-align: center; color: #991b1b; margin-bottom: 20px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+.page-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+.page-tab { flex: 1; min-width: 200px; padding: 14px; background: white; border: 3px solid #dc2626; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; color: #991b1b; transition: all 0.2s; }
+.page-tab:hover { background: #fee2e2; }
+.page-tab.active { background: #dc2626; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.unit-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 24px; border-top: 6px solid #dc2626; }
+.unit-title { color: #991b1b; font-size: 22px; margin-bottom: 12px; border-bottom: 3px solid #dc2626; padding-bottom: 8px; }
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.mode-tab { flex: 1; min-width: 110px; padding: 8px 10px; background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; color: #475569; transition: all 0.2s; }
+.mode-tab:hover { background: #e2e8f0; }
+.mode-tab.active { background: #dc2626; color: white; border-color: #dc2626; }
+.timer-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.timer-display { font-size: 22px; font-weight: bold; color: #b45309; font-family: monospace; }
+.records { display: flex; gap: 6px; font-size: 12px; flex-wrap: wrap; }
+.record-item { background: white; padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24; }
+.passage { background: #f8fafc; border-left: 5px solid #dc2626; padding: 16px; border-radius: 8px; line-height: 2.2; font-size: 15px; margin-bottom: 14px; min-height: 100px; }
+.blank { display: inline-block; min-width: 70px; padding: 2px 12px; margin: 0 4px; border: 2px dashed #94a3b8; border-radius: 6px; background: #fef9c3; text-align: center; cursor: pointer; transition: all 0.2s; }
+.blank.filled { background: #dbeafe; border-style: solid; border-color: #3b82f6; cursor: pointer; }
+.blank.correct { background: #bbf7d0; border-color: #16a34a; color: #166534; font-weight: bold; position: relative; }
+.blank.has-glossary { cursor: help; border-bottom: 3px double #16a34a; }
+.glossary-popup { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: normal; white-space: normal; min-width: 220px; max-width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50; line-height: 1.6; text-align: left; display: none; }
+.glossary-popup.show { display: block; }
+.glossary-popup::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #1e293b; }
+.glossary-popup .term-en { color: #fbbf24; font-weight: bold; }
+.glossary-popup .term-kana { color: #86efac; }
+.blank.wrong { background: #fecaca; border-color: #dc2626; animation: shake 0.4s; }
+.blank.selected { background: #fed7aa; border-color: #f97316; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.word-bank { background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 12px; margin-bottom: 14px; min-height: 50px; }
+.word-bank-title { font-weight: bold; color: #166534; margin-bottom: 6px; font-size: 13px; }
+.word-bank-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.word-chip { background: white; border: 2px solid #22c55e; border-radius: 18px; padding: 5px 12px; cursor: pointer; font-weight: bold; color: #166534; transition: all 0.2s; user-select: none; font-size: 14px; }
+.word-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+.word-chip.used { opacity: 0.3; pointer-events: none; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #dc2626; color: white; }
+.btn-primary:hover { background: #991b1b; }
+.btn-success { background: #22c55e; color: white; } .btn-success:hover { background: #16a34a; }
+.btn-warning { background: #f59e0b; color: white; } .btn-warning:hover { background: #d97706; }
+.btn-danger { background: #ef4444; color: white; } .btn-danger:hover { background: #dc2626; }
+.btn-secondary { background: #64748b; color: white; } .btn-secondary:hover { background: #475569; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.message { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+.msg-success { background: #bbf7d0; color: #166534; }
+.msg-warning { background: #fed7aa; color: #9a3412; }
+.msg-info { background: #dbeafe; color: #1e40af; }
+.quiz-question { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 12px; font-size: 15px; font-weight: bold; border-left: 5px solid #f59e0b; }
+.quiz-options { display: grid; gap: 8px; }
+.quiz-option { background: white; border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; font-size: 14px; text-align: left; }
+.quiz-option:hover { background: #f1f5f9; border-color: #dc2626; }
+.quiz-option.correct { background: #bbf7d0; border-color: #16a34a; }
+.quiz-option.wrong { background: #fecaca; border-color: #dc2626; }
+.quiz-explain { background: #fef9c3; border-left: 5px solid #facc15; padding: 12px 14px; border-radius: 8px; margin-top: 12px; font-size: 14px; line-height: 1.7; color: #713f12; }
+.quiz-explain .ex-title { font-weight: bold; color: #a16207; margin-bottom: 4px; display: block; }
+.quiz-explain .ex-example { display: block; margin-top: 6px; padding: 6px 10px; background: white; border-radius: 6px; border-left: 3px solid #16a34a; color: #166534; font-size: 13px; }
+.kanji-ruby { font-size: 0.6em; color: #6b7280; margin-left: 2px; }
+ruby rt { font-size: 0.55em; color: #475569; font-weight: normal; }
+.ox-buttons { display: flex; gap: 16px; justify-content: center; margin-top: 12px; }
+.ox-btn { width: 80px; height: 80px; border: 4px solid; border-radius: 50%; font-size: 40px; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; }
+.ox-btn.maru { color: #dc2626; border-color: #dc2626; } .ox-btn.maru:hover { background: #dc2626; color: white; }
+.ox-btn.batsu { color: #1e40af; border-color: #1e40af; } .ox-btn.batsu:hover { background: #1e40af; color: white; }
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
+.confetti { position: absolute; width: 10px; height: 10px; animation: fall 3s linear forwards; }
+@keyframes fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.progress { background: #e2e8f0; border-radius: 10px; height: 20px; overflow: hidden; margin-bottom: 10px; }
+.progress-bar { background: linear-gradient(90deg, #22c55e, #16a34a); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; }
+.hidden { display: none !important; }
+.mode-content { padding-top: 4px; }
+.back-to-top { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #dc2626; color: white; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+.back-to-top:hover { background: #991b1b; }
+@media (max-width: 600px) { h1 { font-size: 22px; } .passage { font-size: 13px; line-height: 2; } .btn { padding: 6px 12px; font-size: 12px; } .unit-title { font-size: 18px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔒 情報1 第3章「情報安全」暗記プログラム</h1>
+  <div class="page-tabs" id="pageTabs"></div>
+  <div id="unitsContainer"></div>
+</div>
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ページトップへ">↑</button>
+<div class="confetti-container" id="confettiContainer"></div>
+<script>
+const ALL_UNITS = [
+  {
+    "id": "unit1",
+    "title": "1節 個人による安全対策",
+    "fill": {
+      "text": "情報の盗聴(盗み見)・改竄・破壊などに対し、安全対策を講じることを[情報セキュリティ]といいます。コンピュータ利用を開始することを[ログイン]といい、個人を識別する[ユーザID]と本人確認のための[パスワード]の組み合わせを[アカウント]といいます。悪質なプログラムの総称を[マルウェア]、自己感染するものを[ウイルス]、ソフトウェアの欠陥を[セキュリティホール]といいます。外部からの侵入を防ぐ技術を[ファイアウォール]といいます。"
+    },
+    "glossary": {
+      "情報セキュリティ": {
+        "en": "information security",
+        "kana": "インフォメーション セキュリティ",
+        "desc": "「information(情報)」+「security(安全)」。情報を不正行為や事故から守る対策の総称です。"
+      },
+      "ログイン": {
+        "en": "login / log in",
+        "kana": "ログイン",
+        "desc": "「log(記録)」+「in(中へ)」。利用記録を残しながらシステムに入ること。「ログオン」とも言います。"
+      },
+      "ユーザID": {
+        "en": "user ID (Identification)",
+        "kana": "ユーザー アイディー",
+        "desc": "「user(利用者)」+「ID(Identification=識別)」。利用者を識別する記号です。"
+      },
+      "パスワード": {
+        "en": "password",
+        "kana": "パスワード",
+        "desc": "「pass(通る)」+「word(言葉)」=「合言葉」。本人確認用の秘密の文字列です。"
+      },
+      "アカウント": {
+        "en": "account",
+        "kana": "アカウント",
+        "desc": "元は「勘定・口座」の意味。コンピュータを使う「権利」を表します。ユーザID+パスワードのセット。"
+      },
+      "マルウェア": {
+        "en": "malware",
+        "kana": "マルウェア",
+        "desc": "「malicious(悪意ある)」+「software(ソフトウェア)」の合成語。悪意のあるプログラム全般を指します。"
+      },
+      "ウイルス": {
+        "en": "computer virus",
+        "kana": "コンピューター ウイルス",
+        "desc": "生物のウイルスのように他のファイルに「感染」して広がるプログラムです。"
+      },
+      "セキュリティホール": {
+        "en": "security hole",
+        "kana": "セキュリティ ホール",
+        "desc": "「security(安全)」+「hole(穴)」。ソフトウェアの安全上の欠陥のこと。「脆弱性(ぜいじゃくせい)」ともいいます。"
+      },
+      "ファイアウォール": {
+        "en": "firewall",
+        "kana": "ファイアウォール",
+        "desc": "「fire(火)」+「wall(壁)」=「防火壁」。外部からの不正アクセスを防ぐ仕組みです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "情報の盗聴・改竄・破壊などに対する安全対策の総称は?",
+        "opts": [
+          "情報セキュリティ",
+          "個人情報保護",
+          "プライバシー",
+          "ファイアウォール"
+        ],
+        "a": 0,
+        "explain": "情報セキュリティは個人的・組織的・技術的な3つの観点から対策を講じます。",
+        "example": "個人:パスワード管理、組織:セキュリティポリシー、技術:暗号化やファイアウォール。"
+      },
+      {
+        "q": "ユーザIDとパスワードの組み合わせを何という?",
+        "opts": [
+          "アカウント",
+          "ログイン",
+          "認証",
+          "パスコード"
+        ],
+        "a": 0,
+        "explain": "アカウントは「コンピュータを使う権利」を表します。ユーザIDとパスワードのセットでアカウントになります。"
+      },
+      {
+        "q": "コンピュータの安全性に関わる欠陥は?",
+        "opts": [
+          "バグ",
+          "エラー",
+          "セキュリティホール",
+          "クラック"
+        ],
+        "a": 2,
+        "explain": "セキュリティホール(security hole)は「security(安全)+ hole(穴)」で安全上の穴。脆弱性(ぜいじゃくせい)とも呼ばれます。",
+        "example": "昔のWindowsで「USBを挿しただけでウイルスが侵入する」欠陥もセキュリティホールでした。今はパッチで修正されています。"
+      },
+      {
+        "q": "外部からの不正アクセスを防ぐ技術は?",
+        "opts": [
+          "アンチウイルス",
+          "ファイアウォール",
+          "プロキシ",
+          "VPN"
+        ],
+        "a": 1,
+        "explain": "ファイアウォール(firewall=防火壁)は内外の通信を監視し、怪しい通信をブロックします。家庭用ルータにも標準装備されています。"
+      },
+      {
+        "q": "キーボード入力を記録するスパイウェアは?",
+        "opts": [
+          "キーロガー",
+          "ウイルス",
+          "クッキー",
+          "アドウェア"
+        ],
+        "a": 0,
+        "explain": "キーロガー(keylogger)は「key(キー)+ logger(記録するもの)」。打ち込んだ文字を全て記録してパスワードなどを盗みます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "パスワードはどのサイトでも同じものを使う方が便利で安全である。",
+        "a": false,
+        "explain": "パスワード使いまわしは非常に危険。1つ漏れると全サイトが侵入される「パスワードリスト攻撃」の被害を受けます。サイトごとに違うパスワードを使うのが鉄則です。"
+      },
+      {
+        "q": "ウイルス対策ソフトをインストールすればウイルスを完全に防げる。",
+        "a": false,
+        "explain": "ウイルスは日々新しく作られるため、対策ソフトでも完全には防げません。定義ファイルを最新に保ち、怪しい添付ファイルを開かないなどの注意も必要です。"
+      },
+      {
+        "q": "OSやソフトウェアのセキュリティパッチは定期的に適用すべきである。",
+        "a": true,
+        "explain": "パッチ(patch=つぎはぎ)はセキュリティホールを修正するプログラム。「Windows Update」「macOSアップデート」などを定期的に適用しましょう。"
+      },
+      {
+        "q": "指紋や虹彩を使った認証を生体認証(バイオメトリクス)という。",
+        "a": true,
+        "explain": "バイオメトリクス(biometrics)は「bio(生体)+ metrics(測定)」。指紋・虹彩・静脈・顔・声紋などで本人確認します。スマホの指紋ロック・顔認証も生体認証です。"
+      },
+      {
+        "q": "感染したコンピュータはネットワークに接続したまま対処するのが良い。",
+        "a": false,
+        "explain": "感染したコンピュータは即座にネットワークから切り離すのが鉄則。他の機器への感染拡大を防ぐためです。その後、ウイルスを特定して対処します。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "マルウェアの語源は?",
+        "opts": [
+          "malicious + software",
+          "malware + ware",
+          "master + ware",
+          "manage + ware"
+        ],
+        "a": 0,
+        "explain": "malware = malicious(マリシャス=悪意ある)+ software(ソフトウェア)。「悪意あるソフト」の合成語です。"
+      },
+      {
+        "q": "セキュリティホールを修正するプログラムは?",
+        "opts": [
+          "ドライバ",
+          "パッチ",
+          "プラグイン",
+          "アドオン"
+        ],
+        "a": 1,
+        "explain": "パッチ(patch=つぎはぎ・当て布)はセキュリティホールを塞ぐ修正プログラム。OSやソフトのアップデートとして配布されます。"
+      },
+      {
+        "q": "ハッカーとクラッカーの違いとして正しいのは?",
+        "opts": [
+          "ハッカーは女性、クラッカーは男性",
+          "ハッカーは善意、クラッカーは悪意",
+          "ハッカーは初心者、クラッカーは熟練者",
+          "違いはない"
+        ],
+        "a": 1,
+        "explain": "ハッカーは技術に精通した人(本来は敬称)。悪意を持って攻撃する人はクラッカーと区別されます。報道では混同されがちです。"
+      },
+      {
+        "q": "広告を勝手に表示するソフトは?",
+        "opts": [
+          "ウイルス",
+          "スパイウェア",
+          "アドウェア",
+          "キーロガー"
+        ],
+        "a": 2,
+        "explain": "アドウェア(adware)は「advertising(広告)+ ware」。意図しない広告を表示するソフトです。無料ソフトに紛れて入ってくることがあります。"
+      }
+    ]
+  },
+  {
+    "id": "unit2",
+    "title": "2節 組織による安全対策",
+    "fill": {
+      "text": "組織全体の情報セキュリティに関する基本方針を[セキュリティポリシー]といいます。フォルダやファイルを利用する権限を[アクセス権]、これを設定して特定の利用者だけが扱えるようにすることを[アクセス制御]といいます。すべてのアクセス権を設定できる管理者を[アドミニストレータ]といいます。物理的な接続に依存せず仮想的にグループを作る手法を[VLAN]といいます。"
+    },
+    "glossary": {
+      "セキュリティポリシー": {
+        "en": "security policy",
+        "kana": "セキュリティ ポリシー",
+        "desc": "「security(安全)」+「policy(方針)」。組織として情報セキュリティをどう守るかの基本方針です。"
+      },
+      "アクセス権": {
+        "en": "access right",
+        "kana": "アクセス ライト",
+        "desc": "「access(近づく)」+「right(権利)」。ファイルやフォルダを「読む・書く」などの権限。"
+      },
+      "アクセス制御": {
+        "en": "access control",
+        "kana": "アクセス コントロール",
+        "desc": "「access(アクセス)」+「control(制御)」。誰がどのファイルを使えるかを管理する仕組みです。"
+      },
+      "アドミニストレータ": {
+        "en": "administrator",
+        "kana": "アドミニストレーター",
+        "desc": "「administrate(管理する)+ -or」=管理者。すべての権限を持つ最上位の管理者です。略してadmin[アドミン]とも。"
+      },
+      "VLAN": {
+        "en": "Virtual Local Area Network",
+        "kana": "ブイラン",
+        "desc": "「Virtual(仮想)」+「LAN」。物理配線を変えず、ソフトウェア上で仮想的にLANを分割できる技術。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "組織のセキュリティに関する基本方針は?",
+        "opts": [
+          "プライバシーポリシー",
+          "セキュリティポリシー",
+          "利用規約",
+          "コンプライアンス"
+        ],
+        "a": 1,
+        "explain": "セキュリティポリシーには、ファイル利用制限・暗号化・ウイルス対策・緊急時対応などが含まれます。組織のルールブックです。"
+      },
+      {
+        "q": "ファイルの利用権限を設定することを?",
+        "opts": [
+          "アクセス権設定",
+          "アクセス制御",
+          "認証",
+          "許可"
+        ],
+        "a": 1,
+        "explain": "アクセス制御では「読み取り」「書き込み」などの権限を、ユーザーやグループごとに「許可」「拒否」できます。"
+      },
+      {
+        "q": "アクセス権の競合で優先される設定は?",
+        "opts": [
+          "許可",
+          "拒否",
+          "後の設定",
+          "管理者の設定"
+        ],
+        "a": 1,
+        "explain": "セキュリティの観点から「拒否」が「許可」より優先されます。安全側に倒す設計です。",
+        "example": "ユーザーが「許可」で、所属グループが「拒否」の場合 → 拒否が適用されアクセスできない。"
+      },
+      {
+        "q": "すべてのアクセス権を設定できる人は?",
+        "opts": [
+          "ユーザ",
+          "管理者",
+          "クライアント",
+          "ゲスト"
+        ],
+        "a": 1,
+        "explain": "管理者(アドミニストレータ)は最上位の権限を持ちます。組織のIT管理者がこの役割を担います。"
+      },
+      {
+        "q": "物理配線に依存せず仮想的にLANを分ける技術は?",
+        "opts": [
+          "VPN",
+          "VLAN",
+          "LAN",
+          "WAN"
+        ],
+        "a": 1,
+        "explain": "VLANはスイッチ機能で論理的にネットワークを分ける技術。例えば人事部と開発部のLANを物理配線そのままに分離できます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "セキュリティポリシーは個人レベルで決めるものである。",
+        "a": false,
+        "explain": "セキュリティポリシーは「組織全体」の方針。経営層が承認し、全社員が守るべき統一ルールです。"
+      },
+      {
+        "q": "アクセス権はグループにも設定できる。",
+        "a": true,
+        "explain": "グループにアクセス権を設定すると、グループのメンバー全員に同じ権限が適用されます。「経理部」グループに財務ファイルへのアクセス権を与える等。"
+      },
+      {
+        "q": "VLANを使うと、物理的な配線を変えなくてもネットワークを分離できる。",
+        "a": true,
+        "explain": "VLAN対応スイッチを使えば、ケーブルの差し替え不要で論理的にネットワークを分割できます。組織変更時の柔軟性が高まります。"
+      },
+      {
+        "q": "アクセス権の「許可」と「拒否」が競合した場合、許可が優先される。",
+        "a": false,
+        "explain": "安全のため「拒否」が優先されます。これは「最小権限の原則」というセキュリティの基本です。"
+      },
+      {
+        "q": "ソーシャルエンジニアリングは技術的な攻撃である。",
+        "a": false,
+        "explain": "ソーシャルエンジニアリングは「人間の心理を悪用する」非技術的な攻撃。電話で管理者を装って情報を聞き出すなどです。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "アクセス権の権限に該当しないものは?",
+        "opts": [
+          "読み取り",
+          "書き込み",
+          "印刷",
+          "実行"
+        ],
+        "a": 2,
+        "explain": "一般的なアクセス権は「読み取り」「書き込み」「実行」「削除」など。印刷は通常別の権限として扱われます。"
+      },
+      {
+        "q": "VLANで分離するのは?",
+        "opts": [
+          "物理ケーブル",
+          "ポート単位の論理グループ",
+          "プロトコル",
+          "プロバイダ"
+        ],
+        "a": 1,
+        "explain": "VLANはスイッチのポート(差し込み口)単位で論理的なグループを作ります。同じスイッチでも別々のネットワークに見せられます。"
+      },
+      {
+        "q": "管理者の英語表記は?",
+        "opts": [
+          "administrator",
+          "administer",
+          "administrative",
+          "admistration"
+        ],
+        "a": 0,
+        "explain": "administrator(アドミニストレーター)が正しい綴り。略して「admin(アドミン)」とも呼ばれます。"
+      },
+      {
+        "q": "セキュリティポリシーに含まれる項目は?",
+        "opts": [
+          "ファイル利用制限",
+          "暗号化方針",
+          "緊急時対応",
+          "すべて該当"
+        ],
+        "a": 3,
+        "explain": "セキュリティポリシーは包括的な方針なので、これらすべてが含まれます。組織として何を守り、どう対処するかを定めた文書です。"
+      }
+    ]
+  },
+  {
+    "id": "unit3",
+    "title": "3節 安全のための情報技術",
+    "fill": {
+      "text": "データを第三者が見ても意味が分からないようにすることを[暗号化]、暗号化前のデータを[平文]、暗号化後のデータを[暗号文]、暗号文を平文に戻すことを[復号]といいます。Webページの暗号化技術を[SSL]といいます。必要な情報のみ選別する方法を[コンテンツフィルタリング]、画像に著作者名などの情報を埋め込む技術を[電子すかし]、データの誤りを検出するための付加データを[パリティビット]といいます。"
+    },
+    "glossary": {
+      "暗号化": {
+        "en": "encryption",
+        "kana": "エンクリプション",
+        "desc": "「en-(中に)」+「crypt(隠す)」。データを第三者には読めない形に変換することです。"
+      },
+      "平文": {
+        "en": "plain text",
+        "kana": "プレーン テキスト",
+        "desc": "「plain(普通の)」+「text(文章)」。暗号化されていない、そのままのデータ。読み:「ひらぶん」"
+      },
+      "暗号文": {
+        "en": "cipher text",
+        "kana": "サイファー テキスト",
+        "desc": "「cipher(暗号)」+「text(文章)」。暗号化されたデータ。"
+      },
+      "復号": {
+        "en": "decryption",
+        "kana": "デクリプション",
+        "desc": "「de-(取り除く)」+「cryption(暗号化)」。暗号文を平文に戻すこと。読み:「ふくごう」"
+      },
+      "SSL": {
+        "en": "Secure Sockets Layer",
+        "kana": "エスエスエル",
+        "desc": "「Secure(安全な)」+「Sockets(接続点)」+「Layer(層)」。Webページ通信を暗号化する技術。URLが「https://」で始まるサイトはSSLで保護されています。"
+      },
+      "コンテンツフィルタリング": {
+        "en": "contents filtering",
+        "kana": "コンテンツ フィルタリング",
+        "desc": "「contents(内容)」+「filtering(ろ過)」。有害な内容を「フィルタにかけて除外」する仕組みです。"
+      },
+      "電子すかし": {
+        "en": "digital watermark",
+        "kana": "デジタル ウォーターマーク",
+        "desc": "「digital(デジタル)」+「watermark(透かし)」。お札のすかしのように、目に見えない形で情報を埋め込む技術。"
+      },
+      "パリティビット": {
+        "en": "parity bit",
+        "kana": "パリティ ビット",
+        "desc": "「parity(等しいこと・偶奇)」+「bit(ビット)」。1の個数を偶数または奇数にして誤り検出するためのビット。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "暗号化前のデータを何という?",
+        "opts": [
+          "暗号文",
+          "平文",
+          "秘文",
+          "原文"
+        ],
+        "a": 1,
+        "explain": "平文(ひらぶん、plain text)は暗号化されていないそのままのデータ。これを暗号化すると暗号文になります。"
+      },
+      {
+        "q": "Webページで使われる暗号化技術は?",
+        "opts": [
+          "SSL",
+          "SSH",
+          "VPN",
+          "FTP"
+        ],
+        "a": 0,
+        "explain": "SSL(Secure Sockets Layer)はWebページの通信を暗号化する技術。今は後継のTLS(Transport Layer Security)が主流ですが、慣用的にSSLと呼ばれます。",
+        "example": "URL欄に🔒マークが表示されるサイトはSSL/TLSで保護されています。「https://」で始まります。"
+      },
+      {
+        "q": "不適切なWebページのリストでブロックする方式は?",
+        "opts": [
+          "ブラックリスト方式",
+          "ホワイトリスト方式",
+          "キーワード方式",
+          "URLフィルタ"
+        ],
+        "a": 0,
+        "explain": "ブラックリスト方式は「禁止リスト」。逆にホワイトリスト方式は「許可リスト」だけ閲覧可能です。",
+        "example": "学校のフィルタリングは多くがブラックリスト方式。アダルトサイトや暴力サイトをブロックします。"
+      },
+      {
+        "q": "画像に著作者情報を埋め込む技術は?",
+        "opts": [
+          "電子すかし",
+          "電子署名",
+          "コピーガード",
+          "DRM"
+        ],
+        "a": 0,
+        "explain": "電子すかしは画像の見た目を変えずに情報を埋め込む技術。不正コピーされても作者を特定できます。"
+      },
+      {
+        "q": "データの誤り検出に使う1ビットの付加データは?",
+        "opts": [
+          "チェックサム",
+          "パリティビット",
+          "ハッシュ値",
+          "符号"
+        ],
+        "a": 1,
+        "explain": "パリティビットは「1の個数を偶数または奇数にする」ことで通信エラーを検出します。1ビットの反転は検出できますが、2ビットの反転は検出不可です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "SSLで暗号化されたサイトのURLは「https://」で始まる。",
+        "a": true,
+        "explain": "「s」はsecure(安全)の意味。HTTPSはSSL/TLSでHTTPを暗号化したものです。ネット決済時は必ず確認しましょう。"
+      },
+      {
+        "q": "ホワイトリスト方式は許可されたサイトだけ閲覧できる。",
+        "a": true,
+        "explain": "ホワイトリスト=許可リスト。ここに載っているサイトしか見られません。子供向けのフィルタリングなどに使われます。"
+      },
+      {
+        "q": "電子すかしは目に見える形で著作者情報を埋め込む技術である。",
+        "a": false,
+        "explain": "電子すかしは「目に見えない」形で埋め込みます。見た目を変えずに情報を隠せるのが特徴です。"
+      },
+      {
+        "q": "偶数パリティでは「1」の個数が常に偶数になるよう調整する。",
+        "a": true,
+        "explain": "偶数パリティではパリティビット込みで「1の個数が偶数」になります。",
+        "example": "データ「0010101」(1が3個)→ パリティビットを「1」追加して4個(偶数)に → 「00101011」"
+      },
+      {
+        "q": "パリティビットは2ビットの誤りも完全に検出できる。",
+        "a": false,
+        "explain": "2ビットが反転すると1の個数の偶奇が変わらないため検出不可。誤り訂正には別のより高度な技術が必要です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "SSLの正式名称は?",
+        "opts": [
+          "Secure Sockets Layer",
+          "Safe System Lock",
+          "Secure System Login",
+          "Secure Server Layer"
+        ],
+        "a": 0,
+        "explain": "SSL = Secure Sockets Layer[セキュア ソケッツ レイヤー]。現在は後継のTLS(Transport Layer Security)が標準ですが、慣用的にSSLと呼ばれます。"
+      },
+      {
+        "q": "コンテンツフィルタリングで「不適切キーワードを含むページを表示しない」方式は?",
+        "opts": [
+          "ブラックリスト方式",
+          "ホワイトリスト方式",
+          "キーワードフィルタリング方式",
+          "URLマッチング方式"
+        ],
+        "a": 2,
+        "explain": "キーワードフィルタリング方式はリスト不要で、特定の言葉(暴力・薬物など)を含むページを自動でブロックします。"
+      },
+      {
+        "q": "誤り検出符号の別名は?",
+        "opts": [
+          "暗号ビット",
+          "パリティビット",
+          "チェックビット",
+          "符号ビット"
+        ],
+        "a": 1,
+        "explain": "誤り検出符号=パリティビット。「parity(等しさ・偶奇)」が語源です。"
+      },
+      {
+        "q": "電子すかしが利用できないファイル形式は?",
+        "opts": [
+          "画像",
+          "音声",
+          "動画",
+          "すべてに利用可能"
+        ],
+        "a": 3,
+        "explain": "電子すかしは画像・音声・動画など多様なメディアで使えます。画質や音質をほとんど損なわずに情報を埋め込めるのが利点です。"
+      }
+    ]
+  },
+  {
+    "id": "unit4",
+    "title": "4節 暗号化",
+    "fill": {
+      "text": "1つの鍵で暗号化と復号を行う方式を[共通鍵暗号方式]、対になる2つの鍵を使う方式を[公開鍵暗号方式]といいます。公開鍵暗号方式では、暗号化用に公開する鍵を[公開鍵]、復号用に受信者だけが持つ鍵を[秘密鍵]といいます。共通鍵と公開鍵の両方を使う暗号化方式が[SSL]で、これを使ったプロトコルが[HTTPS]です。送信者の本人確認に使う技術を[ディジタル署名]といいます。"
+    },
+    "glossary": {
+      "共通鍵暗号方式": {
+        "en": "common key cryptography",
+        "kana": "コモン キー クリプトグラフィー",
+        "desc": "「common(共通の)」+「key(鍵)」。1つの鍵で暗号化も復号もする方式。鍵の受け渡しが課題。"
+      },
+      "公開鍵暗号方式": {
+        "en": "public key cryptography",
+        "kana": "パブリック キー クリプトグラフィー",
+        "desc": "「public(公開の)」+「key(鍵)」。対になる2つの鍵を使う方式。鍵の受け渡し問題を解決しました。"
+      },
+      "公開鍵": {
+        "en": "public key",
+        "kana": "パブリック キー",
+        "desc": "誰にでも公開して構わない暗号化用の鍵。この鍵で暗号化されると、対になる秘密鍵でしか復号できません。"
+      },
+      "秘密鍵": {
+        "en": "private key / secret key",
+        "kana": "プライベート キー / シークレット キー",
+        "desc": "受信者だけが持つ復号用の鍵。絶対に他人に渡してはいけません。"
+      },
+      "SSL": {
+        "en": "Secure Sockets Layer",
+        "kana": "エスエスエル",
+        "desc": "共通鍵と公開鍵を組み合わせた二重暗号化。実用的なWeb暗号化技術です。"
+      },
+      "HTTPS": {
+        "en": "HyperText Transfer Protocol Secure",
+        "kana": "エイチティーティーピーエス",
+        "desc": "「HTTP」+「S(Secure=安全な)」。SSL/TLSで暗号化されたHTTP通信です。"
+      },
+      "ディジタル署名": {
+        "en": "digital signature",
+        "kana": "デジタル シグネチャ",
+        "desc": "「digital(デジタル)」+「signature(署名)」。電子文書の本人確認と改竄(かいざん)防止のための仕組み。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "1つの鍵で暗号化と復号を行う方式は?",
+        "opts": [
+          "共通鍵暗号方式",
+          "公開鍵暗号方式",
+          "ハイブリッド暗号",
+          "RSA暗号"
+        ],
+        "a": 0,
+        "explain": "共通鍵暗号方式は処理が速いのが利点ですが、鍵を相手に安全に渡す方法が課題です。",
+        "example": "シーザー暗号(文字を数文字ずらす)が単純な共通鍵暗号の例です。"
+      },
+      {
+        "q": "対になる2つの鍵を使う暗号方式は?",
+        "opts": [
+          "共通鍵暗号方式",
+          "公開鍵暗号方式",
+          "単純暗号",
+          "ハッシュ暗号"
+        ],
+        "a": 1,
+        "explain": "公開鍵暗号方式では公開鍵で暗号化、秘密鍵で復号します。鍵の受け渡し問題が解決されました。"
+      },
+      {
+        "q": "公開鍵暗号方式で受信者だけが持つ鍵は?",
+        "opts": [
+          "公開鍵",
+          "秘密鍵",
+          "共通鍵",
+          "マスター鍵"
+        ],
+        "a": 1,
+        "explain": "秘密鍵は受信者だけが持ちます。これが流出すると、暗号化された通信内容が全て読まれてしまいます。"
+      },
+      {
+        "q": "SSLで暗号化されたWebページのURLの始まりは?",
+        "opts": [
+          "http://",
+          "https://",
+          "ftp://",
+          "ssh://"
+        ],
+        "a": 1,
+        "explain": "HTTPS = HTTP + Secure(安全)。SSL/TLSによる暗号化が施されたHTTP通信です。",
+        "example": "ネットバンキング、ショッピングサイト、SNSログイン画面などはすべてhttps://です。"
+      },
+      {
+        "q": "送信者の本人確認に使う技術は?",
+        "opts": [
+          "暗号化",
+          "ディジタル署名",
+          "電子すかし",
+          "SSL"
+        ],
+        "a": 1,
+        "explain": "ディジタル署名は「秘密鍵で署名→公開鍵で検証」の仕組み。本人確認と改竄防止の両方ができます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "共通鍵暗号方式は公開鍵暗号方式より処理時間が短い。",
+        "a": true,
+        "explain": "共通鍵暗号は計算が単純で高速。公開鍵暗号は数学的に複雑なので時間がかかります。SSLは高速な共通鍵暗号と安全な公開鍵暗号を組み合わせています。"
+      },
+      {
+        "q": "公開鍵から秘密鍵を計算で求めることは現実的に可能である。",
+        "a": false,
+        "explain": "理論上は可能ですが、桁数の大きな素数を使うと計算量が膨大で、現実的な時間では解けません。これがRSA暗号の安全性の根拠です。"
+      },
+      {
+        "q": "シーザー暗号は共通鍵暗号方式の一種である。",
+        "a": true,
+        "explain": "シーザー暗号は「文字を3文字ずらす」など、ずらす数(=鍵)を共有する共通鍵暗号です。古代ローマのカエサル(シーザー)が使ったとされます。"
+      },
+      {
+        "q": "ディジタル署名により改竄(かいざん)を検出できる。",
+        "a": true,
+        "explain": "ディジタル署名は要約文(ダイジェスト)を含むため、内容が1文字でも変わると署名検証が失敗。改竄を検出できます。"
+      },
+      {
+        "q": "HTTPSはSSLで暗号化されたHTTPである。",
+        "a": true,
+        "explain": "HTTPS = HTTP over SSL/TLS。HTTPの通信内容(パスワード・カード番号など)を暗号化して通信を盗聴から守ります。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "SSLで使われる暗号化方式は?",
+        "opts": [
+          "共通鍵のみ",
+          "公開鍵のみ",
+          "共通鍵と公開鍵の両方",
+          "どちらも使わない"
+        ],
+        "a": 2,
+        "explain": "SSLは賢い仕組み:まず公開鍵で「共通鍵」を安全に渡し、その後は高速な共通鍵で本データを暗号化。両者の長所を活かしています。"
+      },
+      {
+        "q": "ディジタル署名で署名を作るのに使う鍵は?",
+        "opts": [
+          "送信者の公開鍵",
+          "送信者の秘密鍵",
+          "受信者の公開鍵",
+          "受信者の秘密鍵"
+        ],
+        "a": 1,
+        "explain": "ディジタル署名は普通の公開鍵暗号と逆。送信者の秘密鍵で署名し、受信者は送信者の公開鍵で検証します。"
+      },
+      {
+        "q": "公開鍵が本物かを第三者が証明する仕組みは?",
+        "opts": [
+          "電子すかし",
+          "電子認証",
+          "電子署名",
+          "電子認可"
+        ],
+        "a": 1,
+        "explain": "電子認証では認証局(第三者機関)が「電子証明書」を発行。これにより公開鍵が本物の所有者のものだと保証されます。"
+      },
+      {
+        "q": "要約文(ダイジェスト)から元の平文に戻すことは?",
+        "opts": [
+          "可能",
+          "不可能",
+          "時間がかかる",
+          "鍵があれば可能"
+        ],
+        "a": 1,
+        "explain": "ダイジェストは平文を一方向に圧縮した値で、元に戻すことはできません(一方向ハッシュ)。これが改竄検出に使えます。"
+      }
+    ]
+  },
+  {
+    "id": "unit5",
+    "title": "暗号化の仕組み(RSA暗号)",
+    "fill": {
+      "text": "素因数分解の困難性を利用した公開鍵暗号方式が[RSA暗号]です。「すべての数は、それを[べき乗]してから素数の積で割った余りと等しくなるようなべき乗数と素数の積が必ず存在する」という性質を使います。発明者は[リベスト]、シャミア、エーデルマンの3人で、頭文字をつなげてRSAと呼ばれています。実際の運用では[2048]ビットなど大きな数が用いられます。"
+    },
+    "glossary": {
+      "2048": {
+        "en": "2048 bit",
+        "kana": "ツーオーフォーエイト ビット",
+        "desc": "RSA暗号で実用的に使われる鍵長(ビット数)。2の2048乗=約617桁の数で、現代のコンピュータでも素因数分解は事実上不可能です。"
+      },
+      "RSA暗号": {
+        "en": "RSA cryptosystem",
+        "kana": "アールエスエー アンゴウ",
+        "desc": "発明者Rivest[リベスト]、Shamir[シャミア]、Adleman[エーデルマン]の頭文字。素因数分解の困難性を利用した公開鍵暗号です。"
+      },
+      "べき乗": {
+        "en": "exponentiation / power",
+        "kana": "エクスポネンシエーション",
+        "desc": "同じ数を何度もかけ算すること(例:2の7乗=128)。RSAでは「べき乗してから素数で割った余り」を計算します。"
+      },
+      "リベスト": {
+        "en": "Ronald Linn Rivest",
+        "kana": "ロナルド リベスト",
+        "desc": "アメリカの暗号研究者。RSA発明者の1人で、MIT教授。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "RSA暗号が利用している数学的性質は?",
+        "opts": [
+          "素因数分解の困難性",
+          "円周率の無限性",
+          "三角関数の周期性",
+          "対数の単調性"
+        ],
+        "a": 0,
+        "explain": "大きな素数同士の積から元の素数を求める「素因数分解」は、桁が大きくなると現代のコンピュータでも計算困難です。これがRSAの安全性の根拠です。"
+      },
+      {
+        "q": "RSAという名前の由来は?",
+        "opts": [
+          "発明者3名の頭文字",
+          "3つの数学定理",
+          "3段階の暗号化",
+          "3種類の鍵"
+        ],
+        "a": 0,
+        "explain": "RSA = Rivest(リベスト)+ Shamir(シャミア)+ Adleman(エーデルマン)の頭文字。1977年に発表されました。"
+      },
+      {
+        "q": "RSA暗号で実用的に使われる鍵長は?",
+        "opts": [
+          "8ビット",
+          "64ビット",
+          "256ビット",
+          "2048ビット"
+        ],
+        "a": 3,
+        "explain": "2048ビット鍵は約617桁の数。素因数分解には数百万年かかると言われ、十分安全とされています。",
+        "example": "銀行のオンラインバンキング、SSL証明書などで2048ビットRSAが標準的に使われています。"
+      },
+      {
+        "q": "RSA暗号の発明者でないのは?",
+        "opts": [
+          "リベスト",
+          "シャミア",
+          "エーデルマン",
+          "ノイマン"
+        ],
+        "a": 3,
+        "explain": "ノイマン(John von Neumann)はコンピュータの基礎を作った数学者で、RSAとは別人です。RSAは1977年にRivest, Shamir, Adlemanが発明。"
+      },
+      {
+        "q": "RSA暗号は何の問題が困難であることに依存している?",
+        "opts": [
+          "四則演算",
+          "素因数分解",
+          "微積分",
+          "行列計算"
+        ],
+        "a": 1,
+        "explain": "2つの素数p,qをかけてN=p×qを作るのは簡単。逆にNからpとqを求める素因数分解は桁が大きいと極めて困難です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "RSA暗号は公開鍵暗号方式の一種である。",
+        "a": true,
+        "explain": "RSA暗号は対になる2つの鍵を使う公開鍵暗号方式で、最も広く使われている暗号方式の1つです。"
+      },
+      {
+        "q": "RSA暗号は1ビットの数でも実用的に使える。",
+        "a": false,
+        "explain": "実用的なRSA暗号は2048ビット以上が推奨。短い鍵では素因数分解が容易になるため危険です。"
+      },
+      {
+        "q": "RSA暗号で2つの素数をかけて作る数を「N」と表す。",
+        "a": true,
+        "explain": "一般的な表記:N=P×Q(2つの素数の積)、E=暗号化用の鍵、D=復号用の鍵。"
+      },
+      {
+        "q": "素数とは1とその数自身でしか割り切れない2以上の整数である。",
+        "a": true,
+        "explain": "素数の例:2, 3, 5, 7, 11, 13, 17, 19, 23, 29...。RSA暗号ではとても大きな素数(数百桁)を使います。"
+      },
+      {
+        "q": "量子コンピュータが実用化されるとRSA暗号は危険になる可能性がある。",
+        "a": true,
+        "explain": "量子コンピュータは素因数分解を高速で解けるショアのアルゴリズムが知られています。実用化されると現行のRSA暗号は破られる可能性があり、量子耐性暗号の研究が進んでいます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "RSA暗号で使われる「2と18」の例の解釈として正しいのは?",
+        "opts": [
+          "2が暗号文、18が平文",
+          "2が平文、18が暗号文",
+          "どちらも鍵",
+          "どちらも素数"
+        ],
+        "a": 1,
+        "explain": "教科書例:平文M=2、暗号文C=18。Mに公開鍵(7乗して55で割る)を適用するとCが得られます。"
+      },
+      {
+        "q": "公開鍵Eと秘密鍵Dの関係はED = ?",
+        "opts": [
+          "nL+1",
+          "nL-1",
+          "nL",
+          "nL×2"
+        ],
+        "a": 0,
+        "explain": "RSA暗号の数学的関係式:ED = nL+1(LはP-1とQ-1の最小公倍数)。これによりE乗してからD乗すると元に戻ります。"
+      },
+      {
+        "q": "互いに素とは何の関係か?",
+        "opts": [
+          "公約数が1だけ",
+          "公倍数が0だけ",
+          "和が1",
+          "差が1"
+        ],
+        "a": 0,
+        "explain": "互いに素=最大公約数が1の関係。例:8と15は互いに素(共通の約数は1のみ)。RSA鍵生成時に重要です。"
+      },
+      {
+        "q": "RSA暗号で2つの素数を選ぶ理由は?",
+        "opts": [
+          "計算が早いから",
+          "素因数分解が困難だから",
+          "小さい鍵で済むから",
+          "標準だから"
+        ],
+        "a": 1,
+        "explain": "2つの大きな素数の積からそれぞれの素数を求める「素因数分解」が困難であることがRSAの安全性の核心です。"
+      }
+    ]
+  },
+  {
+    "id": "unit6",
+    "title": "5節 法規による安全対策",
+    "fill": {
+      "text": "個人情報の流出や無断転売を防ぐ法律を[個人情報保護法]、適切に保護する事業者に与えられるマークを[プライバシーマーク]といいます。同意した者にのみメール送信を認めるオプトイン方式を導入した法律を[特定電子メール法]といいます。アクセス権限のないコンピュータへの侵入を禁止する法律を[不正アクセス禁止法]、ネット上の誹謗中傷などに対処する法律を[プロバイダ責任制限法]といいます。"
+    },
+    "glossary": {
+      "個人情報保護法": {
+        "en": "Personal Information Protection Act",
+        "kana": "パーソナル インフォメーション プロテクション アクト",
+        "desc": "正式名称:個人情報の保護に関する法律。2003年制定、2017年改正。事業者の個人情報取扱を規制します。"
+      },
+      "プライバシーマーク": {
+        "en": "Privacy Mark",
+        "kana": "プライバシー マーク",
+        "desc": "個人情報を適切に管理する事業者に与えられる第三者認証マーク。Pマークとも呼ばれます。"
+      },
+      "特定電子メール法": {
+        "en": "Anti-Spam Email Act",
+        "kana": "アンチスパム イーメール アクト",
+        "desc": "正式名称:特定電子メールの送信の適正化等に関する法律。迷惑メール対策のため、オプトイン方式を導入しました。"
+      },
+      "オプトイン": {
+        "en": "opt-in",
+        "kana": "オプト イン",
+        "desc": "「opt(選ぶ)」+「in(参加)」。「事前同意あり」を意味します。逆はopt-out=「事前同意なしで送り、拒否を受け付ける」方式。"
+      },
+      "不正アクセス禁止法": {
+        "en": "Unauthorized Computer Access Law",
+        "kana": "アンオーソライズド コンピューター アクセス ロー",
+        "desc": "正式名称:不正アクセス行為の禁止等に関する法律。1999年制定。他人のIDで不正にコンピュータに侵入することを禁じます。"
+      },
+      "プロバイダ責任制限法": {
+        "en": "Provider Liability Limitation Act",
+        "kana": "プロバイダー ライアビリティ リミテーション アクト",
+        "desc": "掲示板等での誹謗中傷に対処する法律。プロバイダの損害賠償責任を制限し、発信者情報開示請求を認めます。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "個人情報の流出を防ぐ法律は?",
+        "opts": [
+          "不正アクセス禁止法",
+          "個人情報保護法",
+          "プロバイダ責任制限法",
+          "特定商取引法"
+        ],
+        "a": 1,
+        "explain": "個人情報保護法では、個人情報を取り扱う事業者は「目的外利用の禁止」「同意なしの第三者提供禁止」などが定められています。"
+      },
+      {
+        "q": "個人情報を適切に保護する事業者に与えられるマークは?",
+        "opts": [
+          "プライバシーマーク",
+          "ISO認証",
+          "エコマーク",
+          "JISマーク"
+        ],
+        "a": 0,
+        "explain": "プライバシーマーク(Pマーク)は第三者機関が認定。消費者が個人情報を預ける際の判断基準になります。"
+      },
+      {
+        "q": "迷惑メール対策で導入された方式は?",
+        "opts": [
+          "オプトアウト方式",
+          "オプトイン方式",
+          "スパム方式",
+          "フィルタ方式"
+        ],
+        "a": 1,
+        "explain": "オプトイン方式は「同意した人だけに送ってよい」方式。逆のオプトアウトは「拒否されるまで送り続ける」方式で、迷惑メールの温床でした。",
+        "example": "メルマガを購読する時の「メール配信に同意する」チェックボックスがオプトイン方式です。"
+      },
+      {
+        "q": "アクセス権限のないコンピュータへの侵入を禁止する法律は?",
+        "opts": [
+          "不正アクセス禁止法",
+          "個人情報保護法",
+          "刑法",
+          "個別法"
+        ],
+        "a": 0,
+        "explain": "不正アクセス禁止法では、他人のIDとパスワードを使ったログインや、それを第三者に教える行為も処罰対象です。"
+      },
+      {
+        "q": "ネット上の誹謗中傷に関する法律は?",
+        "opts": [
+          "電子消費者契約法",
+          "プロバイダ責任制限法",
+          "特定商取引法",
+          "個人情報保護法"
+        ],
+        "a": 1,
+        "explain": "プロバイダ責任制限法では、削除依頼に応じた場合のプロバイダ免責や、被害者の発信者情報開示請求を認めています。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "他人のパスワードを第三者に漏らす行為は不正アクセス禁止法違反になる。",
+        "a": true,
+        "explain": "パスワードを教えるだけで「不正アクセスを助長する行為」として処罰対象になります。たとえ悪意がなくても危険な行為です。"
+      },
+      {
+        "q": "オプトイン方式は同意なしでもメールを送れる方式である。",
+        "a": false,
+        "explain": "オプトインは「事前同意あり」の方式。同意なしでメールを送れるのは(かつての)オプトアウト方式で、現在は規制されています。"
+      },
+      {
+        "q": "プライバシーマークは個人情報を適切に管理する事業者の認証である。",
+        "a": true,
+        "explain": "プライバシーマークの有無で、その事業者が個人情報を適切に扱っているかの目安になります。"
+      },
+      {
+        "q": "個人情報保護法は個人にも適用される法律である。",
+        "a": false,
+        "explain": "個人情報保護法は主に事業者を対象とした法律です。個人の私的な範囲には適用されません(ただし常識的な配慮は必要)。"
+      },
+      {
+        "q": "電子消費者契約法では事業者の承諾通知が消費者に届いた時点で契約が成立する。",
+        "a": true,
+        "explain": "これは「到達主義」と呼ばれる仕組み。注文の操作ミスを防ぐため、承諾通知が届くまで契約成立しないようにしています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "オプトイン(opt-in)の意味として正しいのは?",
+        "opts": [
+          "事前同意あり",
+          "事後拒否可能",
+          "送信無制限",
+          "匿名送信"
+        ],
+        "a": 0,
+        "explain": "opt(選ぶ)+ in(参加)= 自ら選んで参加=事前同意。"
+      },
+      {
+        "q": "行政機関の文書を公開請求できる法律は?",
+        "opts": [
+          "個人情報保護法",
+          "情報公開法",
+          "プロバイダ責任制限法",
+          "行政法"
+        ],
+        "a": 1,
+        "explain": "情報公開法では国民が行政機関に文書の開示請求できます。行政の透明性を確保するための法律です。"
+      },
+      {
+        "q": "企業の経営状態を社外に明らかにすることを?",
+        "opts": [
+          "コンプライアンス",
+          "ディスクロージャー",
+          "ガバナンス",
+          "ブランディング"
+        ],
+        "a": 1,
+        "explain": "ディスクロージャー(disclosure)は「dis-(取り除く)」+「closure(閉鎖)」=情報開示。投資家が判断するための情報を公開します。"
+      },
+      {
+        "q": "プロバイダ責任制限法の対象になる行為は?",
+        "opts": [
+          "誹謗中傷",
+          "違法コピー",
+          "個人情報掲載",
+          "すべて該当"
+        ],
+        "a": 3,
+        "explain": "プロバイダ責任制限法は、ネット上の誹謗中傷・違法コピー・個人情報無断掲載などすべての権利侵害行為が対象です。"
+      }
+    ]
+  },
+  {
+    "id": "unit7",
+    "title": "6節 知的財産権の概要と産業財産権",
+    "fill": {
+      "text": "知的な創作活動から生産されたものに与えられる権利を[知的財産権]、その中で産業に関する独占的権利を[産業財産権]といいます。発明に与えられる権利が[特許権]、物品の形状・構造の考案が[実用新案権]、デザインが[意匠権]、商標(マーク)が[商標権]です。知的財産権を国際的に保護する条約を[ベルヌ条約]、特許庁に出願して認められる方式を[方式主義]といいます。"
+    },
+    "glossary": {
+      "知的財産権": {
+        "en": "intellectual property rights",
+        "kana": "インテレクチュアル プロパティ ライツ",
+        "desc": "「intellectual(知的な)」+「property(財産)」+「rights(権利)」。創作活動の成果を守る権利の総称。略してIP[アイピー]。"
+      },
+      "産業財産権": {
+        "en": "industrial property rights",
+        "kana": "インダストリアル プロパティ ライツ",
+        "desc": "「industrial(産業の)」+「property(財産)」+「rights(権利)」。特許権・実用新案権・意匠権・商標権の4つで構成されます。"
+      },
+      "特許権": {
+        "en": "patent right",
+        "kana": "パテント ライト",
+        "desc": "「patent(特許)」+「right(権利)」。発明に対して与えられる権利。出願から最長20年保護されます。"
+      },
+      "実用新案権": {
+        "en": "utility model right",
+        "kana": "ユーティリティ モデル ライト",
+        "desc": "「utility(実用)」+「model(型・モデル)」。物品の形状や構造の考案に与えられる権利。出願から最長10年。"
+      },
+      "意匠権": {
+        "en": "design right",
+        "kana": "デザイン ライト",
+        "desc": "「design(デザイン)」+「right(権利)」。物品の形状・模様・色彩などのデザインを保護する権利。登録から最長20年。"
+      },
+      "商標権": {
+        "en": "trademark right",
+        "kana": "トレードマーク ライト",
+        "desc": "「trademark(商標)」+「right(権利)」。文字・図形・記号の標識を保護する権利。登録から原則10年(更新可)。"
+      },
+      "ベルヌ条約": {
+        "en": "Berne Convention",
+        "kana": "ベルヌ コンベンション",
+        "desc": "1886年スイスのベルヌで制定された著作物保護の国際条約。加盟国同士で著作権を保護し合います。日本は1899年加盟。"
+      },
+      "方式主義": {
+        "en": "formality principle",
+        "kana": "フォーマリティ プリンシプル",
+        "desc": "「formality(手続き)」+「principle(原則)」。特許庁に出願し、登録手続きを経て初めて権利が認められる方式。産業財産権はこちら。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "知的な創作物に対する権利の総称は?",
+        "opts": [
+          "知的財産権",
+          "産業財産権",
+          "所有権",
+          "使用権"
+        ],
+        "a": 0,
+        "explain": "知的財産権は大きく「著作権(広義)」「産業財産権」「その他」に分類されます。創作活動全般を守る権利です。"
+      },
+      {
+        "q": "発明に与えられる権利は?",
+        "opts": [
+          "特許権",
+          "実用新案権",
+          "意匠権",
+          "商標権"
+        ],
+        "a": 0,
+        "explain": "特許権は「自然法則を利用した技術的思想の創作のうち高度なもの」=発明に対して与えられる権利。出願から最長20年保護。",
+        "example": "リチウムイオン電池、青色LED、iPS細胞などが特許になっています。"
+      },
+      {
+        "q": "物品の形状や構造の考案に与えられる権利は?",
+        "opts": [
+          "特許権",
+          "実用新案権",
+          "意匠権",
+          "商標権"
+        ],
+        "a": 1,
+        "explain": "実用新案権は「ちょっとした工夫」を保護。発明ほど高度でない考案が対象で、保護期間は最長10年です。",
+        "example": "片手で開ける傘、収納したまま使えるアンテナ構造などが実用新案の例です。"
+      },
+      {
+        "q": "デザインに与えられる権利は?",
+        "opts": [
+          "特許権",
+          "実用新案権",
+          "意匠権",
+          "商標権"
+        ],
+        "a": 2,
+        "explain": "意匠権はデザイン(形・模様・色)を保護。スマホの形やフォントもデザインとして登録できます。",
+        "example": "iPhoneの角丸の四角形、コカ・コーラのボトル形状などが意匠登録されています。"
+      },
+      {
+        "q": "ロゴマークに与えられる権利は?",
+        "opts": [
+          "特許権",
+          "実用新案権",
+          "意匠権",
+          "商標権"
+        ],
+        "a": 3,
+        "explain": "商標権はブランドの「マーク」を保護。商品の信用と消費者の混同防止のための権利です。10年ごとに更新できます。",
+        "example": "マクドナルドのM、ナイキのスウッシュ、トヨタのロゴなど。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "産業財産権は特許庁に出願しなくても自動的に発生する。",
+        "a": false,
+        "explain": "産業財産権は「方式主義」で、特許庁への出願と登録が必要。一方、著作権は「無方式主義」で創作と同時に自動発生します。"
+      },
+      {
+        "q": "特許権の保護期間は出願から最長20年である。",
+        "a": true,
+        "explain": "特許権は出願日から最長20年。長すぎず短すぎず、発明者の利益と社会への普及のバランスを取った期間です。"
+      },
+      {
+        "q": "商標権は10年ごとに更新できる。",
+        "a": true,
+        "explain": "商標は更新可能。実際にコカ・コーラの商標は100年以上更新され続けています。ブランドは長期保護されるべきという考えです。"
+      },
+      {
+        "q": "ニュートンの万有引力の法則は特許権の対象になる。",
+        "a": false,
+        "explain": "自然法則そのものは発見であり、創作ではないので特許対象外。発明とは「自然法則を利用した技術的思想の創作」を指します。"
+      },
+      {
+        "q": "ベルヌ条約は日本も加盟している。",
+        "a": true,
+        "explain": "日本は1899年(明治32年)に加盟。世界の知的財産保護を促進する国連の機関WIPO[ワイポ](世界知的所有権機関)が管理しています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "産業財産権に含まれないものは?",
+        "opts": [
+          "特許権",
+          "実用新案権",
+          "意匠権",
+          "著作権"
+        ],
+        "a": 3,
+        "explain": "産業財産権は「特許・実用新案・意匠・商標」の4つ。著作権は別の知的財産権です(両方とも知的財産権の傘下)。"
+      },
+      {
+        "q": "特許権を取得する意義として正しくないものは?",
+        "opts": [
+          "他人に技術を利用させない",
+          "特許料で利益を得る",
+          "広く技術を普及させる",
+          "技術を秘密にする"
+        ],
+        "a": 3,
+        "explain": "特許は「公開と引き換えに独占権を与える」制度。秘密にしておきたいなら、企業秘密(ノウハウ)として守る別の方法があります。"
+      },
+      {
+        "q": "商標として登録できないものは?",
+        "opts": [
+          "文字",
+          "図形",
+          "記号",
+          "におい"
+        ],
+        "a": 3,
+        "explain": "日本では「におい」「味」は商標として登録できません。文字・図形・記号・色彩・音などが対象です(海外では香りの商標も認められる例あり)。"
+      },
+      {
+        "q": "WIPOの正式名称は?",
+        "opts": [
+          "World Intellectual Property Organization",
+          "World International Patent Office",
+          "World Industry Protection Office",
+          "World Internet Property Organization"
+        ],
+        "a": 0,
+        "explain": "WIPO[ワイポ]= World Intellectual Property Organization(世界知的所有権機関)。1967年設立、知財保護を世界規模で推進。"
+      }
+    ]
+  },
+  {
+    "id": "unit8",
+    "title": "7節 著作権",
+    "fill": {
+      "text": "著作物が創作された時点で自動的に与えられる権利を[著作権]、登録不要なこの方式を[無方式主義]といいます。著作者の権利は精神的な[著作者人格権]と経済的な[著作権]の2つに分かれます。実演家やレコード製作者など伝達者に与えられる権利を[著作隣接権]といいます。私的使用や引用など著作権者の許諾なしに利用できる場合を[例外規定]といいます。"
+    },
+    "glossary": {
+      "著作権": {
+        "en": "copyright",
+        "kana": "コピーライト",
+        "desc": "「copy(複製)」+「right(権利)」。著作物を複製・利用する権利。創作と同時に自動発生します。"
+      },
+      "無方式主義": {
+        "en": "no formality principle",
+        "kana": "ノー フォーマリティ プリンシプル",
+        "desc": "登録などの手続き不要で権利が発生する方式。著作権はこちら。産業財産権の方式主義とは反対です。"
+      },
+      "著作者人格権": {
+        "en": "moral rights",
+        "kana": "モラル ライツ",
+        "desc": "著作者の人格(精神)を守る権利。譲渡・相続できません。公表権・氏名表示権・同一性保持権の3つがあります。"
+      },
+      "著作隣接権": {
+        "en": "neighboring rights",
+        "kana": "ネイバリング ライツ",
+        "desc": "「neighboring(隣の)」+「rights(権利)」。著作物を伝達する人(歌手・演奏家・レコード製作者・放送事業者など)の権利です。"
+      },
+      "例外規定": {
+        "en": "exception provisions",
+        "kana": "エクセプション プロビジョンズ",
+        "desc": "著作権の制限規定。一定の条件下で許諾なしに著作物を利用できる規定です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "著作権が発生するのはいつ?",
+        "opts": [
+          "創作と同時",
+          "登録した時",
+          "公表した時",
+          "申請後"
+        ],
+        "a": 0,
+        "explain": "著作権は「無方式主義」で、創作した瞬間に自動的に発生します。登録などの手続きは不要です。",
+        "example": "小学生が描いた絵にも著作権があり、勝手にコピーすることはできません。"
+      },
+      {
+        "q": "著作者人格権の特徴として正しいのは?",
+        "opts": [
+          "譲渡できる",
+          "相続できる",
+          "どちらもできる",
+          "どちらもできない"
+        ],
+        "a": 3,
+        "explain": "著作者人格権は「人格」に関わる権利なので、譲渡も相続もできません。著作者の死亡で消滅しますが、原則として侵害は避けるべきとされます。"
+      },
+      {
+        "q": "同じく著作権(財産権)の保護期間は?",
+        "opts": [
+          "死後10年",
+          "死後30年",
+          "死後50年",
+          "死後70年"
+        ],
+        "a": 2,
+        "explain": "日本では原則として著作者の死後50年(2018年改正後は70年に延長)。映画は公開後70年です。"
+      },
+      {
+        "q": "実演家やレコード製作者の権利は?",
+        "opts": [
+          "著作者人格権",
+          "著作権",
+          "著作隣接権",
+          "産業財産権"
+        ],
+        "a": 2,
+        "explain": "著作隣接権は「著作物を伝達する人」の権利。歌手や演奏家、放送事業者などが含まれます。保護期間は伝達後50年。",
+        "example": "歌手が歌った曲のCDをコピーする場合、作詞家・作曲家(著作権)+ 歌手・演奏家・レコード会社(著作隣接権)の許諾が必要です。"
+      },
+      {
+        "q": "著作権者の許諾なしに利用できる場合は?",
+        "opts": [
+          "例外規定",
+          "特別規定",
+          "緊急規定",
+          "標準規定"
+        ],
+        "a": 0,
+        "explain": "例外規定で許諾なしに利用できる主なケース:私的使用、図書館での複製、引用、教育目的、試験問題、点字化、非営利上演など。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "著作権は登録しないと発生しない。",
+        "a": false,
+        "explain": "著作権は無方式主義で、創作と同時に自動発生。登録は法的効力を強める手段ですが必須ではありません。"
+      },
+      {
+        "q": "友達にCDを貸してコピーしてもらう行為は私的使用にあたる。",
+        "a": false,
+        "explain": "私的使用は「個人的に又は家庭内その他これに準ずる範囲内」が条件。友達はこの範囲外なので、コピーさせる行為は著作権侵害になります。"
+      },
+      {
+        "q": "著作物を引用する際は出所を明示する必要がある。",
+        "a": true,
+        "explain": "引用の要件:必然性・主従関係・区別の明確化・出所明示・原文のまま。これらを満たさないと著作権侵害になります。",
+        "example": "レポートで本の内容を引用する時:「○○(2020年, p.50)は…と述べている」のように記載します。"
+      },
+      {
+        "q": "映画の著作権は監督が単独で持つ。",
+        "a": false,
+        "explain": "映画は「映画製作者」(製作会社)が著作権を持つのが一般的。多くの人が関わるため、製作会社に集約する方が便利だからです。"
+      },
+      {
+        "q": "違法アップロードされた動画を、違法と知りながらダウンロードすることは違法である。",
+        "a": true,
+        "explain": "違法アップロードと知りながらのダウンロードは私的使用にあたらず違法。2010年の法改正で違法化されました。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "著作者人格権に含まれないものは?",
+        "opts": [
+          "公表権",
+          "氏名表示権",
+          "同一性保持権",
+          "複製権"
+        ],
+        "a": 3,
+        "explain": "著作者人格権の3要素は「公表権・氏名表示権・同一性保持権」。複製権は著作権(財産権)に含まれます。"
+      },
+      {
+        "q": "引用の要件として正しくないものは?",
+        "opts": [
+          "必然性がある",
+          "主従関係が逆",
+          "出所を明示",
+          "原文のまま示す"
+        ],
+        "a": 1,
+        "explain": "引用は本文が「主」、引用が「従」でなければなりません。本文より引用が多いと「引用」ではなく「複製」とみなされ違法になります。"
+      },
+      {
+        "q": "著作隣接権の保護期間は?",
+        "opts": [
+          "伝達後10年",
+          "伝達後30年",
+          "伝達後50年",
+          "伝達後70年"
+        ],
+        "a": 2,
+        "explain": "著作隣接権は伝達(実演・録音・放送など)から50年保護されます。"
+      },
+      {
+        "q": "映画の著作物に含まれるものは?",
+        "opts": [
+          "劇場映画",
+          "テレビ番組",
+          "ゲームの映像部分",
+          "すべて該当"
+        ],
+        "a": 3,
+        "explain": "映画の著作物は広く解釈され、劇場映画だけでなくテレビ番組やゲームの映像部分も含まれます。「映画」=ストーリー性のある映像作品全般のイメージ。"
+      }
+    ]
+  },
+  {
+    "id": "unit9",
+    "title": "8節 著作物の利用",
+    "fill": {
+      "text": "音楽著作物等を管理する団体を[JASRAC]、書籍の複写を管理する団体を[JRRC]といいます。著作権者が自分の著作物を自由利用するための条件を意思表示するライセンスを[クリエイティブ・コモンズ]ライセンスといいます。著作物の不正コピーを防ぐ技術を[DRM](ディジタル著作権管理)、登録した製造番号で認証する仕組みを[ライセンス認証]、その登録作業を[アクティベーション]といいます。"
+    },
+    "glossary": {
+      "JASRAC": {
+        "en": "Japanese Society for Rights of Authors, Composers and Publishers",
+        "kana": "ジャスラック",
+        "desc": "日本音楽著作権協会。日本の音楽著作物の管理団体。カラオケ店や音楽利用時の使用料徴収・分配を行います。"
+      },
+      "JRRC": {
+        "en": "Japan Reproduction Rights Center",
+        "kana": "ジェーアールアールシー",
+        "desc": "日本複製権センター。書籍などの複写(コピー)に関する許諾を一括管理する団体です。"
+      },
+      "クリエイティブ・コモンズ": {
+        "en": "Creative Commons / CC",
+        "kana": "クリエイティブ コモンズ",
+        "desc": "「creative(創造的)」+「commons(共有)」。著作者が「これらの条件で自由に使ってよい」と意思表示するライセンス。CC[シーシー]とも略します。"
+      },
+      "DRM": {
+        "en": "Digital Rights Management",
+        "kana": "ディーアールエム",
+        "desc": "「Digital(デジタル)」+「Rights(権利)」+「Management(管理)」。ディジタル著作権管理。コピー制限などを技術的に実現します。"
+      },
+      "ライセンス認証": {
+        "en": "license activation",
+        "kana": "ライセンス アクティベーション",
+        "desc": "ソフトウェアの製造番号とハードウェアの組み合わせで正規利用者かを確認する仕組みです。"
+      },
+      "アクティベーション": {
+        "en": "activation",
+        "kana": "アクティベーション",
+        "desc": "「activate(有効化する)」+「-tion」。ソフトウェアを「使える状態にする」登録作業のこと。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "日本の音楽著作権を管理する団体は?",
+        "opts": [
+          "JRRC",
+          "JASRAC",
+          "JISRAC",
+          "JCOPY"
+        ],
+        "a": 1,
+        "explain": "JASRAC(ジャスラック)は1939年設立の音楽著作権管理団体。カラオケ・ラジオ・テレビ・有線放送等での音楽利用の使用料を徴収し、作詞家・作曲家に分配します。"
+      },
+      {
+        "q": "書籍の複写を管理する団体は?",
+        "opts": [
+          "JASRAC",
+          "JRRC",
+          "JCOPY",
+          "JIPC"
+        ],
+        "a": 1,
+        "explain": "JRRC(ジェーアールアールシー)は日本複製権センター。書籍コピーの許諾を一括管理し、利用者は団体経由で許諾を得られます。"
+      },
+      {
+        "q": "著作者が自由利用条件を示すライセンスは?",
+        "opts": [
+          "MITライセンス",
+          "GPLライセンス",
+          "クリエイティブ・コモンズ",
+          "BSDライセンス"
+        ],
+        "a": 2,
+        "explain": "クリエイティブ・コモンズ(CC)は「表示」「非営利」「改変禁止」「継承」の組み合わせで条件を表示します。",
+        "example": "Wikipediaの本文はCC-BY-SAライセンスで、「表示+継承」の条件で誰でも利用できます。"
+      },
+      {
+        "q": "不正コピーを技術的に防止する仕組みは?",
+        "opts": [
+          "DRM",
+          "SSL",
+          "VPN",
+          "HTTPS"
+        ],
+        "a": 0,
+        "explain": "DRM(Digital Rights Management)は暗号化や認証によりコピーや改変を制限します。",
+        "example": "電子書籍が指定アプリでしか読めない、Blu-rayがコピーできない、音楽配信サービスがダウンロード不可などはすべてDRMの一種。"
+      },
+      {
+        "q": "ソフトウェアを使えるようにする登録作業は?",
+        "opts": [
+          "インストール",
+          "アクティベーション",
+          "コンパイル",
+          "コンフィグ"
+        ],
+        "a": 1,
+        "explain": "アクティベーション(activation=有効化)はライセンス認証を実行する作業。製造番号とコンピュータの組合せをサーバに登録し、認証します。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "他人の音楽を勝手にWebページのBGMにすると著作権侵害になる。",
+        "a": true,
+        "explain": "BGM利用は「公衆送信」に該当。市販CDの音楽を使う場合はJASRAC(著作権)+ レコード会社(著作隣接権)の許諾が必要です。"
+      },
+      {
+        "q": "JASRACが管理していない著作物は権利者に直接許諾を得る必要がある。",
+        "a": true,
+        "explain": "JASRAC管理外の楽曲(同人音楽など)は、作詞家・作曲家・歌手などの権利者個人に直接連絡して許諾を得る必要があります。"
+      },
+      {
+        "q": "クリエイティブ・コモンズ・ライセンスは著作権を放棄する仕組みである。",
+        "a": false,
+        "explain": "CCは著作権を放棄するのではなく「これらの条件なら自由に使ってOK」と意思表示するライセンス。著作権は維持されます。"
+      },
+      {
+        "q": "フリーソフトには著作権が存在しない。",
+        "a": false,
+        "explain": "フリーソフトにも著作権はあります。「無料で使える」だけで、勝手な改変・再配布は禁止されている場合が多いです。配布条件をよく確認しましょう。"
+      },
+      {
+        "q": "DRMで保護されたコンテンツは私的利用でもコピーが制限される。",
+        "a": true,
+        "explain": "DRMで保護されている場合、本来は私的使用OKでも、技術的にコピーできなくなります。これは「技術的保護手段の回避禁止」として法律でも定められています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "JASRACの英訳の一部にあるのは?",
+        "opts": [
+          "Japanese Music Society",
+          "Japanese Society for Rights of Authors",
+          "Japan Music Authority",
+          "Japan Royalty Service"
+        ],
+        "a": 1,
+        "explain": "JASRAC = Japanese Society for Rights of Authors, Composers and Publishers(日本音楽著作権協会)。著作者と作曲者の権利を守る協会、という名前です。"
+      },
+      {
+        "q": "ダビング10とは何の制限?",
+        "opts": [
+          "複製回数",
+          "視聴時間",
+          "視聴人数",
+          "解像度"
+        ],
+        "a": 0,
+        "explain": "ダビング10は「テレビ録画は10回までコピーできる」というDRMの一種。日本独自の規格です(海外ではコピー1回のみが普通)。"
+      },
+      {
+        "q": "CCライセンスのBYは何を意味する?",
+        "opts": [
+          "By(by:〜による)→表示",
+          "Buy(購入)",
+          "Both(両方)",
+          "Big(大きい)"
+        ],
+        "a": 0,
+        "explain": "BY = byの略で「〜による」=「表示」。「原作者のクレジット表示」を求める条件です。"
+      },
+      {
+        "q": "DRMの目的は?",
+        "opts": [
+          "不正コピー防止",
+          "不正アクセス防止",
+          "個人情報保護",
+          "料金徴収"
+        ],
+        "a": 0,
+        "explain": "DRMはディジタル著作物の不正コピー・無断利用を防ぐ技術。著作者・販売者の利益を守ることが目的です。"
+      }
+    ]
+  }
+];
+const PAGES = [{"title":"📄 ページ1(1〜3節)","units":[0,1,2]},{"title":"📄 ページ2(4節+RSA暗号+5節)","units":[3,4,5]},{"title":"📄 ページ3(6〜7節)","units":[6,7]},{"title":"📄 ページ4(8節)","units":[8]}];
+let currentPage = 0;
+let unitStates = {};
+let timerIntervals = {};
+
+function initUnitState(unitId) {
+  if (!unitStates[unitId]) {
+    unitStates[unitId] = {
+      mode: 'fill',
+      challenge: { active: false, answers: [], blanks: [], parts: [], selectedWord: null, startTime: null, elapsed: 0, shuffledWords: null },
+      records: [],
+      quiz4: { idx: 0, score: 0, answered: false },
+      ox: { idx: 0, score: 0, answered: false },
+      quiz4check: { idx: 0, score: 0, answered: false }
+    };
+  }
+  return unitStates[unitId];
+}
+
+function init() {
+  renderPageTabs();
+  // URLハッシュからジャンプ先を決定 (#unitN)
+  let initialPage = 0;
+  let targetUnitId = null;
+  const hash = (location.hash || '').replace('#', '');
+  if (hash) {
+    for (let p = 0; p < PAGES.length; p++) {
+      const found = PAGES[p].units.some(idx => ALL_UNITS[idx] && ALL_UNITS[idx].id === hash);
+      if (found) { initialPage = p; targetUnitId = hash; break; }
+    }
+  }
+  currentPage = initialPage;
+  renderPageTabs();
+  renderPage(initialPage);
+  if (targetUnitId) {
+    setTimeout(function() {
+      const card = document.getElementById('card-' + targetUnitId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        card.style.transition = 'box-shadow 0.4s';
+        const orig = card.style.boxShadow;
+        card.style.boxShadow = '0 0 0 4px #fbbf24, 0 8px 30px rgba(245,158,11,.4)';
+        setTimeout(function(){ card.style.boxShadow = orig; }, 1800);
+      }
+    }, 100);
+  }
+}
+
+window.addEventListener('hashchange', function() { init(); });
+
+
+function renderPageTabs() {
+  const container = document.getElementById('pageTabs');
+  container.innerHTML = '';
+  PAGES.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'page-tab' + (i === currentPage ? ' active' : '');
+    btn.textContent = p.title;
+    btn.onclick = () => switchPage(i);
+    container.appendChild(btn);
+  });
+}
+
+function switchPage(pageIdx) {
+  Object.keys(timerIntervals).forEach(uid => { clearInterval(timerIntervals[uid]); delete timerIntervals[uid]; });
+  currentPage = pageIdx;
+  renderPageTabs();
+  renderPage(pageIdx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderPage(pageIdx) {
+  const container = document.getElementById('unitsContainer');
+  container.innerHTML = '';
+  PAGES[pageIdx].units.forEach(unitIdx => {
+    const unit = ALL_UNITS[unitIdx];
+    initUnitState(unit.id);
+    container.appendChild(createUnitCard(unit));
+  });
+}
+
+function createUnitCard(unit) {
+  const state = unitStates[unit.id];
+  const card = document.createElement('div');
+  card.className = 'unit-card';
+  card.id = 'card-' + unit.id;
+  card.innerHTML = '<h2 class="unit-title">' + unit.title + '</h2>' +
+    '<div class="mode-tabs">' +
+    '<button class="mode-tab active" data-mode="fill" data-uid="' + unit.id + '">✏️ 穴埋め</button>' +
+    '<button class="mode-tab" data-mode="quiz4" data-uid="' + unit.id + '">🎯 4択練習</button>' +
+    '<button class="mode-tab" data-mode="ox" data-uid="' + unit.id + '">⭕❌ 〇×</button>' +
+    '<button class="mode-tab" data-mode="quiz4check" data-uid="' + unit.id + '">📝 確認4択</button>' +
+    '</div><div class="mode-content" id="content-' + unit.id + '"></div>';
+  card.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.onclick = () => {
+      const uid = tab.dataset.uid;
+      const mode = tab.dataset.mode;
+      card.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.mode = mode;
+      renderModeContent(uid);
+    };
+  });
+  setTimeout(() => renderModeContent(unit.id), 0);
+  return card;
+}
+
+function renderModeContent(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('content-' + unitId);
+  if (!container) return;
+  if (state.mode === 'fill') renderFill(unitId, container);
+  else if (state.mode === 'quiz4') renderQuiz(unitId, container, 'quiz4');
+  else if (state.mode === 'ox') renderOx(unitId, container);
+  else if (state.mode === 'quiz4check') renderQuiz(unitId, container, 'quiz4check');
+}
+
+function renderFill(unitId, container) {
+  const state = unitStates[unitId];
+  container.innerHTML =
+    '<div class="timer-box">' +
+    '<div>⏱️ <span class="timer-display" id="timer-' + unitId + '">' + formatTime(state.challenge.elapsed) + '</span></div>' +
+    '<div class="records" id="records-' + unitId + '"></div>' +
+    '<button class="btn btn-secondary" onclick="resetRecords(\'' + unitId + '\')">記録リセット</button>' +
+    '</div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="startChallenge(\'' + unitId + '\')">🚀 チャレンジ</button>' +
+    '<button class="btn btn-warning" onclick="showOhon(\'' + unitId + '\')">📖 お手本</button>' +
+    '<button class="btn btn-success" onclick="resumeChallenge(\'' + unitId + '\')">▶️ 再開</button>' +
+    '<button class="btn btn-danger" onclick="judge(\'' + unitId + '\')">✓ 判定</button>' +
+    '</div>' +
+    '<div id="message-' + unitId + '"></div>' +
+    '<div class="passage" id="passage-' + unitId + '"></div>' +
+    '<div class="word-bank">' +
+    '<div class="word-bank-title" id="wordBankTitle-' + unitId + '">【語群】チャレンジボタンを押すと表示されます</div>' +
+    '<div class="word-bank-words" id="wordBankWords-' + unitId + '"></div>' +
+    '</div>';
+  showOhon(unitId);
+  renderRecords(unitId);
+}
+
+function parseFillText(text) {
+  const blanks = [], parts = [];
+  let lastIdx = 0;
+  const regex = /\[([^\]]+)\]/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    parts.push({ type: 'text', content: text.substring(lastIdx, match.index) });
+    parts.push({ type: 'blank', idx: blanks.length });
+    blanks.push(match[1]);
+    lastIdx = match.index + match[0].length;
+  }
+  parts.push({ type: 'text', content: text.substring(lastIdx) });
+  return { parts, blanks };
+}
+
+// {漢字|ふりがな} を <ruby> に変換するヘルパー
+function applyRuby(text) {
+  return text.replace(/\{([^|}]+)\|([^}]+)\}/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+
+// テキストノードとしてrubyを含むHTMLを挿入するヘルパー
+function appendWithRuby(parent, text) {
+  const html = applyRuby(text);
+  if (html === text) {
+    parent.appendChild(document.createTextNode(text));
+  } else {
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    parent.appendChild(span);
+  }
+}
+
+function showOhon(unitId) {
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const { parts, blanks } = parseFillText(unit.fill.text);
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank correct';
+      const term = blanks[p.idx];
+      span.textContent = term;
+      // 語句解説があれば追加
+      const gloss = unit.glossary && unit.glossary[term];
+      if (gloss) {
+        span.classList.add('has-glossary');
+        const popup = document.createElement('span');
+        popup.className = 'glossary-popup';
+        let popupHTML = '';
+        if (gloss.en) popupHTML += '<div><span class="term-en">' + gloss.en + '</span>';
+        if (gloss.kana) popupHTML += ' <span class="term-kana">[' + gloss.kana + ']</span>';
+        if (gloss.en) popupHTML += '</div>';
+        popupHTML += '<div style="margin-top:4px;">' + gloss.desc + '</div>';
+        popup.innerHTML = popupHTML;
+        span.appendChild(popup);
+        span.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.glossary-popup.show').forEach(p => { if (p !== popup) p.classList.remove('show'); });
+          popup.classList.toggle('show');
+        };
+        span.onmouseenter = () => popup.classList.add('show');
+        span.onmouseleave = () => popup.classList.remove('show');
+      }
+      passage.appendChild(span);
+    }
+  });
+  document.getElementById('wordBankWords-' + unitId).innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】チャレンジボタンを押すと表示されます';
+  showMessage(unitId, 'お手本を表示中です。緑の下線が引かれた語句にマウスを乗せる(またはタップする)と詳しい説明が表示されます。', 'info');
+}
+
+function startChallenge(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const parsed = parseFillText(unit.fill.text);
+  state.challenge.active = true;
+  state.challenge.blanks = parsed.blanks;
+  state.challenge.answers = new Array(parsed.blanks.length).fill(null);
+  state.challenge.parts = parsed.parts;
+  state.challenge.selectedWord = null;
+  state.challenge.elapsed = 0;
+  state.challenge.startTime = Date.now();
+  state.challenge.shuffledWords = [...parsed.blanks].sort(() => Math.random() - 0.5);
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, '語群から語句を選び、空欄をタップして埋めてください。', 'info');
+}
+
+function renderChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  ch.parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank';
+      const ans = ch.answers[p.idx];
+      if (ans) { span.textContent = ans; span.classList.add('filled'); }
+      else span.textContent = '?'.repeat(Math.min(ch.blanks[p.idx].length, 6));
+      span.onclick = () => fillBlank(unitId, p.idx);
+      passage.appendChild(span);
+    }
+  });
+  const usedWords = ch.answers.filter(a => a !== null);
+  const wordBankEl = document.getElementById('wordBankWords-' + unitId);
+  wordBankEl.innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】タップして選択してください';
+  const usedCounts = {};
+  usedWords.forEach(w => { usedCounts[w] = (usedCounts[w] || 0) + 1; });
+  const tempUsed = {};
+  ch.shuffledWords.forEach((word) => {
+    tempUsed[word] = (tempUsed[word] || 0) + 1;
+    const isUsed = tempUsed[word] <= (usedCounts[word] || 0);
+    const chip = document.createElement('span');
+    chip.className = 'word-chip' + (isUsed ? ' used' : '');
+    if (ch.selectedWord === word && !isUsed) chip.classList.add('selected');
+    chip.textContent = word;
+    chip.onclick = () => selectWord(unitId, word, chip);
+    wordBankEl.appendChild(chip);
+  });
+}
+
+function selectWord(unitId, word, chip) {
+  if (chip.classList.contains('used')) return;
+  unitStates[unitId].challenge.selectedWord = word;
+  const card = document.getElementById('card-' + unitId);
+  card.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+}
+
+function fillBlank(unitId, blankIdx) {
+  const ch = unitStates[unitId].challenge;
+  if (ch.selectedWord) {
+    ch.answers[blankIdx] = ch.selectedWord;
+    ch.selectedWord = null;
+    renderChallenge(unitId);
+  } else if (ch.answers[blankIdx]) {
+    ch.answers[blankIdx] = null;
+    renderChallenge(unitId);
+  }
+}
+
+function judge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.active) { showMessage(unitId, 'まずチャレンジボタンを押してください。', 'warning'); return; }
+  if (ch.answers.includes(null)) { showMessage(unitId, 'まだ空欄があります。すべての空欄を埋めてください。', 'warning'); return; }
+  let allCorrect = true;
+  const passage = document.getElementById('passage-' + unitId);
+  const blankEls = passage.querySelectorAll('.blank');
+  ch.answers.forEach((ans, i) => {
+    const correct = ch.blanks[i];
+    const el = blankEls[i];
+    if (ans === correct) { el.classList.remove('filled', 'wrong'); el.classList.add('correct'); }
+    else { el.classList.remove('filled', 'correct'); el.classList.add('wrong'); allCorrect = false; }
+  });
+  if (allCorrect) {
+    stopTimer(unitId);
+    ch.active = false;
+    saveRecord(unitId, ch.elapsed);
+    showMessage(unitId, '🎉 合格! タイム: ' + formatTime(ch.elapsed), 'success');
+    confetti();
+  } else {
+    showMessage(unitId, 'おしい! もう一歩です。間違った語句が語群に戻ります。再挑戦してください。', 'warning');
+    setTimeout(() => {
+      ch.answers = ch.answers.map((ans, i) => ans === ch.blanks[i] ? ans : null);
+      renderChallenge(unitId);
+    }, 1500);
+  }
+}
+
+function resumeChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.blanks || ch.blanks.length === 0) { showMessage(unitId, '再開できる挑戦がありません。チャレンジボタンを押してください。', 'warning'); return; }
+  ch.active = true;
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, 'やっていたところから再開します。', 'info');
+}
+
+function startTimer(unitId) {
+  stopTimer(unitId);
+  const state = unitStates[unitId];
+  state.challenge.startTime = Date.now() - state.challenge.elapsed;
+  timerIntervals[unitId] = setInterval(() => {
+    state.challenge.elapsed = Date.now() - state.challenge.startTime;
+    const el = document.getElementById('timer-' + unitId);
+    if (el) el.textContent = formatTime(state.challenge.elapsed);
+  }, 100);
+}
+
+function stopTimer(unitId) {
+  if (timerIntervals[unitId]) { clearInterval(timerIntervals[unitId]); delete timerIntervals[unitId]; }
+}
+
+function formatTime(ms) {
+  const sec = Math.floor(ms / 1000);
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+function saveRecord(unitId, time) {
+  const state = unitStates[unitId];
+  state.records.push(time);
+  state.records.sort((a, b) => a - b);
+  state.records = state.records.slice(0, 3);
+  renderRecords(unitId);
+}
+
+function renderRecords(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('records-' + unitId);
+  if (!container) return;
+  container.innerHTML = '<span style="font-weight:bold;color:#92400e;">🏆ベスト3:</span>';
+  if (state.records.length === 0) {
+    container.innerHTML += '<span class="record-item">記録なし</span>';
+  } else {
+    state.records.forEach((r, i) => {
+      const span = document.createElement('span');
+      span.className = 'record-item';
+      span.textContent = (i + 1) + '位 ' + formatTime(r);
+      container.appendChild(span);
+    });
+  }
+}
+
+function resetRecords(unitId) {
+  if (!confirm('この単元の記録をリセットしますか?')) return;
+  const state = unitStates[unitId];
+  state.records = [];
+  state.challenge.elapsed = 0;
+  const el = document.getElementById('timer-' + unitId);
+  if (el) el.textContent = '00:00';
+  renderRecords(unitId);
+  showMessage(unitId, '記録をリセットしました。', 'info');
+}
+
+function showMessage(unitId, text, type) {
+  const el = document.getElementById('message-' + unitId);
+  if (!el) return;
+  el.innerHTML = '<div class="message msg-' + type + '">' + text + '</div>';
+  if (type !== 'success') {
+    setTimeout(() => {
+      const cur = el.querySelector('.msg-' + type);
+      if (cur && cur.textContent === text) el.innerHTML = '';
+    }, 4000);
+  }
+}
+
+function confetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#fbbf24'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function renderQuiz(unitId, container, kind) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="' + kind + '-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="' + kind + '-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextQuiz(\'' + unitId + '\',\'' + kind + '\')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetQuiz(\'' + unitId + '\',\'' + kind + '\')">最初から</button>' +
+    '</div>';
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderQuizQuestion(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit[kind];
+  const qs = state[kind];
+  const c = document.getElementById(kind + '-container-' + unitId);
+  const p = document.getElementById(kind + '-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  let html = '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div><div class="quiz-options">';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-option" data-i="' + i + '">' + (i + 1) + '. ' + opt + '</button>'; });
+  html += '</div>';
+  c.innerHTML = html;
+  c.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.onclick = () => answerQuiz(unitId, kind, parseInt(btn.dataset.i));
+  });
+}
+
+function answerQuiz(unitId, kind, i) {
+  const state = unitStates[unitId];
+  const qs = state[kind];
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit[kind][qs.idx];
+  const opts = document.querySelectorAll('#' + kind + '-container-' + unitId + ' .quiz-option');
+  opts.forEach((opt, idx) => {
+    if (idx === q.a) opt.classList.add('correct');
+    if (idx === i && i !== q.a) opt.classList.add('wrong');
+    opt.disabled = true;
+  });
+  if (i === q.a) { qs.score++; confetti(); }
+  // 解説を表示
+  if (q.explain) {
+    const c = document.getElementById(kind + '-container-' + unitId);
+    const explainDiv = document.createElement('div');
+    explainDiv.className = 'quiz-explain';
+    let html = '<span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    explainDiv.innerHTML = html;
+    c.appendChild(explainDiv);
+  }
+}
+
+function nextQuiz(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state[kind].answered && state[kind].idx < unit[kind].length) return;
+  state[kind].idx++;
+  state[kind].answered = false;
+  renderQuizQuestion(unitId, kind);
+}
+
+function resetQuiz(unitId, kind) {
+  unitStates[unitId][kind] = { idx: 0, score: 0, answered: false };
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderOx(unitId, container) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="ox-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="ox-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextOx(\'' + unitId + '\')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetOx(\'' + unitId + '\')">最初から</button>' +
+    '</div>';
+  renderOxQuestion(unitId);
+}
+
+function renderOxQuestion(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit.ox;
+  const qs = state.ox;
+  const c = document.getElementById('ox-container-' + unitId);
+  const p = document.getElementById('ox-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  c.innerHTML =
+    '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div>' +
+    '<div class="ox-buttons">' +
+    '<button class="ox-btn maru" data-v="true">○</button>' +
+    '<button class="ox-btn batsu" data-v="false">×</button>' +
+    '</div>' +
+    '<div id="ox-result-' + unitId + '" style="margin-top:14px;"></div>';
+  c.querySelectorAll('.ox-btn').forEach(btn => { btn.onclick = () => answerOx(unitId, btn.dataset.v === 'true'); });
+}
+
+function answerOx(unitId, val) {
+  const state = unitStates[unitId];
+  const qs = state.ox;
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit.ox[qs.idx];
+  const result = document.getElementById('ox-result-' + unitId);
+  let html = '';
+  if (val === q.a) {
+    qs.score++;
+    html = '<div class="message msg-success">✓ 正解! 答えは「' + (q.a ? '○' : '×') + '」です。</div>';
+    confetti();
+  } else {
+    html = '<div class="message msg-warning">✗ 不正解。正解は「' + (q.a ? '○' : '×') + '」です。</div>';
+  }
+  // 解説を表示
+  if (q.explain) {
+    html += '<div class="quiz-explain"><span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    html += '</div>';
+  }
+  result.innerHTML = html;
+}
+
+function nextOx(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state.ox.answered && state.ox.idx < unit.ox.length) return;
+  state.ox.idx++;
+  state.ox.answered = false;
+  renderOxQuestion(unitId);
+}
+
+function resetOx(unitId) {
+  unitStates[unitId].ox = { idx: 0, score: 0, answered: false };
+  renderOxQuestion(unitId);
+}
+
+init();
+</script>
+</body>
+</html>

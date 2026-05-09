@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報1 学習単元表</title>
+<style>
+:root{
+  /* テック風テーマ:濃紺×シアン×水色 */
+  --ink:#0f172a;--ink2:#1e293b;
+  --paper:#f1f5f9;
+  --card:#ffffff;
+  --primary:#0ea5e9;     /* スカイブルー */
+  --primary-dark:#0369a1;
+  --primary-light:#e0f2fe;
+  --cyan:#06b6d4;
+  --teal:#14b8a6;
+  --accent:#22d3ee;      /* シアン光彩 */
+  --gold:#f59e0b;
+  --gold2:#fbbf24;
+  --muted:#64748b;
+  --border:#cbd5e1;
+  --A:#10b981;--B:#3b82f6;--C:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Yu Gothic','BIZ UDGothic','Meiryo',sans-serif;
+  background:linear-gradient(135deg,#f8fafc 0%,#e0f2fe 100%);
+  color:var(--ink);font-size:15px;min-height:100vh
+}
+
+/* ━━━ ヘッダー ━━━ */
+.hdr{
+  background:linear-gradient(135deg,var(--ink) 0%,var(--ink2) 50%,#1e3a8a 100%);
+  color:#fff;padding:0 20px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 4px 20px rgba(2,132,199,.3);
+  border-bottom:2px solid var(--accent);position:relative;overflow:hidden
+}
+.hdr::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 50%,rgba(34,211,238,.15) 0%,transparent 50%);
+  pointer-events:none
+}
+.hdr-left h1{font-size:1.15em;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+.hdr-left h1 .pulse{font-size:1.2em}
+.hdr-left p{font-size:.7em;opacity:.65;letter-spacing:.12em;margin-top:2px;color:var(--accent)}
+.streak-badge{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(34,211,238,.12);
+  border:1px solid rgba(34,211,238,.4);
+  border-radius:24px;padding:7px 16px;
+  backdrop-filter:blur(10px)
+}
+.streak-badge .flame{font-size:1.3em}
+.streak-badge .days{font-size:.82em;font-weight:700;color:var(--gold2)}
+
+/* ━━━ サマリーバー ━━━ */
+.summary-bar{
+  background:linear-gradient(135deg,#1e293b 0%,#0c4a6e 100%);
+  padding:14px 20px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;
+  border-bottom:1px solid rgba(34,211,238,.3)
+}
+.sbar-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbar-num{font-size:1.5em;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(34,211,238,.4)}
+.sbar-lbl{font-size:.68em;color:rgba(255,255,255,.7);letter-spacing:.06em}
+.sbar-div{width:1px;background:rgba(255,255,255,.2);height:36px;margin:0 4px}
+.progress-wrap{flex:1;min-width:220px}
+.progress-lbl{font-size:.7em;color:rgba(255,255,255,.7);margin-bottom:5px}
+.progress-bar{background:rgba(255,255,255,.12);border-radius:20px;height:12px;overflow:hidden;border:1px solid rgba(34,211,238,.2)}
+.progress-fill{
+  background:linear-gradient(90deg,var(--cyan),var(--accent),var(--gold2));
+  height:100%;border-radius:20px;transition:.6s;
+  box-shadow:0 0 10px rgba(34,211,238,.5)
+}
+.progress-pct{font-size:.78em;color:var(--accent);margin-top:4px;font-weight:700}
+
+/* ━━━ メイン ━━━ */
+.main{max-width:980px;margin:24px auto;padding:0 14px 60px}
+
+/* ━━━ 達成バッジエリア ━━━ */
+.badge-section{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px 22px;margin-bottom:22px;
+  box-shadow:0 2px 12px rgba(2,132,199,.08);
+  border-left:5px solid var(--accent)
+}
+.badge-title{font-size:.85em;font-weight:700;color:var(--ink2);letter-spacing:.08em;margin-bottom:14px}
+.badges{display:flex;flex-wrap:wrap;gap:10px}
+.badge{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:11px 14px;border-radius:10px;
+  border:2px solid var(--border);background:#f8fafc;
+  min-width:84px;transition:.25s
+}
+.badge.earned{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,#fffbeb,#fef3c7);
+  box-shadow:0 4px 14px rgba(245,158,11,.25)
+}
+.badge.locked{opacity:.32;filter:grayscale(.8)}
+.badge-icon{font-size:1.8em}
+.badge-name{font-size:.7em;font-weight:700;color:var(--ink);text-align:center;line-height:1.3}
+
+/* ━━━ 連続学習カレンダー ━━━ */
+.cal-section{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:18px 22px;margin-bottom:24px;
+  box-shadow:0 2px 12px rgba(2,132,199,.08);
+  border-left:5px solid var(--cyan)
+}
+.cal-title{font-size:.85em;font-weight:700;color:var(--ink2);letter-spacing:.08em;margin-bottom:12px}
+.cal-grid{display:flex;flex-wrap:wrap;gap:4px}
+.cal-day{width:16px;height:16px;border-radius:3px;background:var(--border)}
+.cal-day.s1{background:#bae6fd}
+.cal-day.s2{background:#7dd3fc}
+.cal-day.s3{background:#0ea5e9}
+.cal-day.s4{background:#0369a1}
+.cal-lbl{display:flex;gap:6px;align-items:center;margin-top:10px;font-size:.72em;color:var(--muted)}
+.cal-lbl-dot{width:12px;height:12px;border-radius:2px}
+
+/* ━━━ 大カテゴリ(章) ━━━ */
+.cat-section{margin-bottom:34px}
+.cat-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:14px;
+  padding:14px 18px;
+  background:var(--card);border-radius:12px;
+  box-shadow:0 2px 10px rgba(2,132,199,.08);
+  border:1px solid var(--border)
+}
+.cat-bar{width:6px;border-radius:4px;height:36px;flex-shrink:0}
+.cat-icon{font-size:1.5em}
+.cat-title-wrap{flex:1}
+.cat-title{font-size:1.15em;font-weight:700;letter-spacing:.04em;color:var(--ink)}
+.cat-sub{font-size:.7em;letter-spacing:.14em;color:var(--muted);margin-top:2px;font-family:'Courier New',monospace}
+.cat-count{font-size:.78em;color:var(--muted);font-weight:700;background:#f1f5f9;padding:6px 14px;border-radius:14px}
+
+/* ━━━ 単元カード ━━━ */
+.unit-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  margin-bottom:9px;overflow:hidden;
+  box-shadow:0 1px 4px rgba(2,132,199,.05);
+  transition:.18s
+}
+.unit-card:hover{
+  box-shadow:0 4px 18px rgba(14,165,233,.15);
+  transform:translateY(-1px);
+  border-color:var(--primary)
+}
+.unit-top{display:flex;align-items:center;gap:12px;padding:13px 16px}
+.unit-num{
+  width:32px;height:32px;border-radius:50%;
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.85em;flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,.15)
+}
+.unit-title{flex:1;font-size:.95em;font-weight:700;line-height:1.4;color:var(--ink)}
+.unit-type{
+  font-size:.68em;padding:3px 9px;border-radius:10px;font-weight:700;
+  flex-shrink:0;letter-spacing:.04em
+}
+.type-main{background:#dbeafe;color:#1e40af}
+
+/* 理解度 ABC */
+.abc-row{display:flex;gap:6px;padding:0 16px 12px;align-items:center}
+.abc-lbl{font-size:.74em;color:var(--muted);font-weight:700;margin-right:4px;letter-spacing:.06em}
+.abc-btn{
+  width:36px;height:30px;border:2px solid var(--border);border-radius:7px;
+  font-family:inherit;font-weight:700;font-size:.85em;
+  background:#f8fafc;color:var(--muted);cursor:pointer;transition:.15s;flex-shrink:0
+}
+.abc-btn:hover{border-color:var(--primary)}
+.abc-btn.A{background:var(--A);color:#fff;border-color:var(--A);box-shadow:0 2px 6px rgba(16,185,129,.4)}
+.abc-btn.B{background:var(--B);color:#fff;border-color:var(--B);box-shadow:0 2px 6px rgba(59,130,246,.4)}
+.abc-btn.C{background:var(--C);color:#fff;border-color:var(--C);box-shadow:0 2px 6px rgba(245,158,11,.4)}
+
+/* 学習回数・最終日 */
+.stat-row{display:flex;gap:14px;padding:0 16px 10px;align-items:center;flex-wrap:wrap}
+.stat-item{display:flex;align-items:center;gap:4px;font-size:.78em;color:var(--muted)}
+.stat-item .val{font-weight:700;color:var(--ink)}
+.repeat-dots{display:flex;gap:3px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--border)}
+.dot.done{background:var(--gold)}
+.dot.done.perfect{background:var(--A)}
+
+/* リンク行 */
+.link-row{display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap}
+.page-link{
+  text-decoration:none;font-family:inherit;font-size:.82em;font-weight:700;
+  padding:7px 16px;border-radius:7px;
+  border:1.5px solid var(--border);color:var(--ink);background:#f8fafc;
+  transition:.15s;display:flex;align-items:center;gap:5px
+}
+.page-link:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.page-link.main-link{
+  background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;
+  border-color:var(--primary-dark);
+  box-shadow:0 2px 8px rgba(14,165,233,.3)
+}
+.page-link.main-link:hover{
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+  box-shadow:0 4px 12px rgba(14,165,233,.4)
+}
+
+/* ━━━ モーダル(達成!) ━━━ */
+.achieve-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;align-items:center;justify-content:center}
+.achieve-modal.open{display:flex}
+.achieve-box{
+  background:#fff;border-radius:18px;padding:36px 40px;
+  text-align:center;max-width:380px;width:90%;
+  box-shadow:0 12px 48px rgba(0,0,0,.3);
+  position:relative;overflow:hidden
+}
+.achieve-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:linear-gradient(90deg,var(--cyan),var(--accent),var(--gold2),var(--cyan))
+}
+.achieve-emoji{font-size:3.2em;margin-bottom:10px}
+.achieve-title{font-size:1.3em;font-weight:700;margin-bottom:8px;color:var(--ink)}
+.achieve-sub{font-size:.9em;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.achieve-close{
+  font-family:inherit;font-size:.9em;font-weight:700;
+  background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;
+  border:none;border-radius:8px;padding:10px 30px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(14,165,233,.4)
+}
+
+#cnv{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+
+/* レスポンシブ */
+@media (max-width:640px){
+  .hdr{height:auto;padding:10px 14px;flex-direction:column;gap:8px;align-items:flex-start}
+  .hdr-left h1{font-size:1em}
+  .summary-bar{padding:12px 14px;gap:14px}
+  .sbar-num{font-size:1.2em}
+  .progress-wrap{min-width:100%}
+  .main{padding:0 10px 50px}
+  .cat-header{padding:12px 14px}
+  .unit-top{padding:11px 12px}
+  .link-row{padding:0 12px 12px}
+  .abc-row,.stat-row{padding-left:12px;padding-right:12px}
+}
+</style>
+</head>
+<body>
+<canvas id="cnv"></canvas>
+
+<!-- ヘッダー -->
+<header class="hdr">
+  <div class="hdr-left">
+    <h1><span class="pulse">📘</span> 情報1 学習単元表</h1>
+    <p>INFORMATION I — STUDY DASHBOARD</p>
+  </div>
+  <div class="streak-badge">
+    <span class="flame">🔥</span>
+    <span class="days" id="streakDisp">0日連続</span>
+  </div>
+</header>
+
+<!-- サマリーバー -->
+<div class="summary-bar">
+  <div class="sbar-item"><div class="sbar-num" id="sumTotal">0</div><div class="sbar-lbl">総学習回数</div></div>
+  <div class="sbar-div"></div>
+  <div class="sbar-item"><div class="sbar-num" id="sumA">0</div><div class="sbar-lbl">理解A(完璧)</div></div>
+  <div class="sbar-item"><div class="sbar-num" id="sumB">0</div><div class="sbar-lbl">理解B(良好)</div></div>
+  <div class="sbar-item"><div class="sbar-num" id="sumC">0</div><div class="sbar-lbl">理解C(要復習)</div></div>
+  <div class="sbar-div"></div>
+  <div class="progress-wrap">
+    <div class="progress-lbl">全単元の習熟度</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-pct" id="progressPct">0%</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- 達成バッジ -->
+<div class="badge-section">
+  <div class="badge-title">🏅 達成バッジ</div>
+  <div class="badges" id="badgeArea"></div>
+</div>
+
+<!-- 学習カレンダー -->
+<div class="cal-section">
+  <div class="cal-title">📅 学習カレンダー(過去84日)</div>
+  <div class="cal-grid" id="calGrid"></div>
+  <div class="cal-lbl">
+    <span>少</span>
+    <div class="cal-lbl-dot" style="background:var(--border)"></div>
+    <div class="cal-lbl-dot cal-day s1"></div>
+    <div class="cal-lbl-dot cal-day s2"></div>
+    <div class="cal-lbl-dot cal-day s3"></div>
+    <div class="cal-lbl-dot cal-day s4"></div>
+    <span>多</span>
+  </div>
+</div>
+
+<!-- 章ごとの単元カード -->
+<div id="chaptersWrap"></div>
+
+</div><!-- /main -->
+
+<!-- 達成モーダル -->
+<div class="achieve-modal" id="achieveModal">
+  <div class="achieve-box">
+    <div class="achieve-emoji" id="achieveEmoji">🎉</div>
+    <div class="achieve-title" id="achieveTitle">達成!</div>
+    <div class="achieve-sub" id="achieveSub"></div>
+    <button class="achieve-close" onclick="closeAchieve()">とじる</button>
+  </div>
+</div>
+
+<script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━
+   章・単元マスターデータ
+━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const CHAPTERS = [
+  {
+    "id": "ch1",
+    "no": 1,
+    "title": "情報社会",
+    "subtitle": "Information Society",
+    "color": "#0ea5e9",
+    "colorDark": "#0369a1",
+    "colorLight": "#e0f2fe",
+    "icon": "🌐",
+    "units": [
+      {
+        "id": "ch1u1",
+        "num": "①",
+        "title": "情報の特徴と情報社会",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u2",
+        "num": "②",
+        "title": "メディアとコミュニケーションの基礎",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u3",
+        "num": "③",
+        "title": "メディアリテラシー",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u4",
+        "num": "④",
+        "title": "個人情報と肖像権",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u5",
+        "num": "⑤",
+        "title": "情報モラルと法",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u6",
+        "num": "⑥",
+        "title": "情報社会の問題",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u7",
+        "num": "⑦",
+        "title": "コンピュータの発達",
+        "main": "joho1.html"
+      },
+      {
+        "id": "ch1u8",
+        "num": "⑧",
+        "title": "コンピュータの構成",
+        "main": "joho1.html"
+      }
+    ]
+  },
+  {
+    "id": "ch2",
+    "no": 2,
+    "title": "コミュニケーションと情報デザイン",
+    "subtitle": "Communication & Design",
+    "color": "#06b6d4",
+    "colorDark": "#0e7490",
+    "colorLight": "#cffafe",
+    "icon": "💬",
+    "units": [
+      {
+        "id": "ch2u1",
+        "num": "①",
+        "title": "コミュニケーションの形態と特性",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u2",
+        "num": "②",
+        "title": "メディアの分類と特性",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u3",
+        "num": "③",
+        "title": "情報デザインの考え方",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u4",
+        "num": "④",
+        "title": "ユーザインタフェース",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u5",
+        "num": "⑤",
+        "title": "ユニバーサルデザイン",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u6",
+        "num": "⑥",
+        "title": "ピクトグラムとサイン",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u7",
+        "num": "⑦",
+        "title": "Webデザインと色彩",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u8",
+        "num": "⑧",
+        "title": "社会の中の情報システム",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u9",
+        "num": "⑨",
+        "title": "情報技術の活用",
+        "main": "joho2.html"
+      },
+      {
+        "id": "ch2u10",
+        "num": "⑩",
+        "title": "人に優しい情報技術",
+        "main": "joho2.html"
+      }
+    ]
+  },
+  {
+    "id": "ch3",
+    "no": 3,
+    "title": "情報安全",
+    "subtitle": "Information Security",
+    "color": "#0891b2",
+    "colorDark": "#155e75",
+    "colorLight": "#cffafe",
+    "icon": "🔒",
+    "units": [
+      {
+        "id": "ch3u1",
+        "num": "①",
+        "title": "個人による安全対策",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u2",
+        "num": "②",
+        "title": "組織による安全対策",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u3",
+        "num": "③",
+        "title": "安全のための情報技術",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u4",
+        "num": "④",
+        "title": "暗号化",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u5",
+        "num": "⑤",
+        "title": "暗号化の仕組み(RSA暗号)",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u6",
+        "num": "⑥",
+        "title": "法規による安全対策",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u7",
+        "num": "⑦",
+        "title": "知的財産権・産業財産権",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u8",
+        "num": "⑧",
+        "title": "著作権",
+        "main": "joho3.html"
+      },
+      {
+        "id": "ch3u9",
+        "num": "⑨",
+        "title": "著作物の利用",
+        "main": "joho3.html"
+      }
+    ]
+  },
+  {
+    "id": "ch4",
+    "no": 4,
+    "title": "ディジタル化",
+    "subtitle": "Digitization",
+    "color": "#0d9488",
+    "colorDark": "#115e59",
+    "colorLight": "#ccfbf1",
+    "icon": "💾",
+    "units": [
+      {
+        "id": "ch4u1",
+        "num": "①",
+        "title": "アナログとディジタル",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u2",
+        "num": "②",
+        "title": "コンピュータの2進法",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u3",
+        "num": "③",
+        "title": "ビットとバイト ─ 情報の「箱」",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u4",
+        "num": "④",
+        "title": "情報量の単位の階段(KB・MB・GB)",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u5",
+        "num": "⑤",
+        "title": "ペイント系とドロー系",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u6",
+        "num": "⑥",
+        "title": "進数変換(2/10/16進数)",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u7",
+        "num": "⑦",
+        "title": "文字コード",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u8",
+        "num": "⑧",
+        "title": "音のディジタル化",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u9",
+        "num": "⑨",
+        "title": "光の三原色とRGB",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u10",
+        "num": "⑩",
+        "title": "色の三原色とCMY",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u11",
+        "num": "⑪",
+        "title": "解像度と階調",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u12",
+        "num": "⑫",
+        "title": "圧縮の種類と仕組み",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u13",
+        "num": "⑬",
+        "title": "動画とフレームレート",
+        "main": "joho4.html"
+      },
+      {
+        "id": "ch4u14",
+        "num": "⑭",
+        "title": "データ量の計算(高認頻出)",
+        "main": "joho4.html"
+      }
+    ]
+  },
+  {
+    "id": "ch5",
+    "no": 5,
+    "title": "問題解決",
+    "subtitle": "Problem Solving",
+    "color": "#10b981",
+    "colorDark": "#047857",
+    "colorLight": "#d1fae5",
+    "icon": "🧩",
+    "units": [
+      {
+        "id": "ch5u1",
+        "num": "①",
+        "title": "問題を解決するには",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u2",
+        "num": "②",
+        "title": "情報の収集",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u3",
+        "num": "③",
+        "title": "検索と論理演算",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u4",
+        "num": "④",
+        "title": "情報の整理と管理",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u5",
+        "num": "⑤",
+        "title": "分析のための工夫",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u6",
+        "num": "⑥",
+        "title": "関数と統計",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u7",
+        "num": "⑦",
+        "title": "表とグラフの活用",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u8",
+        "num": "⑧",
+        "title": "分析の実際",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u9",
+        "num": "⑨",
+        "title": "問題解決の実践",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u10",
+        "num": "⑩",
+        "title": "論理的な文章構成",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u11",
+        "num": "⑪",
+        "title": "表現の工夫",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u12",
+        "num": "⑫",
+        "title": "プレゼンテーションの方法",
+        "main": "joho5.html"
+      },
+      {
+        "id": "ch5u13",
+        "num": "⑬",
+        "title": "Webページによる情報発信",
+        "main": "joho5.html"
+      }
+    ]
+  }
+];
+
+const ALL_UNIT_IDS = CHAPTERS.flatMap(c => c.units.map(u => u.id));
+
+/* ━━━ バッジ定義 ━━━ */
+const BADGES = [
+  {id:'first',    icon:'🌱', name:'はじめの一歩', cond: d => getTotalCount(d) >= 1},
+  {id:'study5',   icon:'📚', name:'5回学習',     cond: d => getTotalCount(d) >= 5},
+  {id:'study20',  icon:'🏃', name:'20回学習',    cond: d => getTotalCount(d) >= 20},
+  {id:'study50',  icon:'💪', name:'50回学習',    cond: d => getTotalCount(d) >= 50},
+  {id:'half',     icon:'🎯', name:'半数チェック', cond: d => ALL_UNIT_IDS.filter(id => getGrade(d,id)).length >= Math.ceil(ALL_UNIT_IDS.length / 2)},
+  {id:'allC',     icon:'🗒️', name:'全単元チェック', cond: d => ALL_UNIT_IDS.every(id => getGrade(d,id))},
+  {id:'allB',     icon:'⭐', name:'全単元B以上',   cond: d => ALL_UNIT_IDS.every(id => ['A','B'].includes(getGrade(d,id)))},
+  {id:'allA',     icon:'👑', name:'全単元A達成',   cond: d => ALL_UNIT_IDS.every(id => getGrade(d,id)==='A')},
+  {id:'streak3',  icon:'🔥', name:'3日連続',       cond: d => getStreak() >= 3},
+  {id:'streak7',  icon:'🌟', name:'7日連続',       cond: d => getStreak() >= 7},
+  {id:'streak30', icon:'🏆', name:'30日連続',      cond: d => getStreak() >= 30},
+];
+
+/* ━━━ localStorage キー ━━━ */
+const LS_KEY = 'joho_index_v1';
+const LS_CAL = 'joho_calendar_v1';
+const LS_BADGE = 'joho_badges_v1';
+
+function loadData(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
+function saveData(d){ localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+
+function getGrade(d,id){ return d[id+'_grade']||''; }
+function getCount(d,id){ return d[id+'_count']||0; }
+function getLast(d,id){  return d[id+'_last']||''; }
+function getTotalCount(d){ return ALL_UNIT_IDS.reduce((s,id)=>s+getCount(d,id),0); }
+
+/* ━━━ 連続学習日数 ━━━ */
+function getTodayStr(){ return new Date().toISOString().slice(0,10); }
+function getStreak(){
+  const cal = JSON.parse(localStorage.getItem(LS_CAL)||'{}');
+  let streak=0, dd=new Date();
+  for(let i=0;i<365;i++){
+    const k=dd.toISOString().slice(0,10);
+    if(cal[k]) streak++;
+    else if(i>0) break;
+    dd.setDate(dd.getDate()-1);
+  }
+  return streak;
+}
+function markToday(){
+  const cal = JSON.parse(localStorage.getItem(LS_CAL)||'{}');
+  cal[getTodayStr()]=(cal[getTodayStr()]||0)+1;
+  localStorage.setItem(LS_CAL, JSON.stringify(cal));
+}
+
+/* ━━━ 理解度セット ━━━ */
+function setGrade(btn){
+  const id=btn.dataset.id, grade=btn.dataset.grade;
+  const d=loadData();
+  const prev=getGrade(d,id);
+  if(prev===grade){ d[id+'_grade']=''; }
+  else { d[id+'_grade']=grade; }
+  d[id+'_count']=(getCount(d,id)||0)+1;
+  d[id+'_last']=getTodayStr();
+  saveData(d);
+  markToday();
+  render();
+  checkBadges(d);
+}
+
+/* ━━━ 章・単元カードのレンダリング ━━━ */
+function buildChapters(){
+  const wrap = document.getElementById('chaptersWrap');
+  wrap.innerHTML = CHAPTERS.map(ch => `
+    <div class="cat-section">
+      <div class="cat-header" style="border-left:5px solid ${ch.color}">
+        <div class="cat-bar" style="background:${ch.color}"></div>
+        <div class="cat-icon">${ch.icon}</div>
+        <div class="cat-title-wrap">
+          <div class="cat-title">第${ch.no}章 ${ch.title}</div>
+          <div class="cat-sub">${ch.subtitle}</div>
+        </div>
+        <div class="cat-count" id="cnt-${ch.id}">0/${ch.units.length}単元</div>
+      </div>
+      ${ch.units.map(u => `
+        <div class="unit-card" id="uc-${u.id}">
+          <div class="unit-top">
+            <div class="unit-num" style="background:${ch.color}">${u.num}</div>
+            <div class="unit-title">${u.title}</div>
+            <span class="unit-type type-main">単元</span>
+          </div>
+          <div class="abc-row">
+            <span class="abc-lbl">理解度</span>
+            <button class="abc-btn" data-id="${u.id}" data-grade="A" onclick="setGrade(this)">A</button>
+            <button class="abc-btn" data-id="${u.id}" data-grade="B" onclick="setGrade(this)">B</button>
+            <button class="abc-btn" data-id="${u.id}" data-grade="C" onclick="setGrade(this)">C</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat-item">学習回数:<span class="val" id="cnt-u-${u.id}">0</span>回</div>
+            <div class="repeat-dots" id="dots-${u.id}"></div>
+            <div class="stat-item">最終:<span class="val" id="last-${u.id}">—</span></div>
+          </div>
+          <div class="link-row">
+            <a class="page-link main-link" href="${u.main}">📖 単元を開く</a>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+/* ━━━ 繰り返しドット ━━━ */
+function renderDots(id, cnt, grade){
+  const el=document.getElementById('dots-'+id);
+  if(!el) return;
+  const max=7;
+  let html='';
+  for(let i=0;i<max;i++){
+    const done=i<cnt;
+    const cls=done?(grade==='A'?'done perfect':'done'):'';
+    html+=`<div class="dot ${cls}"></div>`;
+  }
+  if(cnt>max) html+=`<span style="font-size:.7em;color:var(--muted);margin-left:2px">+${cnt-max}</span>`;
+  el.innerHTML=html;
+}
+
+/* ━━━ 全体レンダリング ━━━ */
+function render(){
+  const d=loadData();
+  let cntA=0,cntB=0,cntC=0,total=0;
+
+  ALL_UNIT_IDS.forEach(id=>{
+    const grade=getGrade(d,id);
+    const cnt=getCount(d,id);
+    const last=getLast(d,id);
+    total+=cnt;
+    if(grade==='A') cntA++;
+    else if(grade==='B') cntB++;
+    else if(grade==='C') cntC++;
+
+    document.querySelectorAll(`[data-id="${id}"]`).forEach(btn=>{
+      btn.className='abc-btn'+(grade===btn.dataset.grade?' '+grade:'');
+    });
+
+    const ce=document.getElementById('cnt-u-'+id);
+    if(ce) ce.textContent=cnt;
+    renderDots(id,cnt,grade);
+    const le=document.getElementById('last-'+id);
+    if(le) le.textContent=last||'—';
+
+    const card=document.getElementById('uc-'+id);
+    if(card){
+      card.style.borderLeft=grade?`4px solid var(--${grade})`:'';
+    }
+  });
+
+  document.getElementById('sumTotal').textContent=total;
+  document.getElementById('sumA').textContent=cntA;
+  document.getElementById('sumB').textContent=cntB;
+  document.getElementById('sumC').textContent=cntC;
+
+  const pct = Math.round(
+    ALL_UNIT_IDS.reduce((s,id)=>{
+      const g=getGrade(d,id);
+      return s+(g==='A'?100:g==='B'?60:g==='C'?30:0);
+    },0)/ALL_UNIT_IDS.length
+  );
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+
+  // 章別カウント
+  CHAPTERS.forEach(ch => {
+    const checked = ch.units.filter(u => getGrade(d,u.id)).length;
+    const el = document.getElementById('cnt-'+ch.id);
+    if(el) el.textContent = `${checked}/${ch.units.length}単元`;
+  });
+
+  document.getElementById('streakDisp').textContent=getStreak()+'日連続';
+  renderBadges(d);
+  renderCalendar();
+}
+
+/* ━━━ バッジレンダリング ━━━ */
+function renderBadges(d){
+  const area=document.getElementById('badgeArea');
+  area.innerHTML=BADGES.map(b=>{
+    const earned=b.cond(d);
+    return `<div class="badge ${earned?'earned':'locked'}" title="${b.name}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ━━━ バッジ取得チェック ━━━ */
+function checkBadges(d){
+  const prev=JSON.parse(localStorage.getItem(LS_BADGE)||'[]');
+  BADGES.forEach(b=>{
+    if(!prev.includes(b.id) && b.cond(d)){
+      prev.push(b.id);
+      localStorage.setItem(LS_BADGE,JSON.stringify(prev));
+      showAchieve(b.icon, b.name+'を獲得!', 'おめでとうございます!🎊');
+    }
+  });
+}
+
+/* ━━━ カレンダーレンダリング ━━━ */
+function renderCalendar(){
+  const cal=JSON.parse(localStorage.getItem(LS_CAL)||'{}');
+  const grid=document.getElementById('calGrid');
+  let html='';
+  for(let i=83;i>=0;i--){
+    const dt=new Date(); dt.setDate(dt.getDate()-i);
+    const k=dt.toISOString().slice(0,10);
+    const v=cal[k]||0;
+    const cls=v>=4?'s4':v>=3?'s3':v>=2?'s2':v>=1?'s1':'';
+    html+=`<div class="cal-day ${cls}" title="${k}:${v}回"></div>`;
+  }
+  grid.innerHTML=html;
+}
+
+/* ━━━ 達成モーダル ━━━ */
+function showAchieve(emoji, title, sub){
+  document.getElementById('achieveEmoji').textContent=emoji;
+  document.getElementById('achieveTitle').textContent=title;
+  document.getElementById('achieveSub').textContent=sub;
+  document.getElementById('achieveModal').classList.add('open');
+  startConf();
+  setTimeout(()=>{ stopConf(); }, 4000);
+}
+function closeAchieve(){
+  document.getElementById('achieveModal').classList.remove('open');
+  stopConf();
+}
+
+/* ━━━ 紙吹雪 ━━━ */
+const cv=document.getElementById('cnv'),cx=cv.getContext('2d');
+let pts=[],raf=null;
+function startConf(){
+  cv.width=innerWidth;cv.height=innerHeight;pts=[];
+  for(let i=0;i<220;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,s:Math.random()*10+4,c:`hsl(${180+Math.random()*60},70%,${55+Math.random()*15}%)`,sp:Math.random()*3+2,r:Math.random()*Math.PI*2,dr:.05});
+  af();
+}
+function af(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  pts.forEach(p=>{p.y+=p.sp;p.r+=p.dr;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s);cx.restore();if(p.y>cv.height)p.y=-20;});
+  raf=requestAnimationFrame(af);
+}
+function stopConf(){if(raf){cancelAnimationFrame(raf);raf=null;}cx.clearRect(0,0,cv.width,cv.height);pts=[];}
+
+/* ━━━ 初期化 ━━━ */
+buildChapters();
+render();
+</script>
+</body>
+</html>

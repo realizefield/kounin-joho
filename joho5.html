@@ -1,0 +1,3122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報1 第5章 暗記プログラム</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  min-height: 100vh; padding: 20px; color: #1e293b;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { text-align: center; color: #15803d; margin-bottom: 20px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+.page-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+.page-tab { flex: 1; min-width: 200px; padding: 14px; background: white; border: 3px solid #16a34a; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; color: #15803d; transition: all 0.2s; }
+.page-tab:hover { background: #dcfce7; }
+.page-tab.active { background: #16a34a; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.unit-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 24px; border-top: 6px solid #16a34a; }
+.unit-title { color: #15803d; font-size: 22px; margin-bottom: 12px; border-bottom: 3px solid #16a34a; padding-bottom: 8px; }
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.mode-tab { flex: 1; min-width: 110px; padding: 8px 10px; background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; color: #475569; transition: all 0.2s; }
+.mode-tab:hover { background: #e2e8f0; }
+.mode-tab.active { background: #16a34a; color: white; border-color: #16a34a; }
+.timer-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.timer-display { font-size: 22px; font-weight: bold; color: #b45309; font-family: monospace; }
+.records { display: flex; gap: 6px; font-size: 12px; flex-wrap: wrap; }
+.record-item { background: white; padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24; }
+.passage { background: #f8fafc; border-left: 5px solid #16a34a; padding: 16px; border-radius: 8px; line-height: 2.2; font-size: 15px; margin-bottom: 14px; min-height: 100px; }
+.blank { display: inline-block; min-width: 70px; padding: 2px 12px; margin: 0 4px; border: 2px dashed #94a3b8; border-radius: 6px; background: #fef9c3; text-align: center; cursor: pointer; transition: all 0.2s; }
+.blank.filled { background: #dbeafe; border-style: solid; border-color: #3b82f6; cursor: pointer; }
+.blank.correct { background: #bbf7d0; border-color: #16a34a; color: #166534; font-weight: bold; position: relative; }
+.blank.has-glossary { cursor: help; border-bottom: 3px double #16a34a; }
+.glossary-popup { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: normal; white-space: normal; min-width: 220px; max-width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50; line-height: 1.6; text-align: left; display: none; }
+.glossary-popup.show { display: block; }
+.glossary-popup::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #1e293b; }
+.glossary-popup .term-en { color: #fbbf24; font-weight: bold; }
+.glossary-popup .term-kana { color: #86efac; }
+.blank.wrong { background: #fecaca; border-color: #dc2626; animation: shake 0.4s; }
+.blank.selected { background: #fed7aa; border-color: #f97316; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.word-bank { background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 12px; margin-bottom: 14px; min-height: 50px; }
+.word-bank-title { font-weight: bold; color: #166534; margin-bottom: 6px; font-size: 13px; }
+.word-bank-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.word-chip { background: white; border: 2px solid #22c55e; border-radius: 18px; padding: 5px 12px; cursor: pointer; font-weight: bold; color: #166534; transition: all 0.2s; user-select: none; font-size: 14px; }
+.word-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+.word-chip.used { opacity: 0.3; pointer-events: none; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #16a34a; color: white; }
+.btn-primary:hover { background: #15803d; }
+.btn-success { background: #22c55e; color: white; } .btn-success:hover { background: #16a34a; }
+.btn-warning { background: #f59e0b; color: white; } .btn-warning:hover { background: #d97706; }
+.btn-danger { background: #ef4444; color: white; } .btn-danger:hover { background: #dc2626; }
+.btn-secondary { background: #64748b; color: white; } .btn-secondary:hover { background: #475569; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.message { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+.msg-success { background: #bbf7d0; color: #166534; }
+.msg-warning { background: #fed7aa; color: #9a3412; }
+.msg-info { background: #dbeafe; color: #1e40af; }
+.quiz-question { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 12px; font-size: 15px; font-weight: bold; border-left: 5px solid #f59e0b; }
+.quiz-options { display: grid; gap: 8px; }
+.quiz-option { background: white; border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; font-size: 14px; text-align: left; }
+.quiz-option:hover { background: #f1f5f9; border-color: #16a34a; }
+.quiz-option.correct { background: #bbf7d0; border-color: #16a34a; }
+.quiz-option.wrong { background: #fecaca; border-color: #dc2626; }
+.quiz-explain { background: #fef9c3; border-left: 5px solid #facc15; padding: 12px 14px; border-radius: 8px; margin-top: 12px; font-size: 14px; line-height: 1.7; color: #713f12; }
+.quiz-explain .ex-title { font-weight: bold; color: #a16207; margin-bottom: 4px; display: block; }
+.quiz-explain .ex-example { display: block; margin-top: 6px; padding: 6px 10px; background: white; border-radius: 6px; border-left: 3px solid #16a34a; color: #166534; font-size: 13px; }
+.kanji-ruby { font-size: 0.6em; color: #6b7280; margin-left: 2px; }
+ruby rt { font-size: 0.55em; color: #475569; font-weight: normal; }
+.ox-buttons { display: flex; gap: 16px; justify-content: center; margin-top: 12px; }
+.ox-btn { width: 80px; height: 80px; border: 4px solid; border-radius: 50%; font-size: 40px; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; }
+.ox-btn.maru { color: #dc2626; border-color: #dc2626; } .ox-btn.maru:hover { background: #dc2626; color: white; }
+.ox-btn.batsu { color: #1e40af; border-color: #1e40af; } .ox-btn.batsu:hover { background: #1e40af; color: white; }
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
+.confetti { position: absolute; width: 10px; height: 10px; animation: fall 3s linear forwards; }
+@keyframes fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.progress { background: #e2e8f0; border-radius: 10px; height: 20px; overflow: hidden; margin-bottom: 10px; }
+.progress-bar { background: linear-gradient(90deg, #22c55e, #16a34a); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; }
+.hidden { display: none !important; }
+.mode-content { padding-top: 4px; }
+.back-to-top { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #16a34a; color: white; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+.back-to-top:hover { background: #15803d; }
+@media (max-width: 600px) { h1 { font-size: 22px; } .passage { font-size: 13px; line-height: 2; } .btn { padding: 6px 12px; font-size: 12px; } .unit-title { font-size: 18px; } }
+
+.extra-info-section { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+.extra-info-title { font-weight: bold; color: #166534; margin-bottom: 10px; font-size: 15px; }
+.extra-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.extra-table th { background: #22c55e; color: white; padding: 8px 6px; text-align: center; font-size: 12px; }
+.extra-table td { background: white; padding: 8px 6px; border: 1px solid #d1fae5; vertical-align: middle; text-align: center; }
+.extra-table td.label-cell { background: #dcfce7; font-weight: bold; color: #166534; text-align: left; }
+.extra-table td.symbol-cell { font-family: 'Times New Roman', serif; font-size: 14px; color: #15803d; font-weight: bold; }
+.extra-table td.desc-cell { color: #475569; font-size: 12px; text-align: left; }
+.venn-cell { width: 60px; }
+.venn-svg { width: 56px; height: 36px; }
+@media (max-width: 600px) {
+  .extra-table { font-size: 11px; }
+  .extra-table th, .extra-table td { padding: 5px 3px; }
+  .venn-cell { width: 48px; }
+  .venn-svg { width: 44px; height: 30px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🧩 情報1 第5章「問題解決」暗記プログラム</h1>
+  <div class="page-tabs" id="pageTabs"></div>
+  <div id="unitsContainer"></div>
+</div>
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ページトップへ">↑</button>
+<div class="confetti-container" id="confettiContainer"></div>
+<script>
+const ALL_UNITS = [
+  {
+    "id": "unit1",
+    "title": "1節 問題を解決するには",
+    "fill": {
+      "text": "目標とする状態と現在の状態の差を解消するために解決策を作成・実行することを[問題解決]といいます。問題解決を繰り返し継続的に改善する手法を[PDCAサイクル]といい、計画(Plan)→実行(Do)→[評価](Check)→改善(Action)の循環からなります。グループで自由にアイデアを出し合う発想法を[ブレインストーミング]、雑多な情報をカードに記しグループ化していく手法を[KJ法]、概念とその関連性を図示する手法を[コンセプトマッピング法]といいます。"
+    },
+    "glossary": {
+      "問題解決": {
+        "en": "problem solving",
+        "kana": "プロブレム ソルビング",
+        "desc": "「problem(問題)」+「solving(解決)」。目標と現状の差(=問題)を解消する活動全般です。"
+      },
+      "PDCAサイクル": {
+        "en": "PDCA cycle",
+        "kana": "ピーディーシーエー サイクル",
+        "desc": "Plan(計画)・Do(実行)・Check(評価)・Action(改善)の4段階を繰り返し改善する手法。E.デミングが品質管理として提唱しました。"
+      },
+      "評価": {
+        "en": "Check",
+        "kana": "チェック",
+        "desc": "PDCAのC。実行した結果が計画通りかを確認する段階です。"
+      },
+      "ブレインストーミング": {
+        "en": "brainstorming",
+        "kana": "ブレインストーミング",
+        "desc": "「brain(脳)」+「storm(嵐)」=脳に嵐を起こす集団発想法。米のA.F.オズボーンが提唱。批判禁止・自由奔放・大量・結合改善が4原則。"
+      },
+      "KJ法": {
+        "en": "KJ Method",
+        "kana": "ケージェイ メソッド",
+        "desc": "考案者の文化人類学者「川喜田二郎(かわきた じろう)」のイニシャルKJから命名。カードを使ってグループ化し、関係性を見つける手法。"
+      },
+      "コンセプトマッピング法": {
+        "en": "concept mapping",
+        "kana": "コンセプト マッピング",
+        "desc": "「concept(概念)」+「mapping(地図化)」。米のJ.D.ノヴァクが開発。概念同士を線で結んで関係を図示します。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "目標と現状の差を解消する活動を何という?",
+        "opts": [
+          "問題解決",
+          "課題達成",
+          "戦略策定",
+          "目標管理"
+        ],
+        "a": 0,
+        "explain": "問題=目標と現状の差。これを埋めるための解決策を作成し実行することが問題解決です。",
+        "example": "「テストで80点取りたい(目標)が今は60点(現状)」→ 20点の差を埋める方法を考えるのが問題解決。"
+      },
+      {
+        "q": "PDCAサイクルのCは何の頭文字?",
+        "opts": [
+          "Create",
+          "Check",
+          "Continue",
+          "Confirm"
+        ],
+        "a": 1,
+        "explain": "C = Check[チェック]=「評価」。実行した結果が計画通りだったかを確認する段階です。"
+      },
+      {
+        "q": "PDCAサイクルを最初に提唱したのは?",
+        "opts": [
+          "オズボーン",
+          "デミング",
+          "ノヴァク",
+          "川喜田二郎"
+        ],
+        "a": 1,
+        "explain": "E.デミング(W.E.Deming)はアメリカの統計学者。日本の戦後の品質管理に多大な影響を与え、デミング賞も設立されています。"
+      },
+      {
+        "q": "集団でアイデアを出し合う発想法は?",
+        "opts": [
+          "ブレインストーミング",
+          "KJ法",
+          "PDCA",
+          "フィードバック"
+        ],
+        "a": 0,
+        "explain": "ブレインストーミングは「批判禁止」「自由奔放」「量を求める」「結合・改善歓迎」の4原則で行います。",
+        "example": "クラスで文化祭の出し物を決める時、まず否定なしで自由にアイデアを出し合うのがブレインストーミング。"
+      },
+      {
+        "q": "川喜田二郎が考案したアイデア整理法は?",
+        "opts": [
+          "ブレインストーミング",
+          "KJ法",
+          "PDCA",
+          "コンセプトマッピング"
+        ],
+        "a": 1,
+        "explain": "KJ法は文化人類学者の川喜田二郎が考案。雑多な情報をカードに書いて、関係の近いものをまとめてグループ化していきます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "ブレインストーミングでは他人のアイデアを批判してはいけない。",
+        "a": true,
+        "explain": "ブレインストーミングの4原則の1つ「批判禁止」。否定的な発言は発想を萎縮させ、アイデアの量と質を下げてしまいます。"
+      },
+      {
+        "q": "PDCAサイクルは1回回せば十分である。",
+        "a": false,
+        "explain": "PDCAは「サイクル」=循環。何度も繰り返して継続的に改善するのが本質です。1回で終わらせては効果が半減します。"
+      },
+      {
+        "q": "トレードオフとは複数の評価項目で一方を立てると他方が悪くなる関係を指す。",
+        "a": true,
+        "explain": "トレードオフ(trade-off=二律背反)は「あちら立てればこちら立たず」の関係。",
+        "example": "車の燃費と加速性能、価格と品質、安全性と利便性などはトレードオフの関係になることが多いです。"
+      },
+      {
+        "q": "フィードバックとは出力(結果)を入力(原因)側に返すこと。",
+        "a": true,
+        "explain": "フィードバック(feedback)は元々工学用語。「feed(送る)」+「back(戻す)」。アンプの音量自動調整なども原理は同じです。"
+      },
+      {
+        "q": "KJ法のKJは「川喜田二郎」のイニシャル。",
+        "a": true,
+        "explain": "K=Kawakita、J=Jiro。日本人考案のため日本人の名前のイニシャルが世界的に通用するアイデア整理法名となっています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "PDCAサイクルの順序として正しいのは?",
+        "opts": [
+          "Plan→Do→Action→Check",
+          "Plan→Do→Check→Action",
+          "Do→Plan→Check→Action",
+          "Plan→Check→Do→Action"
+        ],
+        "a": 1,
+        "explain": "正しい順序はPlan(計画)→Do(実行)→Check(評価)→Action(改善)。実行してから評価し、評価結果を改善につなげる流れです。"
+      },
+      {
+        "q": "問題解決の基本5ステップに含まれないものは?",
+        "opts": [
+          "問題の明確化",
+          "情報の収集",
+          "情報の分析",
+          "データのバックアップ"
+        ],
+        "a": 3,
+        "explain": "5ステップは「①問題の明確化②情報の収集③情報の分析④解決案の作成・評価⑤解決案の実施と反省」。バックアップは含まれません。"
+      },
+      {
+        "q": "コンセプトマッピング法の開発者は?",
+        "opts": [
+          "オズボーン",
+          "デミング",
+          "ノヴァク",
+          "川喜田二郎"
+        ],
+        "a": 2,
+        "explain": "J.D.ノヴァクは米コーネル大学の教授。1972年頃に教育研究の手段として開発しました。"
+      },
+      {
+        "q": "ブレインストーミングを提唱したオズボーンは何の業界の人?",
+        "opts": [
+          "広告業界",
+          "医療業界",
+          "教育業界",
+          "工学業界"
+        ],
+        "a": 0,
+        "explain": "A.F.オズボーンはアメリカの広告会社BBDO社の副社長。1942年の著書『応用想像学』で発表されました。広告のアイデア出しから生まれた手法です。"
+      }
+    ]
+  },
+  {
+    "id": "unit2",
+    "title": "2節 情報の収集",
+    "fill": {
+      "text": "情報を効率よく集めるために使うWebサイトを[検索サイト]、情報を収集するプログラムを[検索エンジン]といいます。あらかじめ決められた分類をたどる方法が[カテゴリ検索]、調べたい事柄に関するキーワードで検索する方法が[キーワード検索]です。同義語や関連語を定義したものを[シソーラス]、街頭調査や聞き取り・実物観察など直接情報を集めることを[フィールドワーク]といいます。"
+    },
+    "glossary": {
+      "検索サイト": {
+        "en": "search site",
+        "kana": "サーチ サイト",
+        "desc": "「search(検索)」+「site(場所)」。GoogleやYahoo!のような情報検索を支援するWebサイトです。"
+      },
+      "検索エンジン": {
+        "en": "search engine",
+        "kana": "サーチ エンジン",
+        "desc": "「search(検索)」+「engine(機関)」。Webを巡回して情報を集めるプログラムのこと。検索サイトの裏側で動いています。"
+      },
+      "カテゴリ検索": {
+        "en": "category search",
+        "kana": "カテゴリー サーチ",
+        "desc": "「category(分類)」+「search(検索)」。ジャンルをたどって絞り込む検索方法です。"
+      },
+      "キーワード検索": {
+        "en": "keyword search",
+        "kana": "キーワード サーチ",
+        "desc": "「keyword(鍵となる言葉)」+「search(検索)」。調べたい言葉を直接入力する検索方法です。"
+      },
+      "シソーラス": {
+        "en": "thesaurus",
+        "kana": "シソーラス",
+        "desc": "ギリシャ語「thēsauros(宝庫)」が語源。同義語・類義語・上位下位語などを体系化した辞書のこと。具体例:【同義語】車=自動車=カー、PC=パソコン=コンピュータ。【類義語】美しい・綺麗・素敵。【上位下位】乗り物→車・電車・飛行機。【表記揺れ】コンピュータ=コンピューター、サーバ=サーバー。検索エンジンや図書館の蔵書検索が、これらを「同じもの」と判断するために使います。"
+      },
+      "フィールドワーク": {
+        "en": "fieldwork",
+        "kana": "フィールドワーク",
+        "desc": "「field(現場)」+「work(作業)」。研究室の外、現場で行う調査研究のこと。アンケート・聞き取り・観察などです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "インターネットで情報を巡回・収集するプログラムは?",
+        "opts": [
+          "検索サイト",
+          "検索エンジン",
+          "ブラウザ",
+          "クローラ"
+        ],
+        "a": 1,
+        "explain": "検索エンジンは検索サイトの裏側で動くプログラム。Webを巡回(クロール)して情報をデータベース化しています。"
+      },
+      {
+        "q": "同義語や関連語を定義したものは?",
+        "opts": [
+          "シソーラス",
+          "カテゴリ",
+          "タグ",
+          "インデックス"
+        ],
+        "a": 0,
+        "explain": "シソーラスは「言葉の関係性辞典」。「車」と「自動車」が同じ意味だと検索エンジンに教えるためなどに使われます。",
+        "example": "「PC」で検索しても「パソコン」「パーソナルコンピュータ」の記事もヒットするのはシソーラスの働きです。"
+      },
+      {
+        "q": "街頭でのアンケート調査や実物観察などで情報を直接収集することは?",
+        "opts": [
+          "オンラインリサーチ",
+          "フィールドワーク",
+          "メタアナリシス",
+          "データマイニング"
+        ],
+        "a": 1,
+        "explain": "フィールドワークは「現場(field)で働く(work)」=現地調査。検索より労力はかかりますが信頼性が高いのが特徴です。",
+        "example": "商店街の人通り調査、絶滅危惧種の生息地調査、外国の生活文化調査などがフィールドワークの例です。"
+      },
+      {
+        "q": "カテゴリ検索の特徴は?",
+        "opts": [
+          "キーワード入力",
+          "分類をたどる",
+          "ランダム選択",
+          "音声入力"
+        ],
+        "a": 1,
+        "explain": "カテゴリ検索は「分類階層をたどる」方式。Yahoo!カテゴリ(現在は廃止)が代表例で、ジャンル別に整理された情報から探します。"
+      },
+      {
+        "q": "情報をプログラムが自動収集する方式は?",
+        "opts": [
+          "登録型",
+          "自動収集型",
+          "手動型",
+          "混合型"
+        ],
+        "a": 1,
+        "explain": "自動収集型は検索エンジンが自動的にWebを巡回(クロール)して収集。Googleなど大手検索エンジンはこの方式です。登録型は人間が手動で登録します。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "カテゴリ検索はキーワードを入力して検索する方法である。",
+        "a": false,
+        "explain": "カテゴリ検索は「分類をたどる」方法。キーワードは入力せず、ジャンル別の階層から探します。Yahoo!カテゴリのようなものです。"
+      },
+      {
+        "q": "フィールドワークで集めた情報は信頼性が高いと言える。",
+        "a": true,
+        "explain": "直接見聞きした一次情報は他人の解釈が入っていないため信頼性が高いです。ただし収集には労力と時間がかかります。"
+      },
+      {
+        "q": "「メモリ」と「メモリー」のような同じ意味の表記の違いを「表記の揺れ」という。",
+        "a": true,
+        "explain": "表記の揺れは検索の難敵。完全一致検索ではダブルクォーテーション「\"」で囲むと表記揺れに対応できます。",
+        "example": "「コンピュータ」「コンピューター」、「サーバ」「サーバー」、「インタフェース」「インターフェース」など。"
+      },
+      {
+        "q": "言葉の意味を知りたい時は「○○ 意味」と検索すると効果的である。",
+        "a": true,
+        "explain": "「○○ 意味」「○○ とは」のキーワードを加えると、辞書サイトや解説ページがヒットしやすくなります。"
+      },
+      {
+        "q": "シソーラスはギリシャ語の「宝庫」が語源である。",
+        "a": true,
+        "explain": "thesaurus[シソーラス]はギリシャ語「thēsauros(宝庫・蔵)」が語源。「言葉の宝庫」というイメージです。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "画像を検索する時に有効なキーワードの工夫は?",
+        "opts": [
+          "長い文章",
+          "「グラフ」「イラスト」など種類を加える",
+          "記号を多用",
+          "英語のみ使用"
+        ],
+        "a": 1,
+        "explain": "「グラフ」「写真」「イラスト」など画像の種類を表す言葉を加えると、画像が含まれるページがヒットしやすくなります。"
+      },
+      {
+        "q": "表記の揺れに対応する検索方法は?",
+        "opts": [
+          "ダブルクォーテーションで囲む",
+          "すべて大文字",
+          "括弧で囲む",
+          "スペースで区切る"
+        ],
+        "a": 0,
+        "explain": "\"完全一致したい言葉\"のようにダブルクォーテーションで囲むと、その表記の通りに検索されます。"
+      },
+      {
+        "q": "フィールドワークの欠点は?",
+        "opts": [
+          "信頼性が低い",
+          "情報が少ない",
+          "労力がかかる",
+          "古い情報になる"
+        ],
+        "a": 2,
+        "explain": "フィールドワークは現地調査のため、時間や労力がかかります。検索サイトのほうが効率的に大量の情報が得られる場合もあります。"
+      },
+      {
+        "q": "情報を持つ人が適切なカテゴリを選んで登録する方式は?",
+        "opts": [
+          "自動収集型",
+          "登録型",
+          "クロール型",
+          "スクレイピング型"
+        ],
+        "a": 1,
+        "explain": "登録型は人手で登録する方式。Wikipediaのような百科事典型サイトや、専門ディレクトリサイトに見られます。"
+      }
+    ]
+  },
+  {
+    "id": "unit3",
+    "title": "検索と論理演算",
+    "fill": {
+      "text": "1つのキーワードで示される条件を[単純条件]、複数キーワードを組み合わせた条件を[複合条件]といいます。検索対象の要素全体を[全体集合U]、条件を満たす要素の集合を[部分集合]、それを表す図を[ベン図]といいます。AとBを共に満たす集合を[積集合]、少なくとも一方を満たす集合を[和集合]、Aを満たさない集合を[補集合]といいます。NOT(A AND B)=(NOT A) OR (NOT B) を[ド・モルガンの法則]といいます。"
+    },
+    "glossary": {
+      "単純条件": {
+        "en": "simple condition",
+        "kana": "シンプル コンディション",
+        "desc": "「simple(単純な)」+「condition(条件)」。1つのキーワードで指定する検索条件。"
+      },
+      "複合条件": {
+        "en": "compound condition",
+        "kana": "コンパウンド コンディション",
+        "desc": "「compound(複合の)」+「condition(条件)」。AND・OR・NOTで複数キーワードを組み合わせた検索条件。"
+      },
+      "全体集合U": {
+        "en": "universal set",
+        "kana": "ユニバーサル セット",
+        "desc": "「universal(全体の)」+「set(集合)」。考察対象となるすべての要素の集まり。Universalの頭文字Uで表します。"
+      },
+      "部分集合": {
+        "en": "subset",
+        "kana": "サブセット",
+        "desc": "「sub-(下位)」+「set(集合)」。全体集合の一部分にあたる集合。"
+      },
+      "ベン図": {
+        "en": "Venn diagram",
+        "kana": "ベン ダイアグラム",
+        "desc": "イギリスの数学者・論理学者ジョン・ベン(John Venn, 1834-1923)が考案した、集合の関係を図示する方法。"
+      },
+      "積集合": {
+        "en": "intersection / A∩B",
+        "kana": "インターセクション",
+        "desc": "「intersection(交差)」。両方の条件を満たす要素の集合。AND検索で得られます。"
+      },
+      "和集合": {
+        "en": "union / A∪B",
+        "kana": "ユニオン",
+        "desc": "「union(結合)」。少なくとも一方の条件を満たす要素の集合。OR検索で得られます。"
+      },
+      "補集合": {
+        "en": "complement",
+        "kana": "コンプリメント",
+        "desc": "「complement(補う)」。条件を満たさない部分。NOTで表現します。"
+      },
+      "ド・モルガンの法則": {
+        "en": "De Morgan's laws",
+        "kana": "デ モルガンズ ロー",
+        "desc": "イギリスの数学者オーガスタス・ド・モルガン(1806-1871)が定式化。NOT(A AND B)=(NOT A) OR (NOT B)、NOT(A OR B)=(NOT A) AND (NOT B) のように、否定が分配されるとANDとORが入れ替わる法則です。集合記号で書くと ¬(A∩B)=(¬A)∪(¬B) です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "検索対象の要素全体を表す集合は?",
+        "opts": [
+          "全体集合U",
+          "部分集合",
+          "積集合",
+          "補集合"
+        ],
+        "a": 0,
+        "explain": "全体集合U(Universal set)は考察対象すべて。Uは「Universal(普遍的)」の頭文字。",
+        "example": "Web検索全体が対象なら「Web上のすべてのページ」が全体集合Uになります。"
+      },
+      {
+        "q": "A AND Bは何を表す?",
+        "opts": [
+          "積集合(A∩B)",
+          "和集合(A∪B)",
+          "補集合",
+          "差集合"
+        ],
+        "a": 0,
+        "explain": "AとBの両方を満たす積集合(A∩B)。記号「∩」は「キャップ(帽子)」と覚えます。",
+        "example": "「猫 AND 犬」=猫と犬の両方が出てくるページのみがヒット。検索結果が絞り込まれます。"
+      },
+      {
+        "q": "A OR Bは何を表す?",
+        "opts": [
+          "積集合",
+          "和集合(A∪B)",
+          "補集合",
+          "差集合"
+        ],
+        "a": 1,
+        "explain": "AとBの少なくとも一方を満たす和集合(A∪B)。記号「∪」は「カップ(器)」と覚えます。",
+        "example": "「猫 OR 犬」=猫か犬のどちらかが出てくるページがヒット。検索結果は広がります。"
+      },
+      {
+        "q": "ベン図を考案したのは?",
+        "opts": [
+          "ノイマン",
+          "ジョン・ベン",
+          "ド・モルガン",
+          "ガウス"
+        ],
+        "a": 1,
+        "explain": "ジョン・ベン(John Venn, 1834-1923)はイギリスの数学者・論理学者。1880年に発表した「論理命題と推論の図的・機械的表現について」が起源です。"
+      },
+      {
+        "q": "NOT(A OR B)と等しいのは?",
+        "opts": [
+          "NOT A AND NOT B",
+          "NOT A OR NOT B",
+          "A AND B",
+          "A OR B"
+        ],
+        "a": 0,
+        "explain": "ド・モルガンの法則:NOT(A OR B)=(NOT A) AND (NOT B) [集合では ¬(A∪B)=(¬A)∩(¬B)]。「全体の否定」を「個別の否定」に分けるとORがANDに変わります。",
+        "example": "「猫でも犬でもない」=「猫でない AND 犬でない」と分解できます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "∩(キャップ)記号は積集合(AND)を表す。",
+        "a": true,
+        "explain": "∩は「キャップ(帽子)」。両方の条件を「覆う・かぶさる」イメージで積集合(AND)を表します。"
+      },
+      {
+        "q": "∪(カップ)記号は補集合を表す。",
+        "a": false,
+        "explain": "∪はカップ(器)で和集合(OR)を表します。補集合はNOTで、Aの上にバーを引くか「¬A」と表記します。"
+      },
+      {
+        "q": "NOT(A AND B)=(NOT A) AND (NOT B) [¬(A∩B)=(¬A)∩(¬B)] である。",
+        "a": false,
+        "explain": "これはド・モルガンの法則の誤りです。正しくはNOT(A AND B)=(NOT A) OR (NOT B) [集合では ¬(A∩B)=(¬A)∪(¬B)]。否定が分配されるとANDとORが入れ替わります。"
+      },
+      {
+        "q": "「A AND B」は「A OR B」より検索結果の件数が多くなる傾向がある。",
+        "a": false,
+        "explain": "ANDは「両方含む」=絞り込みなので件数は少なくなります。ORは「どちらか含む」=幅広いので件数は多くなります。"
+      },
+      {
+        "q": "OR検索の件数 q = a + b - p の式が成り立つ(p:AND検索の件数)。",
+        "a": true,
+        "explain": "包含と排除の原理により、q = a + b − p。共通部分(p)を2回数えてしまうので1回引きます。",
+        "example": "猫の記事100件、犬の記事80件、両方含む30件 → 猫OR犬の記事 = 100+80-30 = 150件。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "ド・モルガンの法則を発見したド・モルガンの国籍は?",
+        "opts": [
+          "アメリカ",
+          "イギリス",
+          "ドイツ",
+          "フランス"
+        ],
+        "a": 1,
+        "explain": "オーガスタス・ド・モルガン(Augustus De Morgan, 1806-1871)はイギリスの数学者・論理学者。同じくイギリスのジョン・ベンとともに集合論の基礎を築きました。"
+      },
+      {
+        "q": "検索結果を「絞り込みたい」時に使う論理演算子は?",
+        "opts": [
+          "AND",
+          "OR",
+          "NOT",
+          "XOR"
+        ],
+        "a": 0,
+        "explain": "ANDは両方を満たす条件なので結果が絞り込まれます。ORは広がる、NOTは除外する、と覚えましょう。"
+      },
+      {
+        "q": "全体集合をUで表すのはなぜか?",
+        "opts": [
+          "Universalの頭文字",
+          "Unionの頭文字",
+          "Unityの頭文字",
+          "Userの頭文字"
+        ],
+        "a": 0,
+        "explain": "Universal set[ユニバーサル セット]=「普遍的な集合」=「すべての要素を含む集合」。その頭文字Uで表します。"
+      },
+      {
+        "q": "NOT演算子の意味は?",
+        "opts": [
+          "和",
+          "積",
+          "否定",
+          "差"
+        ],
+        "a": 2,
+        "explain": "NOT = 否定。「○○でない」を表す論理演算子です。「Aの補集合」=「Aでないもの」と解釈できます。"
+      }
+    ],
+    "extraInfo": {
+      "title": "📊 ベン図・集合記号・論理演算記号 対応表",
+      "rows": [
+        {
+          "set_name": "積集合(両方を満たす)",
+          "venn": "AandB",
+          "set_symbol": "A ∩ B",
+          "logic": "A AND B",
+          "desc": "両方の条件を含む(絞り込み)"
+        },
+        {
+          "set_name": "和集合(少なくとも一方)",
+          "venn": "AorB",
+          "set_symbol": "A ∪ B",
+          "logic": "A OR B",
+          "desc": "どちらかを含む(範囲拡張)"
+        },
+        {
+          "set_name": "補集合(満たさない)",
+          "venn": "notA",
+          "set_symbol": "¬A (またはĀ)",
+          "logic": "NOT A",
+          "desc": "Aでないもの(除外)"
+        },
+        {
+          "set_name": "AかつBでない",
+          "venn": "AandNotB",
+          "set_symbol": "A ∩ ¬B",
+          "logic": "A AND (NOT B)",
+          "desc": "Aを含むがBを含まない"
+        },
+        {
+          "set_name": "ド・モルガンの法則①",
+          "venn": "demorgan1",
+          "set_symbol": "¬(A ∩ B) = (¬A) ∪ (¬B)",
+          "logic": "NOT(A AND B) = (NOT A) OR (NOT B)",
+          "desc": "「両方を満たす」の否定 = 「一方を満たさない」"
+        },
+        {
+          "set_name": "ド・モルガンの法則②",
+          "venn": "demorgan2",
+          "set_symbol": "¬(A ∪ B) = (¬A) ∩ (¬B)",
+          "logic": "NOT(A OR B) = (NOT A) AND (NOT B)",
+          "desc": "「どちらかを満たす」の否定 = 「両方とも満たさない」"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unit4",
+    "title": "3節 情報の整理と管理",
+    "fill": {
+      "text": "ファイルをまとめるバインダ的役割をするものを[フォルダ]、フォルダの中にさらにフォルダを置いた構造を[階層構造]といいます。複数のファイルから文字列を一度に検索することを[全文検索]といいます。誰がいつどの情報にアクセスしたかの記録を[利用履歴]、書き換え記録を[更新履歴]といいます。図書館で使われる3桁の数字による分類体系を[日本十進分類法](NDC)といいます。"
+    },
+    "glossary": {
+      "フォルダ": {
+        "en": "folder",
+        "kana": "フォルダー",
+        "desc": "元は「書類挟み」の意味。コンピュータではファイルをまとめて整理する入れ物です。「ディレクトリ」とも呼ばれます。"
+      },
+      "階層構造": {
+        "en": "hierarchical structure",
+        "kana": "ハイアラーキカル ストラクチャー",
+        "desc": "「hierarchy(階層)」+「structure(構造)」。ピラミッドのように上から下に枝分かれする構造です。"
+      },
+      "全文検索": {
+        "en": "full text search",
+        "kana": "フル テキスト サーチ",
+        "desc": "「full(すべての)」+「text(文章)」+「search(検索)」。複数ファイルの中身全部から文字列を検索することです。"
+      },
+      "利用履歴": {
+        "en": "access log",
+        "kana": "アクセス ログ",
+        "desc": "「access(利用)」+「log(記録)」。誰がいつ何にアクセスしたかの記録です。情報漏洩事件解明にも役立ちます。"
+      },
+      "更新履歴": {
+        "en": "change history / update log",
+        "kana": "チェンジ ヒストリー",
+        "desc": "「change(変更)」+「history(歴史)」。どのように書き換えたかの記録。Wikipediaにも更新履歴機能があります。"
+      },
+      "日本十進分類法": {
+        "en": "Nippon Decimal Classification",
+        "kana": "ニッポン デシマル クラシフィケーション(NDC)",
+        "desc": "「Nippon(日本)」+「Decimal(十進)」+「Classification(分類)」。日本の図書館の標準分類法。0〜9の数字3桁で表します。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "ファイルをまとめる入れ物にあたるものは?",
+        "opts": [
+          "フォルダ",
+          "ファイル",
+          "データベース",
+          "リスト"
+        ],
+        "a": 0,
+        "explain": "フォルダ(folder=書類挟み)はファイルを分類整理するための仕組み。「ディレクトリ」と呼ばれることもあります。"
+      },
+      {
+        "q": "複数のファイルから文字列を一度に検索することは?",
+        "opts": [
+          "全文検索",
+          "カテゴリ検索",
+          "属性検索",
+          "タグ検索"
+        ],
+        "a": 0,
+        "explain": "全文検索はファイルの中身を実際に見て検索する方式。XML形式の普及で対応するソフトが増えました。"
+      },
+      {
+        "q": "誰がいつどの情報にアクセスしたかの記録は?",
+        "opts": [
+          "利用履歴",
+          "更新履歴",
+          "変更履歴",
+          "監査履歴"
+        ],
+        "a": 0,
+        "explain": "利用履歴(アクセスログ)は不正アクセスや情報漏洩事件の調査に重要な手がかりとなります。",
+        "example": "会社で「いつ、誰が、どの機密ファイルを見たか」を確認することで、情報漏洩の犯人を特定できます。"
+      },
+      {
+        "q": "日本十進分類法の英語略称は?",
+        "opts": [
+          "NDC",
+          "JDC",
+          "NPC",
+          "JLC"
+        ],
+        "a": 0,
+        "explain": "NDC = Nippon Decimal Classification。日本の図書館で使われる分類体系で、0〜9の3桁数字で本を分類します。"
+      },
+      {
+        "q": "NDCで「自然科学」を表す番号は?",
+        "opts": [
+          "200",
+          "300",
+          "400",
+          "500"
+        ],
+        "a": 2,
+        "explain": "NDCの大分類:000総記、100哲学、200歴史、300社会科学、400自然科学、500技術、600産業、700芸術、800言語、900文学。",
+        "example": "生物学の本=460番台、数学=410番台、物理学=420番台と、自然科学全体は400番台に分類されます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "同じファイルを複数のフォルダに置くと、更新時に差が生じる可能性がある。",
+        "a": true,
+        "explain": "同じ情報の複製は更新が片方だけだと食い違います。1つの情報は1か所に置くのが鉄則です。"
+      },
+      {
+        "q": "フォルダの階層が深すぎると検索の手間が増える。",
+        "a": true,
+        "explain": "深すぎる階層は使いにくく、浅すぎると整理にならない。適切な深さ(3〜4階層程度)がおすすめです。"
+      },
+      {
+        "q": "画像や音声ファイルにはあらかじめキーワードを設定すると検索しやすい。",
+        "a": true,
+        "explain": "画像や音声は文字情報が少ないため、ファイル名やタグに検索用キーワードを設定しておくと後から探しやすくなります。"
+      },
+      {
+        "q": "NDCは10進数を使った3桁の数字で分類する。",
+        "a": true,
+        "explain": "NDC = Nippon Decimal Classification(日本十進分類法)。10進数(0〜9)を使う3桁の数字で表します。"
+      },
+      {
+        "q": "開架式は管理者の許可を得て閲覧する方式である。",
+        "a": false,
+        "explain": "開架式は「開いて架ける」=自由に手に取れる方式。許可を得て閲覧するのは「閉架式(へいかしき)」です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "NDCで「文学」を表す番号は?",
+        "opts": [
+          "700",
+          "800",
+          "900",
+          "000"
+        ],
+        "a": 2,
+        "explain": "900番台は文学。日本文学・英米文学などサブ分類されます。一番最後の900番台に文学が来るのは「総合的・芸術的な分野」だからとも言われます。"
+      },
+      {
+        "q": "XML形式の普及で容易になった検索方式は?",
+        "opts": [
+          "カテゴリ検索",
+          "全文検索",
+          "タグ検索",
+          "音声検索"
+        ],
+        "a": 1,
+        "explain": "XMLは構造化されたテキスト形式で、内容のテキストが直接読み取れるため全文検索が容易になりました。"
+      },
+      {
+        "q": "組織で情報の機密区分や管理方法をまとめたものは?",
+        "opts": [
+          "プライバシーポリシー",
+          "セキュリティポリシー",
+          "コンプライアンス",
+          "ガイドライン"
+        ],
+        "a": 1,
+        "explain": "セキュリティポリシーには情報の機密区分(極秘・秘・社外秘・公開など)とそれぞれの管理方法を定めます。第3章で学んだ内容です。"
+      },
+      {
+        "q": "閉架式と開架式の違いは?",
+        "opts": [
+          "本の種類",
+          "閲覧方法",
+          "料金の有無",
+          "貸出期間"
+        ],
+        "a": 1,
+        "explain": "閲覧方法の違い:閉架式=管理者の許可を得て閲覧、開架式=利用者が自由に手に取れる。多くの公共図書館は開架式です。"
+      }
+    ]
+  },
+  {
+    "id": "unit5",
+    "title": "4節 分析のための工夫(データ形式)",
+    "fill": {
+      "text": "表計算ソフトでは数値データは右詰め、文字列データは[左詰め]で配置されます。日付や時間は[シリアル値]という数値データとして扱われ、1900年1月1日0時を「1」とします。データ形式を統一する技法として、男性に「0」女性に「1」のように対応させる[コード化]があります。コピー先を基点に別のセルを参照するのを[相対参照]、コピー先も同じセルを参照するのを[絶対参照]といい、後者は「[$]」を付けて指定します。"
+    },
+    "glossary": {
+      "左詰め": {
+        "en": "left aligned",
+        "kana": "レフト アラインド",
+        "desc": "文字列の自動配置位置。数値は右詰め、文字列は左詰めで表示されます。"
+      },
+      "シリアル値": {
+        "en": "serial value",
+        "kana": "シリアル バリュー",
+        "desc": "「serial(連続した)」+「value(値)」。日付や時刻を「1900年1月1日0時0分0秒からの経過日数」として表す数値です。"
+      },
+      "コード化": {
+        "en": "coding",
+        "kana": "コーディング",
+        "desc": "「code(符号)」+「-ing」。データを数値や記号に対応させること。データベース構築の重要な技法です。"
+      },
+      "相対参照": {
+        "en": "relative reference",
+        "kana": "リラティブ リファレンス",
+        "desc": "「relative(相対的)」+「reference(参照)」。コピーするとセル番地がずれて参照される方式です。"
+      },
+      "絶対参照": {
+        "en": "absolute reference",
+        "kana": "アブソリュート リファレンス",
+        "desc": "「absolute(絶対的)」+「reference(参照)」。コピーしても同じセルを参照する方式。$を付けて指定します。"
+      },
+      "$": {
+        "en": "dollar sign",
+        "kana": "ダラー サイン",
+        "desc": "ドル記号。表計算ソフトでは行や列の前に付けて「絶対参照」を表します。例:$A$1=絶対参照、$A1=列のみ絶対、A$1=行のみ絶対。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "表計算ソフトで日付や時間を表す数値データを何という?",
+        "opts": [
+          "シリアル値",
+          "タイムスタンプ",
+          "カレンダー値",
+          "エポック値"
+        ],
+        "a": 0,
+        "explain": "シリアル値は1900年1月1日0時を1とした連続した数値。整数部=日付、小数部=時刻を表します。",
+        "example": "シリアル値「44197」=2021年1月1日。1.5なら1900年1月1日12時を表します。"
+      },
+      {
+        "q": "1日の1/24は何を表す?",
+        "opts": [
+          "1分",
+          "1時間",
+          "1秒",
+          "1週間"
+        ],
+        "a": 1,
+        "explain": "24時間=1日なので、1時間=1/24日。同様に1分=1/1440日、1秒=1/86400日です。"
+      },
+      {
+        "q": "データの形式を統一するため数値に対応させることを?",
+        "opts": [
+          "正規化",
+          "コード化",
+          "標準化",
+          "一般化"
+        ],
+        "a": 1,
+        "explain": "コード化は「男性=0、女性=1」のように、ばらつきのあるデータを統一的な数値に変換する作業です。",
+        "example": "都道府県コード(北海道=01、青森=02...)、商品コード、JANコード(バーコード)などもコード化の例。"
+      },
+      {
+        "q": "コピー時にセル番地もずれて参照される方式は?",
+        "opts": [
+          "絶対参照",
+          "相対参照",
+          "混合参照",
+          "循環参照"
+        ],
+        "a": 1,
+        "explain": "相対参照は「相対的位置」がコピーされる仕組み。多くの場合これがデフォルト動作です。",
+        "example": "A1セルに「=B1+C1」と入力してA2にコピー → 自動的に「=B2+C2」になります。"
+      },
+      {
+        "q": "絶対参照を表す記号は?",
+        "opts": [
+          "#",
+          "@",
+          "$",
+          "&"
+        ],
+        "a": 2,
+        "explain": "$(ドル記号)を行番号や列番号の前に付けて絶対参照にします。$A$1なら完全に固定、$A1なら列のみ固定、A$1なら行のみ固定です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "表計算ソフトでは「1」を入力すると左詰めで表示される。",
+        "a": false,
+        "explain": "数値は右詰めで表示されます。左詰めは文字列。これで「数値として認識されているか」を見分けられます。"
+      },
+      {
+        "q": "「'(半角アポストロフィ)」を前に添えると数字を文字列として扱える。",
+        "a": true,
+        "explain": "電話番号の「03」のように先頭の0を残したい時、'(アポストロフィ)を前に付けると文字列として扱われ、頭の0が消えません。"
+      },
+      {
+        "q": "日付データは「:(コロン)」で区切る。",
+        "a": false,
+        "explain": "日付データは「/(スラッシュ)」で区切ります。「:」は時刻データ用です。例:「2024/3/15」=日付、「14:30:00」=時刻。"
+      },
+      {
+        "q": "シリアル値の整数部は日付、小数部は時刻を表す。",
+        "a": true,
+        "explain": "シリアル値「44197.5」なら、44197が日付(2021/1/1)、0.5が時刻(12:00)を表します。"
+      },
+      {
+        "q": "ドロップダウンリストを使うとデータの表現を統一できる。",
+        "a": true,
+        "explain": "ドロップダウンリスト(プルダウンメニュー)で選択肢を限定すれば、表記の揺れ(例:「男」「男性」「M」のばらつき)を防げます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "表計算で乗算に使う記号は?",
+        "opts": [
+          "×",
+          "*",
+          "・",
+          "×印"
+        ],
+        "a": 1,
+        "explain": "コンピュータでは*(アスタリスク)で乗算、/(スラッシュ)で除算を表します。数学の記号「×」「÷」は使えません。"
+      },
+      {
+        "q": "0.5を加えると何時間後になる?",
+        "opts": [
+          "6時間後",
+          "12時間後",
+          "18時間後",
+          "24時間後"
+        ],
+        "a": 1,
+        "explain": "1日=1なので、0.5=半日=12時間です。"
+      },
+      {
+        "q": "5段階評価より4段階評価が良い場合とは?",
+        "opts": [
+          "真ん中の回答を避けたい時",
+          "選択肢を増やしたい時",
+          "データを視覚化したい時",
+          "計算しやすい時"
+        ],
+        "a": 0,
+        "explain": "5段階だと「どちらでもない」を選ぶ人が増えがち。態度を明確にしてほしい時は4段階(中央なし)を使います。"
+      },
+      {
+        "q": "A2セルに数式「=B$1+C$1」を入力してA3にコピーすると?",
+        "opts": [
+          "=B1+C1",
+          "=B2+C2",
+          "=B$2+C$2",
+          "=B$1+C$1"
+        ],
+        "a": 3,
+        "explain": "$は「行絶対」を意味するので、行番号1は固定。コピーしても=B$1+C$1のまま変わりません。"
+      }
+    ]
+  },
+  {
+    "id": "unit6",
+    "title": "5節 関数と統計",
+    "fill": {
+      "text": "表計算ソフトの関数では、( )内のデータを[引数]、関数の中で別の関数を使うことを[ネスト]といいます。データの平均からどれだけ広い範囲に分布しているかを表す値を[標準偏差]、2集団の関連の強さを表す値を[相関係数]といいます。論理式で結果を分岐させる関数が[IF]関数、条件を満たすセル数を数えるのが[COUNTIF]、合計を計算するのが[SUMIF]関数です。値や範囲ごとの出現回数を表すリストを[度数分布]といいます。"
+    },
+    "glossary": {
+      "引数": {
+        "en": "argument",
+        "kana": "アーギュメント",
+        "desc": "関数に渡すデータ。「ひきすう」と読みます。( )内に「,(カンマ)」で区切って並べます。"
+      },
+      "ネスト": {
+        "en": "nesting",
+        "kana": "ネスティング",
+        "desc": "「nest(巣)」+「-ing」=入れ子。関数の引数に別の関数を入れることです。「=」は一番外側の関数だけに付けます。"
+      },
+      "標準偏差": {
+        "en": "standard deviation",
+        "kana": "スタンダード ディビエーション",
+        "desc": "「standard(標準)」+「deviation(ばらつき)」。データのばらつきを表す統計値。STDEVP関数で計算できます。"
+      },
+      "相関係数": {
+        "en": "correlation coefficient",
+        "kana": "コリレーション コエフィシエント",
+        "desc": "「correlation(相関)」+「coefficient(係数)」。-1〜+1の値で2つのデータの関連の強さを表します。CORREL関数で計算。"
+      },
+      "IF": {
+        "en": "IF function",
+        "kana": "イフ ファンクション",
+        "desc": "「もし〜なら」の意味。条件によって結果を切り替える関数です。書式:=IF(論理式, 真の場合, 偽の場合)。"
+      },
+      "COUNTIF": {
+        "en": "COUNTIF function",
+        "kana": "カウント イフ",
+        "desc": "COUNT(数える)+ IF(もし)。条件を満たすセルの個数を数える関数です。"
+      },
+      "SUMIF": {
+        "en": "SUMIF function",
+        "kana": "サム イフ",
+        "desc": "SUM(合計)+ IF(もし)。条件を満たすセルの合計を計算する関数です。"
+      },
+      "度数分布": {
+        "en": "frequency distribution",
+        "kana": "フリークエンシー ディストリビューション",
+        "desc": "「frequency(頻度)」+「distribution(分布)」。値や範囲ごとに何個データがあるかを表す表のことです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "関数の( )内に渡すデータを何という?",
+        "opts": [
+          "引数",
+          "戻り値",
+          "変数",
+          "定数"
+        ],
+        "a": 0,
+        "explain": "引数(ひきすう、argument)は関数に渡すデータ。複数ある場合は「,」で区切ります。",
+        "example": "SUM(A1:A5)では「A1:A5」が引数。AVERAGE(B1, B3, B5)なら3つの引数を持ちます。"
+      },
+      {
+        "q": "データの平均値からどれだけ離れているかを表す値は?",
+        "opts": [
+          "平均値",
+          "中央値",
+          "標準偏差",
+          "分散"
+        ],
+        "a": 2,
+        "explain": "標準偏差はデータのばらつき具合を表す重要な統計値。STDEVP関数で計算できます。",
+        "example": "テストの平均が60点で標準偏差が10の場合、ほとんどの生徒は50〜70点の範囲に収まります。"
+      },
+      {
+        "q": "2つの集団間の関連性を-1〜+1で表す値は?",
+        "opts": [
+          "平均値",
+          "標準偏差",
+          "相関係数",
+          "分散"
+        ],
+        "a": 2,
+        "explain": "相関係数は2つのデータの関連性。+1に近いほど強い正の相関、-1に近いほど強い負の相関、0なら無相関です。",
+        "example": "身長と体重の相関係数は約+0.7=強い正の相関。気温とアイスクリーム売上も正の相関があります。"
+      },
+      {
+        "q": "条件によって結果を切り替える関数は?",
+        "opts": [
+          "IF関数",
+          "SUM関数",
+          "COUNT関数",
+          "MAX関数"
+        ],
+        "a": 0,
+        "explain": "IF関数は「もし○○なら△△、そうでなければ□□」と条件分岐できます。書式:=IF(論理式, 真の場合, 偽の場合)。"
+      },
+      {
+        "q": "値や範囲ごとに現れた回数のリストを?",
+        "opts": [
+          "度数分布",
+          "時系列",
+          "確率分布",
+          "正規分布"
+        ],
+        "a": 0,
+        "explain": "度数分布は「ある範囲のデータが何個あるか」のリスト。FREQUENCY関数やCOUNTIF関数で求められます。",
+        "example": "クラスの身長を「150cm未満」「150〜160cm」「160〜170cm」と区切ると、それぞれ何人いるかが度数分布です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "AVERAGE関数は中央値を求める関数である。",
+        "a": false,
+        "explain": "AVERAGE関数は平均値。中央値はMEDIAN関数で求めます。平均値と中央値は別の概念です。",
+        "example": "1, 2, 3, 4, 100というデータの平均は22ですが、中央値は3。極端な値の影響を受けにくいのが中央値の長所です。"
+      },
+      {
+        "q": "相関関係があれば必ず因果関係もある。",
+        "a": false,
+        "explain": "相関≠因果。これは統計学で非常に重要な原則です。",
+        "example": "アイスクリーム売上と水難事故数は強い相関がありますが、アイスクリームが事故の原因ではありません。両方とも夏の暑さに連動しているだけです(疑似相関)。"
+      },
+      {
+        "q": "標準偏差が大きいほどデータは平均値の周りに集まっている。",
+        "a": false,
+        "explain": "標準偏差が大きいほどデータはばらついており、小さいほど平均値の周りに集まっています。"
+      },
+      {
+        "q": "データの分布が正規分布なら平均値と中央値は一致する。",
+        "a": true,
+        "explain": "正規分布(釣鐘型)は左右対称なので、平均値=中央値になります。歪みがあるとずれます。"
+      },
+      {
+        "q": "COUNTIF関数の引数は2つで、SUMIF関数の引数は3つである。",
+        "a": true,
+        "explain": "COUNTIF(範囲, 検索条件)は2引数、SUMIF(範囲, 検索条件, 合計範囲)は3引数。SUMIFは「条件を判定する範囲」と「合計する範囲」を別々に指定できます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "偏差値の計算式として正しいのは?",
+        "opts": [
+          "50 + (得点-平均値)/標準偏差 × 10",
+          "100 + (得点-平均値) × 標準偏差",
+          "(得点/平均値) × 100",
+          "標準偏差 × 10"
+        ],
+        "a": 0,
+        "explain": "偏差値 = 50 + (得点-平均値)/標準偏差 × 10。平均点=偏差値50、平均+標準偏差=偏差値60(上位約16%)、平均-標準偏差=偏差値40(下位約16%)。"
+      },
+      {
+        "q": "FREQUENCY関数の入力確定方法は?",
+        "opts": [
+          "ENTER",
+          "SHIFT+ENTER",
+          "CTRL+ENTER",
+          "CTRL+SHIFT+ENTER"
+        ],
+        "a": 3,
+        "explain": "FREQUENCY関数は「配列関数」のためCTRL+SHIFT+ENTERで確定します。普通のENTERでは1つのセルにしか入りません。"
+      },
+      {
+        "q": "比較演算子「<>」の意味は?",
+        "opts": [
+          "等しい",
+          "等しくない",
+          "以上",
+          "以下"
+        ],
+        "a": 1,
+        "explain": "「<>」は数学の「≠」(等しくない)に相当。「<」「>」を組み合わせた記号で覚えやすいです。「>=」は数学の「≧」、「<=」は「≦」に相当。"
+      },
+      {
+        "q": "関数の引数として別の関数を使うことを?",
+        "opts": [
+          "ループ",
+          "ネスト",
+          "コール",
+          "インクルード"
+        ],
+        "a": 1,
+        "explain": "ネスト(nesting=入れ子)は関数の中に関数を入れること。例:=IF(AND(A1>0, A1<100), \"範囲内\", \"範囲外\")。「=」は一番外側のIFだけに付きます。"
+      }
+    ]
+  },
+  {
+    "id": "unit7",
+    "title": "6節 表とグラフの活用",
+    "fill": {
+      "text": "データを表やグラフにして特徴を把握しやすくすることを[視覚化]といいます。値の大きさ比較に使うのが[棒グラフ]、値の変化を表すのが[折れ線グラフ]、全体に対する割合を表すのが[円グラフ]、項目間のバランスを表すのが[レーダーチャート]、2系列の関係を表すのが[散布図]です。度数分布を棒グラフで表したものを[ヒストグラム]、最小値・四分位数・最大値を表すのが[箱ひげ図]です。"
+    },
+    "glossary": {
+      "視覚化": {
+        "en": "visualization",
+        "kana": "ビジュアライゼーション",
+        "desc": "「visual(視覚の)」+「-ization(化)」。データを表やグラフで視覚的に表現することです。"
+      },
+      "棒グラフ": {
+        "en": "bar chart",
+        "kana": "バー チャート",
+        "desc": "「bar(棒)」+「chart(図表)」。棒の長さで量や大きさを表現。項目間の比較に最適です。"
+      },
+      "折れ線グラフ": {
+        "en": "line chart",
+        "kana": "ライン チャート",
+        "desc": "「line(線)」+「chart(図表)」。点を線で結び値の変化を表現。時間的変化を見るのに適しています。"
+      },
+      "円グラフ": {
+        "en": "pie chart",
+        "kana": "パイ チャート",
+        "desc": "「pie(パイ料理)」+「chart(図表)」。パイのように切り分けて表現。全体に対する割合を表すのに適しています。"
+      },
+      "レーダーチャート": {
+        "en": "radar chart",
+        "kana": "レーダー チャート",
+        "desc": "「radar(レーダー)」+「chart(図表)」。レーダーの探知範囲のように、放射状の軸に多項目の値を表します。バランスを見るのに最適。"
+      },
+      "散布図": {
+        "en": "scatter plot / scatter diagram",
+        "kana": "スキャター プロット",
+        "desc": "「scatter(散らばる)」+「plot(点を打つ)」。XY軸に点を打って2変数の関係を表します。相関分析に使われます。"
+      },
+      "ヒストグラム": {
+        "en": "histogram",
+        "kana": "ヒストグラム",
+        "desc": "ギリシャ語「histos(柱)」+「gramma(描く)」。度数分布を棒グラフで表したものです。"
+      },
+      "箱ひげ図": {
+        "en": "box plot / box-and-whisker plot",
+        "kana": "ボックス プロット",
+        "desc": "「box(箱)」+「plot(図)」。箱とひげ(線)でデータの分布を表現。最小値・第1四分位数・中央値・第3四分位数・最大値を一目で把握できます。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "値の大きさを比較するのに最適なグラフは?",
+        "opts": [
+          "棒グラフ",
+          "円グラフ",
+          "折れ線グラフ",
+          "レーダーチャート"
+        ],
+        "a": 0,
+        "explain": "棒グラフは棒の長さで量を表現。複数項目の比較に最適です。",
+        "example": "各国の人口比較、製品ごとの売上、各教科のテストの点数比較などに使います。"
+      },
+      {
+        "q": "時間経過に沿った変化を表すのに適したグラフは?",
+        "opts": [
+          "棒グラフ",
+          "円グラフ",
+          "折れ線グラフ",
+          "円グラフ"
+        ],
+        "a": 2,
+        "explain": "折れ線グラフは点を結ぶ線の傾きで「変化」を表します。月別売上推移や気温変化のグラフが代表例です。"
+      },
+      {
+        "q": "全体に対する割合を表すのに最適なグラフは?",
+        "opts": [
+          "棒グラフ",
+          "円グラフ",
+          "折れ線グラフ",
+          "散布図"
+        ],
+        "a": 1,
+        "explain": "円グラフは全体を100%として、各項目が占める割合を「中心角度」で表します。",
+        "example": "クラスのアンケート結果(賛成40%、反対30%、わからない30%など)。ただし合計100%にならない時は使えません。"
+      },
+      {
+        "q": "2つの系列の関係性を点で表すグラフは?",
+        "opts": [
+          "散布図",
+          "棒グラフ",
+          "折れ線グラフ",
+          "レーダーチャート"
+        ],
+        "a": 0,
+        "explain": "散布図は2つの値を縦軸・横軸にとり、点を打って関係を見ます。相関関係の有無や強さが分かります。",
+        "example": "身長と体重、勉強時間とテストの点数、気温とアイス売上などの関係を見る時に使います。"
+      },
+      {
+        "q": "度数分布を棒グラフで表現したものは?",
+        "opts": [
+          "ヒストグラム",
+          "棒グラフ",
+          "箱ひげ図",
+          "円グラフ"
+        ],
+        "a": 0,
+        "explain": "ヒストグラムは度数分布の表示専用の棒グラフ。普通の棒グラフと違い、棒同士に隙間がない(連続した区間を表す)のが特徴です。",
+        "example": "テストの点数分布(0-10点が2人、10-20点が5人、...)を棒で表したものがヒストグラム。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "円グラフは合計が100%にならない場合でも使える。",
+        "a": false,
+        "explain": "円グラフは「全体に対する割合」を示すため、合計が100%になる必要があります。100%にならない時は「その他」を加えるか、別のグラフを使います。"
+      },
+      {
+        "q": "レーダーチャートでは、項目バランスがよいと正多角形に近くなる。",
+        "a": true,
+        "explain": "レーダーチャートで全項目の値が同程度なら正多角形(対称な形)になります。バランスを見やすくするのが特徴です。",
+        "example": "バランスの良い選手のステータス(攻撃・守備・スピード・体力など)が正六角形に近くなる、など。"
+      },
+      {
+        "q": "相関係数の絶対値が0.5〜0.7以上のとき相関があるといわれる。",
+        "a": true,
+        "explain": "一般的には|R|≧0.7で強い相関、0.5〜0.7で弱い〜中程度の相関と言われます。基準は分野によって異なります。"
+      },
+      {
+        "q": "箱ひげ図は最小値・第1四分位数・中央値・第3四分位数・最大値の5つの値を表す。",
+        "a": true,
+        "explain": "箱ひげ図は「五数要約」を視覚化したもの。データの分布や外れ値が一目で分かります。"
+      },
+      {
+        "q": "相関係数R=0は相関がないことを表す。",
+        "a": true,
+        "explain": "R=0は無相関(2つの変数に関係がない)。R=1なら完全な正の相関、R=-1なら完全な負の相関です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "出現頻度が多いほど点を大きく描く散布図は?",
+        "opts": [
+          "ヒストグラム",
+          "箱ひげ図",
+          "バブル図",
+          "レーダーチャート"
+        ],
+        "a": 2,
+        "explain": "バブル図(バブルチャート)は「bubble(泡)」のように、点の大きさで第3の量を表現できる散布図です。"
+      },
+      {
+        "q": "凡例(はんれい)とは何?",
+        "opts": [
+          "グラフのタイトル",
+          "各系列の表現方法を示す一覧表",
+          "データの単位",
+          "軸の値"
+        ],
+        "a": 1,
+        "explain": "凡例(legend)は「色や記号がどの系列を表すか」の説明書き。グラフを読み取るのに不可欠な要素です。"
+      },
+      {
+        "q": "帯グラフが棒グラフと異なる点は?",
+        "opts": [
+          "横長",
+          " 100%が幅の基準",
+          "色がカラフル",
+          "立体的"
+        ],
+        "a": 1,
+        "explain": "帯グラフは100%を幅の基準として、各項目の割合を比較するグラフ。多系列の割合比較に向きます。例:学年ごとの好きな食べ物の割合の比較など。"
+      },
+      {
+        "q": "相関係数R=-0.5は何を表すか?",
+        "opts": [
+          "強い正の相関",
+          "弱い正の相関",
+          "弱い負の相関",
+          "相関なし"
+        ],
+        "a": 2,
+        "explain": "R=-0.5は弱い負の相関。負=「片方が増えると他方が減る」関係。例:勉強時間と遊び時間。"
+      }
+    ]
+  },
+  {
+    "id": "unit8",
+    "title": "7節 分析の実際",
+    "fill": {
+      "text": "グラフを読み取る際は、タイトル・系列・[座標軸]を確認することが重要です。グラフでは縦軸の取り方の違いによって[印象]が大きく変わるため注意が必要です。漁獲高など合計値を比較したい場合は、割合を表す[帯グラフ]ではなく棒グラフが適切です。立体グラフでは[ある部分が強調]されることがあるので避けるべきです。受信者は周期性や[大きく変化した部分]の特徴に注目します。"
+    },
+    "glossary": {
+      "座標軸": {
+        "en": "coordinate axis",
+        "kana": "コーディネート アクシス",
+        "desc": "「coordinate(座標)」+「axis(軸)」。グラフの縦軸・横軸のこと。単位や範囲の確認が大切です。"
+      },
+      "印象": {
+        "en": "impression",
+        "kana": "インプレッション",
+        "desc": "グラフの作り方で受け手の感じ方が変わること。同じデータでも見せ方で印象操作できてしまいます。"
+      },
+      "帯グラフ": {
+        "en": "band graph / 100% stacked bar",
+        "kana": "バンド グラフ",
+        "desc": "幅を100%として並べる帯状のグラフ。割合の比較には適しますが、絶対量の比較には不適です。"
+      },
+      "ある部分が強調": {
+        "en": "visual emphasis / distortion",
+        "kana": "ビジュアル エンファシス",
+        "desc": "立体グラフでは手前が大きく見えるため、特定部分が強調され誤解を招きやすくなります。"
+      },
+      "大きく変化した部分": {
+        "en": "significant change point",
+        "kana": "シグニフィカント チェンジ",
+        "desc": "データの異常な変動。原因の手がかりになるため注目が大切です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "グラフを読み取る際にまず確認すべきものは?",
+        "opts": [
+          "色合い",
+          "タイトル・系列・座標軸",
+          "データ数",
+          "作者"
+        ],
+        "a": 1,
+        "explain": "グラフの基本要素「タイトル(何のグラフか)」「系列(何を表すか)」「座標軸(単位・範囲)」を確認しないと、誤解の元になります。"
+      },
+      {
+        "q": "縦軸の取り方によってグラフの何が変わる?",
+        "opts": [
+          "データ自体",
+          "印象",
+          "タイトル",
+          "凡例"
+        ],
+        "a": 1,
+        "explain": "同じデータでも縦軸の範囲を変えると印象が大きく変化。",
+        "example": "売上が100→101になっただけでも、縦軸を「100〜101」にすると爆増したように見えます。実際は1%の増加。"
+      },
+      {
+        "q": "合計値を比較したい場合に適切でないグラフは?",
+        "opts": [
+          "棒グラフ",
+          "帯グラフ",
+          "折れ線グラフ",
+          "レーダーチャート"
+        ],
+        "a": 1,
+        "explain": "帯グラフは「割合」を表すため、合計値の比較には不向き。合計値を見せたいなら棒グラフを使います。",
+        "example": "各国の漁獲高を比較したい時、帯グラフだと「割合」しか分からず、絶対量が見えません。"
+      },
+      {
+        "q": "誤解を招きやすいので避けるべきグラフ表現は?",
+        "opts": [
+          "二次元の棒グラフ",
+          "立体表現の円グラフ",
+          "普通の折れ線グラフ",
+          "散布図"
+        ],
+        "a": 1,
+        "explain": "立体グラフは手前が大きく、奥が小さく見えるため、データの正しい比較を妨げます。特に円グラフは平面で表すべきです。"
+      },
+      {
+        "q": "グラフの読み取りで注目すべき特徴は?",
+        "opts": [
+          "色",
+          "周期性や大きく変化した部分",
+          "フォント",
+          "大きさ"
+        ],
+        "a": 1,
+        "explain": "周期性(規則的な変化)や大きな変化は、データに隠された情報を示している可能性があります。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "同じデータでもグラフの作り方で印象が変わることがある。",
+        "a": true,
+        "explain": "縦軸の範囲、グラフの種類、色使い、3D表現などで印象は大きく変わります。これを悪用した「印象操作」もあるため、受信者として注意が必要です。"
+      },
+      {
+        "q": "立体グラフは奥行きで情報量が増えるので、できるだけ使うべきである。",
+        "a": false,
+        "explain": "立体グラフは見栄えはしますが、視覚的な歪みで誤解を招きやすいので、特に円グラフでは避けるのが原則です。"
+      },
+      {
+        "q": "データの単位や数値範囲を読み取らないとグラフを正しく理解できない。",
+        "a": true,
+        "explain": "同じ「100」でも単位が「人」なのか「億円」なのかで意味が全く違います。座標軸の確認は必須です。"
+      },
+      {
+        "q": "発信者の意図と異なる印象を与えるグラフを描いても問題ない。",
+        "a": false,
+        "explain": "誤解を招くグラフは情報の信頼性を損ないます。発信者は誠実に、意図が正しく伝わるように工夫すべきです。"
+      },
+      {
+        "q": "グラフから得られる情報は完全に客観的である。",
+        "a": false,
+        "explain": "グラフは作成者の意図が反映される表現の1つ。主観的要素が入る可能性があるため、批判的に読み取る能力(クリティカルリーディング)が必要です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "縦軸の取り方による印象操作の例は?",
+        "opts": [
+          "軸の最小値を高くして差を強調",
+          "軸の単位を変える",
+          "色を変える",
+          "フォントを変える"
+        ],
+        "a": 0,
+        "explain": "縦軸の最小値を0でなく100からなどにすれば、わずかな差でも大きな差に見せられます。",
+        "example": "実際は98%→99%(1%増)を、縦軸を95〜100にすると「大きく上昇」した印象になります。"
+      },
+      {
+        "q": "円グラフが使えない場合は?",
+        "opts": [
+          "データが10個以上",
+          "合計が100%にならない",
+          "色を変えたい",
+          "立体にしたい"
+        ],
+        "a": 1,
+        "explain": "円グラフは全体に対する割合を示すため、母集団のすべての項目が表示され合計100%でないと使えません。"
+      },
+      {
+        "q": "受信者として読み取る際に重要なのは?",
+        "opts": [
+          "グラフの色",
+          "タイトルや系列・座標軸の確認",
+          "作者の年齢",
+          "作成日"
+        ],
+        "a": 1,
+        "explain": "客観的にグラフを読み取るには、何を表しているか・どの系列か・何を基準にしているかを必ず確認します。"
+      },
+      {
+        "q": "レーダーチャートで印象が変わる要因は?",
+        "opts": [
+          "色合い",
+          "座標軸の取り方や項目の順序",
+          "グラフのサイズ",
+          "凡例の位置"
+        ],
+        "a": 1,
+        "explain": "レーダーチャートは項目の順序や軸の最大値で形が大きく変わります。意図的に有利な印象を作ることもできます。"
+      }
+    ]
+  },
+  {
+    "id": "unit9",
+    "title": "8節 問題解決の実践",
+    "fill": {
+      "text": "気温データのような不規則な変動を平滑化し全体の傾向を把握する手法を[移動平均]といいます。データの分布傾向に直線や曲線で当てはめ将来予測に使うものを[近似曲線]といいます。大量の文章から有効な情報を見つけ出す技術を[テキストマイニング]といいます。CO2排出量のデータを取得できるのは気象庁の[温室効果ガス世界資料センター]です。気温の観測地点の値を比較する際には気温そのものではなく[平年差]を用います。"
+    },
+    "glossary": {
+      "移動平均": {
+        "en": "moving average",
+        "kana": "ムービング アベレージ",
+        "desc": "「moving(移動する)」+「average(平均)」。前後の数年間の平均をとって不規則な変動をならす手法。株価や気温分析でよく使われます。"
+      },
+      "近似曲線": {
+        "en": "approximate curve / trend line",
+        "kana": "アプロキシメイト カーブ",
+        "desc": "「approximate(近似する)」+「curve(曲線)」。データの傾向を表す線。線形近似(直線)と多項式近似(曲線)があります。"
+      },
+      "テキストマイニング": {
+        "en": "text mining",
+        "kana": "テキスト マイニング",
+        "desc": "「text(文章)」+「mining(採掘)」。文章を「採掘」して情報を取り出す技術。アンケートの自由記述分析などに使われます。"
+      },
+      "温室効果ガス世界資料センター": {
+        "en": "World Data Centre for Greenhouse Gases",
+        "kana": "ワールド データ センター フォー グリーンハウス ガセズ(WDCGG)",
+        "desc": "気象庁の運営する世界の温室効果ガスデータセンター。略称はWDCGG。"
+      },
+      "平年差": {
+        "en": "anomaly from normal",
+        "kana": "アノマリー フロム ノーマル",
+        "desc": "気温の観測地点の値はその周囲を代表しているとはいえないため、気温そのものではなく平年からの差を用います。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "前後の数年間の平均を取って傾向を見やすくする手法は?",
+        "opts": [
+          "加重平均",
+          "移動平均",
+          "幾何平均",
+          "調和平均"
+        ],
+        "a": 1,
+        "explain": "移動平均は時系列データの不規則な変動を「ならす」手法。例えば「5年移動平均」なら前後2年+当該年=5年分の平均を取ります。",
+        "example": "株価チャートの「25日移動平均線」、気温の年変動を均すための「5年移動平均」などで使われます。"
+      },
+      {
+        "q": "データに線をフィットさせ将来予測に使うものは?",
+        "opts": [
+          "近似曲線",
+          "回帰直線",
+          "回帰式",
+          "すべて該当"
+        ],
+        "a": 3,
+        "explain": "近似曲線・回帰直線・回帰式はほぼ同じ意味で、データの傾向を表す線です。表計算ソフトでは散布図に追加できます。"
+      },
+      {
+        "q": "大量の文章から情報を抽出する技術は?",
+        "opts": [
+          "データマイニング",
+          "テキストマイニング",
+          "ウェブマイニング",
+          "プロセスマイニング"
+        ],
+        "a": 1,
+        "explain": "テキストマイニングは自然言語処理を使い、文章中の単語の出現頻度や関連性を分析します。",
+        "example": "商品レビューを分析し「使いやすい」「壊れやすい」「デザインが良い」など意見の傾向を把握する、など。"
+      },
+      {
+        "q": "CO2と気温の相関係数が0.77のとき、関係性は?",
+        "opts": [
+          "相関なし",
+          "弱い正の相関",
+          "強い正の相関",
+          "負の相関"
+        ],
+        "a": 2,
+        "explain": "0.77は0.7以上なので「強い正の相関」。CO2が増えると気温も上がる傾向が強いという意味です。",
+        "example": "ただし「相関≠因果」。気温上昇により海中CO2が放出される逆向きの効果も考慮が必要です。"
+      },
+      {
+        "q": "気温分析で気温そのものではなく差分を使う理由は?",
+        "opts": [
+          "データが大きいから",
+          "観測地点は周囲を代表しないから",
+          "計算が楽だから",
+          "標準だから"
+        ],
+        "a": 1,
+        "explain": "気温の観測地点は限定的で、その周囲全体を代表しているとは言えません。だから「平年からの差(平年差)」を使います。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "相関関係があれば必ず因果関係もある。",
+        "a": false,
+        "explain": "相関≠因果は統計学の最重要原則。CO2と気温も「強い相関」はありますが、第3の要因(海水温など)の影響も考慮が必要です。"
+      },
+      {
+        "q": "移動平均は不規則な変動を平滑化するのに有効である。",
+        "a": true,
+        "explain": "移動平均は単年度の特殊事情を打ち消し、全体的な傾向を見やすくする効果があります。"
+      },
+      {
+        "q": "CO2排出係数とは1人を1km輸送する場合のCO2排出量を表す。",
+        "a": true,
+        "explain": "排出係数は「1人を1km輸送する場合」を基準に算出。これにより異なる交通手段を公平に比較できます。",
+        "example": "徒歩・自転車<電車<バス<自動車<飛行機の順に大きいのが一般的です。"
+      },
+      {
+        "q": "シミュレーションを使うと、家庭での効果的なCO2削減方法を検討できる。",
+        "a": true,
+        "explain": "個人レベルのCO2排出量シミュレーションで「何をどれだけ改善すれば削減効果が大きいか」を可視化できます。"
+      },
+      {
+        "q": "将来予測にはCO2の現状値だけ用いれば十分である。",
+        "a": false,
+        "explain": "将来予測には過去データ全体に近似曲線を当てはめるなどの分析が必要。現状値だけでは未来の変化は予測できません。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "世界の年平均気温平年差を提供するのは?",
+        "opts": [
+          "国立環境研究所",
+          "気象庁",
+          "環境省",
+          "文部科学省"
+        ],
+        "a": 1,
+        "explain": "気象庁の気象統計情報から取得できます。気象データの公的機関として一次情報源です。"
+      },
+      {
+        "q": "個人で取り組むCO2削減方法を検討する手順は?",
+        "opts": [
+          "シミュレーションで現状把握→改善箇所決定",
+          "改善箇所決定→現状把握",
+          "すべて同時に",
+          "改善は不要"
+        ],
+        "a": 0,
+        "explain": "まず現状を可視化(シミュレーション)してから、効果が大きい改善箇所を決めます。PDCAのCとAに相当します。"
+      },
+      {
+        "q": "社会レベルでCO2問題解決の議論をする際に使える手法は?",
+        "opts": [
+          "ブレインストーミング+KJ法",
+          "PDCA",
+          "移動平均",
+          "近似曲線"
+        ],
+        "a": 0,
+        "explain": "ブレインストーミングで広くアイデアを出し、KJ法で分類・整理。地球温暖化のような複雑な問題には集合知の活用が有効です。"
+      },
+      {
+        "q": "線形近似と多項式近似の違いは?",
+        "opts": [
+          "色の違い",
+          "直線か曲線か",
+          "単位の違い",
+          "時間の違い"
+        ],
+        "a": 1,
+        "explain": "線形近似は直線(y=ax+b)、多項式近似は曲線(y=ax²+bx+c等)。データに合わせてどちらが当てはまるか選びます。"
+      }
+    ]
+  },
+  {
+    "id": "unit10",
+    "title": "論理的な文章構成",
+    "fill": {
+      "text": "客観的事実から新しい事実を導き出す文章を[論文]、書き手の主観を記述する文章を[感想文]といいます。論文の論理展開で結論を先に述べる論法を[頭括式]、結論を後に述べる論法を[尾括式]、最初と最後に結論を述べる論法を[双括式]といいます。論文の構成は表題・[序論]・本論・[結論]・文献表の5つで、[結論]は研究結果のまとめと考察を記述します。"
+    },
+    "glossary": {
+      "論文": {
+        "en": "thesis / paper",
+        "kana": "シーシス / ペーパー",
+        "desc": "客観的事実をもとに比較・積み重ねで新しい事実や法則を導く文章。論理が正しければ誰が読んでも同じ結論に至ります。"
+      },
+      "感想文": {
+        "en": "essay / impressions",
+        "kana": "インプレッションズ",
+        "desc": "「〜と思った」「〜と感じた」など書き手の主観を記述する文章。価値観により人それぞれ感じ方が異なります。"
+      },
+      "頭括式": {
+        "en": "deductive style",
+        "kana": "ディダクティブ スタイル",
+        "desc": "「頭(あたま)」+「括(くくる)」=結論を冒頭に置く論法。短時間で要点を伝えたい時に有効です(演繹型)。"
+      },
+      "尾括式": {
+        "en": "inductive style",
+        "kana": "インダクティブ スタイル",
+        "desc": "「尾(しっぽ)」+「括(くくる)」=結論を最後に置く論法。話し言葉として一般的(帰納型)。"
+      },
+      "双括式": {
+        "en": "sandwich style",
+        "kana": "サンドイッチ スタイル",
+        "desc": "結論を最初と最後に「挟む」(双=2回)構造。プレゼンテーションでよく使われます。"
+      },
+      "序論": {
+        "en": "introduction",
+        "kana": "イントロダクション",
+        "desc": "本論への導入部分。背景・現在の課題・研究目的・研究方法などを書きます。"
+      },
+      "結論": {
+        "en": "conclusion",
+        "kana": "コンクルージョン",
+        "desc": "「con-(共に)」+「clude(閉じる)」。研究結果のまとめと考察を記述する部分。論文の最後にきます。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "結論を先に述べる論文の論法は?",
+        "opts": [
+          "頭括式",
+          "尾括式",
+          "双括式",
+          "並列式"
+        ],
+        "a": 0,
+        "explain": "頭括式は結論を冒頭(頭)に置く論法。レポートやビジネス文書、論文などに向きます。「PREP法」のPに相当。",
+        "example": "「私はAを支持します。なぜなら~」のような書き方。重要なことから先に伝えるので、時間がない読み手にも要点が伝わります。"
+      },
+      {
+        "q": "結論を最初と最後に述べる論法は?",
+        "opts": [
+          "頭括式",
+          "尾括式",
+          "双括式",
+          "並列式"
+        ],
+        "a": 2,
+        "explain": "双括式は結論を「挟む」構造。プレゼンの「最初に結論→具体例→最後にもう一度結論」が代表的な使い方です。",
+        "example": "「結論:私はAを支持します」→ 理由・根拠 → 「以上の理由から私はAを支持します」というスタイル。"
+      },
+      {
+        "q": "話し言葉として一般的な論法は?",
+        "opts": [
+          "頭括式",
+          "尾括式",
+          "双括式",
+          "並列式"
+        ],
+        "a": 1,
+        "explain": "尾括式(帰納型)は結論を最後に置く論法。話し言葉として最も自然で、相手にじっくり読んでもらう場合に向きます。",
+        "example": "「Aがあって、Bがあって、Cもあって、だから私はXだと思う」のような流れ。日常会話に近い構造です。"
+      },
+      {
+        "q": "客観的事実から新しい事実や法則を導く文章は?",
+        "opts": [
+          "論文",
+          "感想文",
+          "随筆",
+          "評論"
+        ],
+        "a": 0,
+        "explain": "論文は客観性が命。論理が正しければ、誰が読んでも書き手と同じ結論に到達します。",
+        "example": "学術論文、研究レポート、調査報告書などが論文の代表例です。"
+      },
+      {
+        "q": "論文の構成で「研究結果のまとめ」を書く部分は?",
+        "opts": [
+          "表題",
+          "序論",
+          "本論",
+          "結論"
+        ],
+        "a": 3,
+        "explain": "結論は研究結果のまとめと考察を記述する部分。論文の最後にきます。論文構成は「表題→序論→本論→結論→文献表」が基本です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "尾括式は短時間で情報を伝えたい論文に向いている。",
+        "a": false,
+        "explain": "尾括式は結論が最後にくるため、最後まで読まないと結論が分かりません。短時間で伝えたい場合は頭括式が向きます。"
+      },
+      {
+        "q": "「雨が降らないとはいえない」という二重否定は分かりやすい表現である。",
+        "a": false,
+        "explain": "二重否定は分かりにくく、誤解を招きます。「雨が降る可能性がある」のように直接的な表現にすべきです。"
+      },
+      {
+        "q": "プレゼンテーションには双括式がよく使われる。",
+        "a": true,
+        "explain": "双括式は最初と最後に結論を述べるため、聴き手に重要なメッセージが強く印象付けられます。プレゼンに最適です。"
+      },
+      {
+        "q": "感想文は客観性が高い文章である。",
+        "a": false,
+        "explain": "感想文は書き手の主観を記述する文章。客観性が高いのは論文です。",
+        "example": "「〜と感じた」「〜と思った」が多く出てくる文章は感想文の特徴です。"
+      },
+      {
+        "q": "論文では引用文献はどの部分で引用したかわかるようにする必要がある。",
+        "a": true,
+        "explain": "学術的な論文では「いつ、どこから引用したか」を明確にすることが必要。著作権の遵守と論証の透明性のためです。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "5W1Hに含まれないものは?",
+        "opts": [
+          "When",
+          "Where",
+          "Why",
+          "Whom"
+        ],
+        "a": 3,
+        "explain": "5W1Hは When(いつ)・Where(どこで)・Who(誰が)・What(何を)・Why(なぜ)・How(どうやって)。Whom(誰に)は含まれません。",
+        "example": "論文を書く時、5W1Hで自問することで論理の抜けを防げます。"
+      },
+      {
+        "q": "「だから」という接続詞の役割は?",
+        "opts": [
+          "帰結",
+          "理由",
+          "対比",
+          "例示"
+        ],
+        "a": 0,
+        "explain": "「だから」は前の内容から導かれる結論を述べる「帰結」の接続詞。逆に「なぜなら」は理由を述べる接続詞です。"
+      },
+      {
+        "q": "「言い換えると」の役割は?",
+        "opts": [
+          "要約",
+          "換言",
+          "対比",
+          "転換"
+        ],
+        "a": 1,
+        "explain": "「言い換えると」「すなわち」は換言の接続詞。同じ内容を別の言葉で表現する時に使います。「つまり」は要約に近いです。"
+      },
+      {
+        "q": "論文に向かない論理展開は?",
+        "opts": [
+          "頭括式",
+          "双括式",
+          "尾括式",
+          "感情に訴える展開"
+        ],
+        "a": 3,
+        "explain": "論文は客観性が必要。感情に訴える展開は論証ではなく、感想文や演説に近くなってしまいます。"
+      }
+    ]
+  },
+  {
+    "id": "unit11",
+    "title": "表現の工夫",
+    "fill": {
+      "text": "色の三要素は[色相]・明度・[彩度]の3つです。色相環で向かい合った色を[補色]、隣り合った色を[類似色]、同じ色相で明度・彩度が異なる色を[同系色]といいます。文字の大きさを表すのが[ポイント数]、文字の書体を[フォント]といいます。タイトルは目立つ[ゴシック体]、本文は読みやすい明朝体が基本とされます。「赤と緑」の組み合わせは色覚特性のある人に判別しにくいため避けます。"
+    },
+    "glossary": {
+      "色相": {
+        "en": "hue",
+        "kana": "ヒュー",
+        "desc": "色の違い(赤・青・黄など)を表す要素。色相環(色相を円形に並べた図)で関係性を表現します。"
+      },
+      "彩度": {
+        "en": "saturation / chroma",
+        "kana": "サチュレーション",
+        "desc": "色の鮮やかさを表す要素。最も鮮やかな状態が彩度100で、灰色に近づくほど彩度0に近づきます。"
+      },
+      "補色": {
+        "en": "complementary color",
+        "kana": "コンプリメンタリー カラー",
+        "desc": "色相環で向かい合った色。コントラストが強く目立ちます。例:赤の補色は緑、青の補色はオレンジ。"
+      },
+      "類似色": {
+        "en": "analogous color",
+        "kana": "アナログス カラー",
+        "desc": "色相環で隣り合った色。まとまりのある印象を与えます。例:赤と橙、青と紫。"
+      },
+      "同系色": {
+        "en": "tonal color",
+        "kana": "トーナル カラー",
+        "desc": "同じ色相で明度・彩度の異なる色。例:濃い青・水色・薄水色など。グラデーションのような統一感を生みます。"
+      },
+      "ポイント数": {
+        "en": "point size",
+        "kana": "ポイント サイズ",
+        "desc": "文字の大きさを表す単位。1ポイント=約0.353mm。本文10〜12pt、見出し14〜18ptが一般的です。"
+      },
+      "フォント": {
+        "en": "font",
+        "kana": "フォント",
+        "desc": "文字の書体。タイトルはゴシック体、本文は明朝体が読みやすいとされます。"
+      },
+      "ゴシック体": {
+        "en": "Gothic / sans-serif",
+        "kana": "ゴシック / サンセリフ",
+        "desc": "横線と縦線がほぼ同じ太さの書体。視認性が高く、見出しや遠くから見る用途に向きます。英語のSans-serif(セリフなし)に相当。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "色の三要素として正しいものは?",
+        "opts": [
+          "色相・明度・彩度",
+          "赤・緑・青",
+          "光・影・色",
+          "濃い・薄い・中間"
+        ],
+        "a": 0,
+        "explain": "色の三要素:色相(色の違い)・明度(明るさ)・彩度(鮮やかさ)。HSV色空間とも呼ばれ、コンピュータでも使われます。"
+      },
+      {
+        "q": "色相環で向かい合った色を何という?",
+        "opts": [
+          "類似色",
+          "補色",
+          "同系色",
+          "原色"
+        ],
+        "a": 1,
+        "explain": "補色は色相環で180度反対側にある色。例:赤の補色は緑、青の補色はオレンジ。コントラストが強く目立ちますが、組み合わせ次第では不快感を与えることも。",
+        "example": "クリスマスの「赤と緑」、サッカー日本代表の「青と黄」(補色に近い)などが補色の例。"
+      },
+      {
+        "q": "同じ色相で明度・彩度が異なる色を?",
+        "opts": [
+          "類似色",
+          "補色",
+          "同系色",
+          "原色"
+        ],
+        "a": 2,
+        "explain": "同系色は同じ色相のグラデーション。例:濃い青・水色・薄水色など。まとまりのある統一感が出ます。"
+      },
+      {
+        "q": "本文に最も適したフォントは?",
+        "opts": [
+          "ゴシック体",
+          "明朝体",
+          "ポップ体",
+          "楷書体"
+        ],
+        "a": 1,
+        "explain": "本文には読みやすい明朝体、見出しには目立つゴシック体が基本です。フォントの使い分けで読みやすさが変わります。"
+      },
+      {
+        "q": "色覚特性のある人に判別しにくい色の組み合わせは?",
+        "opts": [
+          "黒と白",
+          "赤と青",
+          "赤と緑",
+          "青と黄"
+        ],
+        "a": 2,
+        "explain": "赤と緑は色覚特性のある人(P型・D型色覚)には判別が困難。グラフでは色だけでなく形や記号でも区別するユニバーサルデザインが推奨されます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "色相環で隣り合った色は類似色という。",
+        "a": true,
+        "explain": "類似色はまとまりのある印象を与えます。同じく「同系色」(同じ色相で明度・彩度が異なる色)もまとまった印象になります。"
+      },
+      {
+        "q": "「赤と緑」の組み合わせは色覚特性のある人には判別しにくい。",
+        "a": true,
+        "explain": "色覚特性のある人(P型・D型色覚)には赤と緑の判別が困難。色だけでなく形や記号でも区別するユニバーサルデザインが推奨されます。"
+      },
+      {
+        "q": "ポップ体は格式高いお礼状にも適している。",
+        "a": false,
+        "explain": "ポップ体は親しみやすい印象ですが、礼を欠いた印象を与えることがあるためお礼状などフォーマルな場には避けます。"
+      },
+      {
+        "q": "文字色と背景色の明度・彩度の差が大きいほど読みやすい。",
+        "a": true,
+        "explain": "明度差・彩度差が大きいほど文字が背景から浮かび上がり読みやすくなります。",
+        "example": "白背景に黒文字、黒背景に白文字は最も明度差が大きく、読みやすい組み合わせです。"
+      },
+      {
+        "q": "補色を使うと、まとまりのある統一感が出る。",
+        "a": false,
+        "explain": "補色はコントラストが強く派手な印象を与えます。まとまりのある印象を出したいなら類似色や同系色を使います。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "色の略称RGBが表すのは?",
+        "opts": [
+          "Red, Green, Blue",
+          "Red, Gold, Bright",
+          "Round, Green, Black",
+          "Read, Game, Big"
+        ],
+        "a": 0,
+        "explain": "RGB = Red(赤)、Green(緑)、Blue(青)。光の三原色で、ディスプレイなどで使われます。CMY = Cyan, Magenta, Yellow(印刷の三原色)+ K(黒)で印刷。"
+      },
+      {
+        "q": "印刷で使われる「K」は何の頭文字?",
+        "opts": [
+          "Key",
+          "King",
+          "Kuro(黒)",
+          "黒のことだが諸説あり"
+        ],
+        "a": 3,
+        "explain": "CMYKのKは「Key plate」(キープレート=印刷の基準となる版)とも、「黒(Black/Kuro)」の混同を避けるためとも言われ、諸説あります。"
+      },
+      {
+        "q": "見出しに最も適したフォントは?",
+        "opts": [
+          "明朝体",
+          "ゴシック体",
+          "ポップ体",
+          "楷書体"
+        ],
+        "a": 1,
+        "explain": "ゴシック体は線の太さが均一で視認性が高く、見出しに最適。本文は明朝体が読みやすいです。"
+      },
+      {
+        "q": "色覚への配慮として推奨される手法は?",
+        "opts": [
+          "色だけで区別する",
+          "色 + 形・記号で区別する",
+          "白黒だけにする",
+          "派手な色を使う"
+        ],
+        "a": 1,
+        "explain": "色 + 形・記号での区別は、色覚特性のある人にも分かりやすくなる「ユニバーサルデザイン」の基本です。",
+        "example": "信号機の赤と青に「停止」「進め」の文字を補足する、グラフで色だけでなく点線・実線・記号も使い分けるなど。"
+      }
+    ]
+  },
+  {
+    "id": "unit12",
+    "title": "9節 プレゼンテーションの方法",
+    "fill": {
+      "text": "聴き手の心を動かし行動を起こさせる情報伝達を[プレゼンテーション]、話し手が伝えたいことを簡潔にまとめたものを[主題]といいます。作業を効率的に進めるためのシートを[プランニングシート]、手書きのスライドレイアウトと発表内容を含むものを[絵コンテ]といいます。話し方のテクニックを[バーバル]、態度や表情のテクニックを[ノンバーバル]、書画カメラのことを[OHC]といいます。聴き手を見せたい部分に注目させることを[視線の誘導]といいます。"
+    },
+    "glossary": {
+      "プレゼンテーション": {
+        "en": "presentation",
+        "kana": "プレゼンテーション",
+        "desc": "「present(提示する)」+「-ation」。聴き手に情報を伝えて行動を促す活動。略してプレゼン。"
+      },
+      "主題": {
+        "en": "theme / main subject",
+        "kana": "テーマ",
+        "desc": "話し手が伝えたい中心的な内容。簡潔な「主題文」としてまとめます。"
+      },
+      "プランニングシート": {
+        "en": "planning sheet",
+        "kana": "プランニング シート",
+        "desc": "「planning(計画)」+「sheet(用紙)」。プレゼンの企画情報をまとめるシート。タイトル・主題・対象・会場などを記入します。"
+      },
+      "絵コンテ": {
+        "en": "storyboard",
+        "kana": "ストーリーボード",
+        "desc": "映画やアニメで使われる絵入り台本。プレゼンでも各スライドのレイアウトと発表内容を記録できます。"
+      },
+      "バーバル": {
+        "en": "verbal",
+        "kana": "バーバル",
+        "desc": "「verbal(言葉の)」。話す内容や言葉遣いに関するスキル。トレーニングは「バーバルトレーニング」。"
+      },
+      "ノンバーバル": {
+        "en": "non-verbal",
+        "kana": "ノンバーバル",
+        "desc": "「non-(否)」+「verbal(言葉の)」=非言語の。表情・姿勢・身振りなど言葉以外で伝える要素です。"
+      },
+      "OHC": {
+        "en": "Over Head Camera",
+        "kana": "オーバー ヘッド カメラ(オーエイチシー)",
+        "desc": "「Over Head(頭上の)」+「Camera(カメラ)」。実物を上から映し出す装置。「書画カメラ」「実物投影機」とも。"
+      },
+      "視線の誘導": {
+        "en": "visual guidance",
+        "kana": "ビジュアル ガイダンス",
+        "desc": "聴き手の視線を見せたい部分へ自然に向ける工夫。日本語では「上→下、左→右」の流れが基本です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "プレゼンテーションの目的として正しいのは?",
+        "opts": [
+          "聴き手の心を動かし行動を起こさせる",
+          "情報を多く伝える",
+          "時間を短くする",
+          "スライドを多く見せる"
+        ],
+        "a": 0,
+        "explain": "プレゼンの本質は「聴き手の行動を変える」こと。単に情報を伝えるだけではなく、何かをしてほしいという意図を持つのが重要です。"
+      },
+      {
+        "q": "話し手が伝えたい中心的な内容を?",
+        "opts": [
+          "主題",
+          "話題",
+          "課題",
+          "問題"
+        ],
+        "a": 0,
+        "explain": "主題(テーマ)は1つに絞り込み、簡潔な「主題文」としてまとめておきます。"
+      },
+      {
+        "q": "言葉に関する話し方のテクニックは?",
+        "opts": [
+          "バーバル",
+          "ノンバーバル",
+          "ジェスチャー",
+          "ボディランゲージ"
+        ],
+        "a": 0,
+        "explain": "バーバル(verbal)は「言葉の」という意味。声の大きさ、速さ、明瞭さ、用語の選び方などが含まれます。"
+      },
+      {
+        "q": "表情や姿勢など非言語のテクニックは?",
+        "opts": [
+          "バーバル",
+          "ノンバーバル",
+          "スライド",
+          "配布資料"
+        ],
+        "a": 1,
+        "explain": "ノンバーバル(non-verbal)は非言語コミュニケーション。聴き手の目を見る、自信のある姿勢などが信頼感を与えます。",
+        "example": "プレゼンの印象は「内容(7%)+ 声(38%)+ 表情・姿勢(55%)」というメラビアンの法則も有名(諸説あり)。"
+      },
+      {
+        "q": "書画カメラ・実物投影機とも呼ばれる装置は?",
+        "opts": [
+          "OHC",
+          "OHP",
+          "プロジェクタ",
+          "電子黒板"
+        ],
+        "a": 0,
+        "explain": "OHC = Over Head Camera。実物を上から撮影してスクリーンに映す装置。OHP(Over Head Projector=透明シート投影)と混同しないように注意。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "プレゼンテーションは1度行えば改善する必要はない。",
+        "a": false,
+        "explain": "プレゼンも「企画→事前準備→リハーサル→実施→評価→改善」のサイクル。経験を蓄積して上達するものです。"
+      },
+      {
+        "q": "1スライドの行数は6〜8行を目安にする。",
+        "a": true,
+        "explain": "情報を詰め込みすぎると読まれません。簡潔さがプレゼンスライドの基本ルール。詳細は配布資料に回します。"
+      },
+      {
+        "q": "アニメーションは多用するほど効果的である。",
+        "a": false,
+        "explain": "アニメーションは適度に使うことで注意を引きますが、多用すると散漫な印象を与え、内容に集中できなくなります。「効果的に控えめに」が原則。"
+      },
+      {
+        "q": "日本語のスライドでは視線は「下→上」「右→左」が効果的である。",
+        "a": false,
+        "explain": "日本語の自然な視線の流れは「上→下」「左→右」。新聞や本もこの順序です。",
+        "example": "ただし重要度が高い項目は逆の流れ(「上」)に置くと注目を集められます。"
+      },
+      {
+        "q": "フードファディズムとは食物の影響を科学的根拠と無関係に過大評価することである。",
+        "a": true,
+        "explain": "フードファディズム(food faddism)は「food(食物)」+「fad(熱狂)」+「-ism」。「○○を食べれば健康になる/痩せる」など根拠の薄い情報を信じる傾向です。",
+        "example": "プレゼンを聞いた人がフードファディズムに陥らないよう、信頼できるデータを示すことが大切。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "プランニングシートに記入する項目に該当しないものは?",
+        "opts": [
+          "タイトル",
+          "主題",
+          "対象",
+          "録画ビデオ"
+        ],
+        "a": 3,
+        "explain": "プランニングシートは企画段階のシートで、タイトル・主題・対象・会場・配布資料・機器・リハーサル日程などを記入します。録画は実施段階の話。"
+      },
+      {
+        "q": "内容構成「導入→展開→まとめ」の項目を一覧にしたものは?",
+        "opts": [
+          "プランニングシート",
+          "アウトライン",
+          "絵コンテ",
+          "スライド"
+        ],
+        "a": 1,
+        "explain": "アウトライン(outline=概要・骨組み)は内容構成を一覧化したもの。中項目・小項目まで整理します。"
+      },
+      {
+        "q": "電子黒板の特徴は?",
+        "opts": [
+          "コンピュータ画面を投影",
+          "書いた内容を電子的に保存",
+          "インタラクティブ",
+          "すべて該当"
+        ],
+        "a": 3,
+        "explain": "電子黒板はすべての特徴を持っています。コンピュータと連動し、書いた内容も電子データとして保存できる便利な装置です。"
+      },
+      {
+        "q": "プレゼンの「シナリオ」とは?",
+        "opts": [
+          "台本",
+          "聴き手がわかりやすく納得できるストーリー",
+          "配布資料",
+          "評価表"
+        ],
+        "a": 1,
+        "explain": "シナリオ(ストーリー)は論理的に組み立てられた話の流れ。聴き手の理解と納得を導く設計図です。"
+      }
+    ]
+  },
+  {
+    "id": "unit13",
+    "title": "10節 Webページによる情報発信",
+    "fill": {
+      "text": "Webページを記述する言語を[HTML]、ブラウザ上で入力してサーバ側でWebページを作成するシステムを[CMS]といいます。HTMLや画像を転送するソフトを[FTP]といいます。「<」から「>」までの文字列を[タグ]、開始タグから終了タグまでをHTMLの一つの[要素]といいます。画像が表示できない時の説明文を設定する属性を[ALT属性]、文書の構造と体裁を分離させる仕様を[CSS]といいます。利用者にとってのわかりやすさを[アクセシビリティ]といいます。"
+    },
+    "glossary": {
+      "HTML": {
+        "en": "HyperText Markup Language",
+        "kana": "エイチティーエムエル",
+        "desc": "「HyperText(ハイパーテキスト=リンク付き文書)」+「Markup(目印付け)」+「Language(言語)」。Webページを記述する言語です。"
+      },
+      "CMS": {
+        "en": "Content Management System",
+        "kana": "シーエムエス",
+        "desc": "「Content(内容)」+「Management(管理)」+「System(系統)」。ブラウザ上でコンテンツを管理しサイトを作るシステム。WordPressが代表例。"
+      },
+      "FTP": {
+        "en": "File Transfer Protocol",
+        "kana": "エフティーピー",
+        "desc": "「File(ファイル)」+「Transfer(転送)」+「Protocol(規約)」。ファイル転送用の通信プロトコル。第2章で学んだ内容です。"
+      },
+      "タグ": {
+        "en": "tag",
+        "kana": "タグ",
+        "desc": "HTMLで「<>」で囲まれた目印。文書の構造や見栄えを指示します。"
+      },
+      "要素": {
+        "en": "element",
+        "kana": "エレメント",
+        "desc": "HTMLの構成単位。<開始タグ>内容</終了タグ>のセットを「要素(エレメント)」と呼びます。"
+      },
+      "ALT属性": {
+        "en": "alt attribute (alternative text)",
+        "kana": "オルト アトリビュート",
+        "desc": "「alt」=「alternative(代替の)」の略。画像が表示できない時に表示される説明文。視覚障害者の読み上げソフトでも使われます。"
+      },
+      "CSS": {
+        "en": "Cascading Style Sheets",
+        "kana": "シーエスエス",
+        "desc": "「Cascading(滝のように流れる)」+「Style(様式)」+「Sheets(用紙)」。Webページの見た目(デザイン)を指定する言語です。"
+      },
+      "アクセシビリティ": {
+        "en": "accessibility",
+        "kana": "アクセシビリティ",
+        "desc": "「access(近づく)」+「-ibility(できること)」=利用しやすさ。誰にとっても使いやすい設計を目指す概念です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "Webページを記述する言語は?",
+        "opts": [
+          "HTML",
+          "CSS",
+          "JavaScript",
+          "Python"
+        ],
+        "a": 0,
+        "explain": "HTML(HyperText Markup Language)はWebページの基本言語。文書の構造をタグで表現します。"
+      },
+      {
+        "q": "ブラウザ上でWebページを作成・管理するシステムは?",
+        "opts": [
+          "CMS",
+          "FTP",
+          "HTML",
+          "OS"
+        ],
+        "a": 0,
+        "explain": "CMS(Content Management System)はブラウザ上で記事を書き、テンプレートに従って自動的にWebページを生成するシステム。",
+        "example": "WordPress、Drupal、はてなブログ、Note、Wikipediaの編集システムなどが代表的なCMSです。"
+      },
+      {
+        "q": "HTMLや画像ファイルをWebサーバに送る通信プロトコルは?",
+        "opts": [
+          "HTTP",
+          "SMTP",
+          "FTP",
+          "POP"
+        ],
+        "a": 2,
+        "explain": "FTP(File Transfer Protocol)はファイル転送用プロトコル。Webページの公開時にサーバへアップロードに使われます。"
+      },
+      {
+        "q": "画像が表示できない時の説明文を指定する属性は?",
+        "opts": [
+          "SRC属性",
+          "ALT属性",
+          "HREF属性",
+          "TITLE属性"
+        ],
+        "a": 1,
+        "explain": "ALT属性は画像の代替テキスト。視覚障害者の読み上げソフトで「画像の内容」を音声で伝える役割もあります。アクセシビリティ向上に必須。",
+        "example": "<img src=\"cat.jpg\" alt=\"窓辺で日向ぼっこをする三毛猫\">のように、画像の内容を文字で説明します。"
+      },
+      {
+        "q": "Webページのデザイン(見た目)を指定する言語は?",
+        "opts": [
+          "HTML",
+          "CSS",
+          "JavaScript",
+          "XML"
+        ],
+        "a": 1,
+        "explain": "CSS(Cascading Style Sheets)は文字の色・大きさ、レイアウトなど装飾を担当。HTMLが「構造」、CSSが「見た目」と役割分担します。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "HTMLは<head>と<body>に大きく分かれる。",
+        "a": true,
+        "explain": "<head>は文書全体の設定情報(タイトル・文字コードなど)、<body>は実際に表示される内容です。"
+      },
+      {
+        "q": "<br>タグには終了タグが必要である。",
+        "a": false,
+        "explain": "<br>(改行)タグは「単独タグ」で終了タグなし。同じく<img>(画像)、<hr>(水平線)も単独タグです。"
+      },
+      {
+        "q": "CSSはHTMLに直接書かれることが望ましい。",
+        "a": false,
+        "explain": "構造(HTML)と見た目(CSS)を分離するのがWeb設計の原則。CSSは別ファイルにしてHTMLから読み込むのが望ましい形です。"
+      },
+      {
+        "q": "WebサイトのトップページのファイルはURLで省略されることが多い。",
+        "a": true,
+        "explain": "index.htmlやdefault.htmlは省略可。「example.com/」と入力すると自動的に「example.com/index.html」が表示されます。"
+      },
+      {
+        "q": "ALT属性は視覚障害者の読み上げソフトでも使われる。",
+        "a": true,
+        "explain": "スクリーンリーダーはALT属性のテキストを読み上げます。設定し忘れると視覚障害者が画像の内容を理解できなくなるため、必ず設定すべきです。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "HTMLで段落を表すタグは?",
+        "opts": [
+          "<br>",
+          "<p>",
+          "<h1>",
+          "<a>"
+        ],
+        "a": 1,
+        "explain": "<p>...</p>は段落(paragraph)を表します。<br>は改行、<h1>は最大の見出し、<a>はハイパーリンクです。"
+      },
+      {
+        "q": "見出しタグ<h1>〜<h6>で最も大きく表示されるのは?",
+        "opts": [
+          "<h1>",
+          "<h3>",
+          "<h6>",
+          "すべて同じ"
+        ],
+        "a": 0,
+        "explain": "<h1>が最大、<h6>が最小。数字が小さいほど大きく表示されます。<h1>はページタイトル級の重要な見出しに使います。"
+      },
+      {
+        "q": "ハイパーリンクを表すタグは?",
+        "opts": [
+          "<href>",
+          "<a>",
+          "<link>",
+          "<url>"
+        ],
+        "a": 1,
+        "explain": "<a href=\"リンク先\">リンク文字</a>。aは「anchor(碇/アンカー)」の略。リンク先のURLはhref属性で指定します。"
+      },
+      {
+        "q": "「../」が意味するものは?",
+        "opts": [
+          "1つ上の階層のフォルダ",
+          "現在のフォルダ",
+          "ルートフォルダ",
+          "ホームフォルダ"
+        ],
+        "a": 0,
+        "explain": "「../」は1つ上のフォルダ(親ディレクトリ)を意味します。「../../」なら2つ上、「./」なら現在のフォルダです。",
+        "example": "images/photo.jpg(同フォルダ)、../images/photo.jpg(1つ上のimagesフォルダ)。"
+      }
+    ]
+  }
+];
+const PAGES = [{"title": "📄 ページ1(1〜2節+検索と論理演算)", "units": [0, 1, 2]}, {"title": "📄 ページ2(3〜5節)", "units": [3, 4, 5]}, {"title": "📄 ページ3(6〜8節)", "units": [6, 7, 8]}, {"title": "📄 ページ4(論理的文章構成+表現の工夫+9〜10節)", "units": [9, 10, 11, 12]}];
+let currentPage = 0;
+let unitStates = {};
+let timerIntervals = {};
+
+function initUnitState(unitId) {
+  if (!unitStates[unitId]) {
+    unitStates[unitId] = {
+      mode: 'fill',
+      challenge: { active: false, answers: [], blanks: [], parts: [], selectedWord: null, startTime: null, elapsed: 0, shuffledWords: null },
+      records: [],
+      quiz4: { idx: 0, score: 0, answered: false },
+      ox: { idx: 0, score: 0, answered: false },
+      quiz4check: { idx: 0, score: 0, answered: false }
+    };
+  }
+  return unitStates[unitId];
+}
+
+function init() {
+  renderPageTabs();
+  // URLハッシュからジャンプ先を決定 (#unitN)
+  let initialPage = 0;
+  let targetUnitId = null;
+  const hash = (location.hash || '').replace('#', '');
+  if (hash) {
+    for (let p = 0; p < PAGES.length; p++) {
+      const found = PAGES[p].units.some(idx => ALL_UNITS[idx] && ALL_UNITS[idx].id === hash);
+      if (found) { initialPage = p; targetUnitId = hash; break; }
+    }
+  }
+  currentPage = initialPage;
+  renderPageTabs();
+  renderPage(initialPage);
+  if (targetUnitId) {
+    setTimeout(function() {
+      const card = document.getElementById('card-' + targetUnitId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        card.style.transition = 'box-shadow 0.4s';
+        const orig = card.style.boxShadow;
+        card.style.boxShadow = '0 0 0 4px #fbbf24, 0 8px 30px rgba(245,158,11,.4)';
+        setTimeout(function(){ card.style.boxShadow = orig; }, 1800);
+      }
+    }, 100);
+  }
+}
+
+window.addEventListener('hashchange', function() { init(); });
+
+
+function renderPageTabs() {
+  const container = document.getElementById('pageTabs');
+  container.innerHTML = '';
+  PAGES.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'page-tab' + (i === currentPage ? ' active' : '');
+    btn.textContent = p.title;
+    btn.onclick = () => switchPage(i);
+    container.appendChild(btn);
+  });
+}
+
+function switchPage(pageIdx) {
+  Object.keys(timerIntervals).forEach(uid => { clearInterval(timerIntervals[uid]); delete timerIntervals[uid]; });
+  currentPage = pageIdx;
+  renderPageTabs();
+  renderPage(pageIdx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderPage(pageIdx) {
+  const container = document.getElementById('unitsContainer');
+  container.innerHTML = '';
+  PAGES[pageIdx].units.forEach(unitIdx => {
+    const unit = ALL_UNITS[unitIdx];
+    initUnitState(unit.id);
+    container.appendChild(createUnitCard(unit));
+  });
+}
+
+function createUnitCard(unit) {
+  const state = unitStates[unit.id];
+  const card = document.createElement('div');
+  card.className = 'unit-card';
+  card.id = 'card-' + unit.id;
+  card.innerHTML = '<h2 class="unit-title">' + unit.title + '</h2>' +
+    '<div class="mode-tabs">' +
+    '<button class="mode-tab active" data-mode="fill" data-uid="' + unit.id + '">✏️ 穴埋め</button>' +
+    '<button class="mode-tab" data-mode="quiz4" data-uid="' + unit.id + '">🎯 4択練習</button>' +
+    '<button class="mode-tab" data-mode="ox" data-uid="' + unit.id + '">⭕❌ 〇×</button>' +
+    '<button class="mode-tab" data-mode="quiz4check" data-uid="' + unit.id + '">📝 確認4択</button>' +
+    '</div><div class="mode-content" id="content-' + unit.id + '"></div>';
+  card.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.onclick = () => {
+      const uid = tab.dataset.uid;
+      const mode = tab.dataset.mode;
+      card.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.mode = mode;
+      renderModeContent(uid);
+    };
+  });
+  setTimeout(() => renderModeContent(unit.id), 0);
+  return card;
+}
+
+function renderModeContent(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('content-' + unitId);
+  if (!container) return;
+  if (state.mode === 'fill') renderFill(unitId, container);
+  else if (state.mode === 'quiz4') renderQuiz(unitId, container, 'quiz4');
+  else if (state.mode === 'ox') renderOx(unitId, container);
+  else if (state.mode === 'quiz4check') renderQuiz(unitId, container, 'quiz4check');
+}
+
+function renderFill(unitId, container) {
+  const state = unitStates[unitId];
+  container.innerHTML =
+    '<div class="timer-box">' +
+    '<div>⏱️ <span class="timer-display" id="timer-' + unitId + '">' + formatTime(state.challenge.elapsed) + '</span></div>' +
+    '<div class="records" id="records-' + unitId + '"></div>' +
+    '<button class="btn btn-secondary" onclick="resetRecords(\' + unitId + \')">記録リセット</button>' +
+    '</div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="startChallenge(\' + unitId + \')">🚀 チャレンジ</button>' +
+    '<button class="btn btn-warning" onclick="showOhon(\' + unitId + \')">📖 お手本</button>' +
+    '<button class="btn btn-success" onclick="resumeChallenge(\' + unitId + \')">▶️ 再開</button>' +
+    '<button class="btn btn-danger" onclick="judge(\' + unitId + \')">✓ 判定</button>' +
+    '</div>' +
+    '<div id="message-' + unitId + '"></div>' + '<div id="extraInfo-' + unitId + '"></div>' +
+    '<div class="passage" id="passage-' + unitId + '"></div>' +
+    '<div class="word-bank">' +
+    '<div class="word-bank-title" id="wordBankTitle-' + unitId + '">【語群】チャレンジボタンを押すと表示されます</div>' +
+    '<div class="word-bank-words" id="wordBankWords-' + unitId + '"></div>' +
+    '</div>';
+  showOhon(unitId);
+  renderRecords(unitId);
+}
+
+function parseFillText(text) {
+  const blanks = [], parts = [];
+  let lastIdx = 0;
+  const regex = /\[([^\]]+)\]/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    parts.push({ type: 'text', content: text.substring(lastIdx, match.index) });
+    parts.push({ type: 'blank', idx: blanks.length });
+    blanks.push(match[1]);
+    lastIdx = match.index + match[0].length;
+  }
+  parts.push({ type: 'text', content: text.substring(lastIdx) });
+  return { parts, blanks };
+}
+
+// {漢字|ふりがな} を <ruby> に変換するヘルパー
+function applyRuby(text) {
+  return text.replace(/\{([^|}]+)\|([^}]+)\}/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+
+// テキストノードとしてrubyを含むHTMLを挿入するヘルパー
+function appendWithRuby(parent, text) {
+  const html = applyRuby(text);
+  if (html === text) {
+    parent.appendChild(document.createTextNode(text));
+  } else {
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    parent.appendChild(span);
+  }
+}
+
+function showOhon(unitId) {
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const { parts, blanks } = parseFillText(unit.fill.text);
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank correct';
+      const term = blanks[p.idx];
+      span.textContent = term;
+      // 語句解説があれば追加
+      const gloss = unit.glossary && unit.glossary[term];
+      if (gloss) {
+        span.classList.add('has-glossary');
+        const popup = document.createElement('span');
+        popup.className = 'glossary-popup';
+        let popupHTML = '';
+        if (gloss.en) popupHTML += '<div><span class="term-en">' + gloss.en + '</span>';
+        if (gloss.kana) popupHTML += ' <span class="term-kana">[' + gloss.kana + ']</span>';
+        if (gloss.en) popupHTML += '</div>';
+        popupHTML += '<div style="margin-top:4px;">' + gloss.desc + '</div>';
+        popup.innerHTML = popupHTML;
+        span.appendChild(popup);
+        span.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.glossary-popup.show').forEach(p => { if (p !== popup) p.classList.remove('show'); });
+          popup.classList.toggle('show');
+        };
+        span.onmouseenter = () => popup.classList.add('show');
+        span.onmouseleave = () => popup.classList.remove('show');
+      }
+      passage.appendChild(span);
+    }
+  });
+  document.getElementById('wordBankWords-' + unitId).innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】チャレンジボタンを押すと表示されます';
+  showMessage(unitId, 'お手本を表示中です。緑の下線が引かれた語句にマウスを乗せる(またはタップする)と詳しい説明が表示されます。', 'info');
+  renderExtraInfoIfPresent(unitId);
+}
+
+function startChallenge(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const parsed = parseFillText(unit.fill.text);
+  state.challenge.active = true;
+  state.challenge.blanks = parsed.blanks;
+  state.challenge.answers = new Array(parsed.blanks.length).fill(null);
+  state.challenge.parts = parsed.parts;
+  state.challenge.selectedWord = null;
+  state.challenge.elapsed = 0;
+  state.challenge.startTime = Date.now();
+  state.challenge.shuffledWords = [...parsed.blanks].sort(() => Math.random() - 0.5);
+  renderChallenge(unitId);
+  startTimer(unitId);
+  const exDiv = document.getElementById('extraInfo-' + unitId); if (exDiv) exDiv.innerHTML = '';
+  showMessage(unitId, '語群から語句を選び、空欄をタップして埋めてください。', 'info');
+}
+
+function renderChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  ch.parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank';
+      const ans = ch.answers[p.idx];
+      if (ans) { span.textContent = ans; span.classList.add('filled'); }
+      else span.textContent = '?'.repeat(Math.min(ch.blanks[p.idx].length, 6));
+      span.onclick = () => fillBlank(unitId, p.idx);
+      passage.appendChild(span);
+    }
+  });
+  const usedWords = ch.answers.filter(a => a !== null);
+  const wordBankEl = document.getElementById('wordBankWords-' + unitId);
+  wordBankEl.innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】タップして選択してください';
+  const usedCounts = {};
+  usedWords.forEach(w => { usedCounts[w] = (usedCounts[w] || 0) + 1; });
+  const tempUsed = {};
+  ch.shuffledWords.forEach((word) => {
+    tempUsed[word] = (tempUsed[word] || 0) + 1;
+    const isUsed = tempUsed[word] <= (usedCounts[word] || 0);
+    const chip = document.createElement('span');
+    chip.className = 'word-chip' + (isUsed ? ' used' : '');
+    if (ch.selectedWord === word && !isUsed) chip.classList.add('selected');
+    chip.textContent = word;
+    chip.onclick = () => selectWord(unitId, word, chip);
+    wordBankEl.appendChild(chip);
+  });
+}
+
+function selectWord(unitId, word, chip) {
+  if (chip.classList.contains('used')) return;
+  unitStates[unitId].challenge.selectedWord = word;
+  const card = document.getElementById('card-' + unitId);
+  card.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+}
+
+function fillBlank(unitId, blankIdx) {
+  const ch = unitStates[unitId].challenge;
+  if (ch.selectedWord) {
+    ch.answers[blankIdx] = ch.selectedWord;
+    ch.selectedWord = null;
+    renderChallenge(unitId);
+  } else if (ch.answers[blankIdx]) {
+    ch.answers[blankIdx] = null;
+    renderChallenge(unitId);
+  }
+}
+
+function judge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.active) { showMessage(unitId, 'まずチャレンジボタンを押してください。', 'warning'); return; }
+  if (ch.answers.includes(null)) { showMessage(unitId, 'まだ空欄があります。すべての空欄を埋めてください。', 'warning'); return; }
+  let allCorrect = true;
+  const passage = document.getElementById('passage-' + unitId);
+  const blankEls = passage.querySelectorAll('.blank');
+  ch.answers.forEach((ans, i) => {
+    const correct = ch.blanks[i];
+    const el = blankEls[i];
+    if (ans === correct) { el.classList.remove('filled', 'wrong'); el.classList.add('correct'); }
+    else { el.classList.remove('filled', 'correct'); el.classList.add('wrong'); allCorrect = false; }
+  });
+  if (allCorrect) {
+    stopTimer(unitId);
+    ch.active = false;
+    saveRecord(unitId, ch.elapsed);
+    showMessage(unitId, '🎉 合格! タイム: ' + formatTime(ch.elapsed), 'success');
+    confetti();
+  } else {
+    showMessage(unitId, 'おしい! もう一歩です。間違った語句が語群に戻ります。再挑戦してください。', 'warning');
+    setTimeout(() => {
+      ch.answers = ch.answers.map((ans, i) => ans === ch.blanks[i] ? ans : null);
+      renderChallenge(unitId);
+    }, 1500);
+  }
+}
+
+function resumeChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.blanks || ch.blanks.length === 0) { showMessage(unitId, '再開できる挑戦がありません。チャレンジボタンを押してください。', 'warning'); return; }
+  ch.active = true;
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, 'やっていたところから再開します。', 'info');
+}
+
+function startTimer(unitId) {
+  stopTimer(unitId);
+  const state = unitStates[unitId];
+  state.challenge.startTime = Date.now() - state.challenge.elapsed;
+  timerIntervals[unitId] = setInterval(() => {
+    state.challenge.elapsed = Date.now() - state.challenge.startTime;
+    const el = document.getElementById('timer-' + unitId);
+    if (el) el.textContent = formatTime(state.challenge.elapsed);
+  }, 100);
+}
+
+function stopTimer(unitId) {
+  if (timerIntervals[unitId]) { clearInterval(timerIntervals[unitId]); delete timerIntervals[unitId]; }
+}
+
+function formatTime(ms) {
+  const sec = Math.floor(ms / 1000);
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+function saveRecord(unitId, time) {
+  const state = unitStates[unitId];
+  state.records.push(time);
+  state.records.sort((a, b) => a - b);
+  state.records = state.records.slice(0, 3);
+  renderRecords(unitId);
+}
+
+function renderRecords(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('records-' + unitId);
+  if (!container) return;
+  container.innerHTML = '<span style="font-weight:bold;color:#92400e;">🏆ベスト3:</span>';
+  if (state.records.length === 0) {
+    container.innerHTML += '<span class="record-item">記録なし</span>';
+  } else {
+    state.records.forEach((r, i) => {
+      const span = document.createElement('span');
+      span.className = 'record-item';
+      span.textContent = (i + 1) + '位 ' + formatTime(r);
+      container.appendChild(span);
+    });
+  }
+}
+
+function resetRecords(unitId) {
+  if (!confirm('この単元の記録をリセットしますか?')) return;
+  const state = unitStates[unitId];
+  state.records = [];
+  state.challenge.elapsed = 0;
+  const el = document.getElementById('timer-' + unitId);
+  if (el) el.textContent = '00:00';
+  renderRecords(unitId);
+  showMessage(unitId, '記録をリセットしました。', 'info');
+}
+
+function showMessage(unitId, text, type) {
+  const el = document.getElementById('message-' + unitId);
+  if (!el) return;
+  el.innerHTML = '<div class="message msg-' + type + '">' + text + '</div>';
+  if (type !== 'success') {
+    setTimeout(() => {
+      const cur = el.querySelector('.msg-' + type);
+      if (cur && cur.textContent === text) el.innerHTML = '';
+    }, 4000);
+  }
+}
+
+function confetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#fbbf24'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function renderQuiz(unitId, container, kind) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="' + kind + '-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="' + kind + '-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextQuiz(\' + unitId + \',\' + kind + \')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetQuiz(\' + unitId + \',\' + kind + \')">最初から</button>' +
+    '</div>';
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderQuizQuestion(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit[kind];
+  const qs = state[kind];
+  const c = document.getElementById(kind + '-container-' + unitId);
+  const p = document.getElementById(kind + '-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  let html = '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div><div class="quiz-options">';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-option" data-i="' + i + '">' + (i + 1) + '. ' + opt + '</button>'; });
+  html += '</div>';
+  c.innerHTML = html;
+  c.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.onclick = () => answerQuiz(unitId, kind, parseInt(btn.dataset.i));
+  });
+}
+
+function answerQuiz(unitId, kind, i) {
+  const state = unitStates[unitId];
+  const qs = state[kind];
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit[kind][qs.idx];
+  const opts = document.querySelectorAll('#' + kind + '-container-' + unitId + ' .quiz-option');
+  opts.forEach((opt, idx) => {
+    if (idx === q.a) opt.classList.add('correct');
+    if (idx === i && i !== q.a) opt.classList.add('wrong');
+    opt.disabled = true;
+  });
+  if (i === q.a) { qs.score++; confetti(); }
+  // 解説を表示
+  if (q.explain) {
+    const c = document.getElementById(kind + '-container-' + unitId);
+    const explainDiv = document.createElement('div');
+    explainDiv.className = 'quiz-explain';
+    let html = '<span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    explainDiv.innerHTML = html;
+    c.appendChild(explainDiv);
+  }
+}
+
+function nextQuiz(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state[kind].answered && state[kind].idx < unit[kind].length) return;
+  state[kind].idx++;
+  state[kind].answered = false;
+  renderQuizQuestion(unitId, kind);
+}
+
+function resetQuiz(unitId, kind) {
+  unitStates[unitId][kind] = { idx: 0, score: 0, answered: false };
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderOx(unitId, container) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="ox-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="ox-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextOx(\' + unitId + \')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetOx(\' + unitId + \')">最初から</button>' +
+    '</div>';
+  renderOxQuestion(unitId);
+}
+
+function renderOxQuestion(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit.ox;
+  const qs = state.ox;
+  const c = document.getElementById('ox-container-' + unitId);
+  const p = document.getElementById('ox-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  c.innerHTML =
+    '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div>' +
+    '<div class="ox-buttons">' +
+    '<button class="ox-btn maru" data-v="true">○</button>' +
+    '<button class="ox-btn batsu" data-v="false">×</button>' +
+    '</div>' +
+    '<div id="ox-result-' + unitId + '" style="margin-top:14px;"></div>';
+  c.querySelectorAll('.ox-btn').forEach(btn => { btn.onclick = () => answerOx(unitId, btn.dataset.v === 'true'); });
+}
+
+function answerOx(unitId, val) {
+  const state = unitStates[unitId];
+  const qs = state.ox;
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit.ox[qs.idx];
+  const result = document.getElementById('ox-result-' + unitId);
+  let html = '';
+  if (val === q.a) {
+    qs.score++;
+    html = '<div class="message msg-success">✓ 正解! 答えは「' + (q.a ? '○' : '×') + '」です。</div>';
+    confetti();
+  } else {
+    html = '<div class="message msg-warning">✗ 不正解。正解は「' + (q.a ? '○' : '×') + '」です。</div>';
+  }
+  // 解説を表示
+  if (q.explain) {
+    html += '<div class="quiz-explain"><span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    html += '</div>';
+  }
+  result.innerHTML = html;
+}
+
+function nextOx(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state.ox.answered && state.ox.idx < unit.ox.length) return;
+  state.ox.idx++;
+  state.ox.answered = false;
+  renderOxQuestion(unitId);
+}
+
+function resetOx(unitId) {
+  unitStates[unitId].ox = { idx: 0, score: 0, answered: false };
+  renderOxQuestion(unitId);
+}
+
+
+function vennSvg(type) {
+  const w = 70, h = 40, r = 14;
+  const cx1 = 22, cx2 = 48, cy = 20;
+  const FILL = '#86efac';
+  const STROKE = '#15803d';
+  // 一意IDを生成(同じページに複数SVGがあるため)
+  const uid = 'v' + Math.random().toString(36).substr(2, 6);
+  let body = '';
+  
+  if (type === 'AandB') {
+    // 重なり部分のみ着色:Aの範囲でクリップしたBを描く
+    body = '<defs><clipPath id="' + uid + '"><circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '"/></clipPath></defs>' +
+           '<circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="' + FILL + '" clip-path="url(#' + uid + ')"/>';
+  } else if (type === 'AorB') {
+    // 両方の円を着色
+    body = '<circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '" fill="' + FILL + '"/>' +
+           '<circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="' + FILL + '"/>';
+  } else if (type === 'notA') {
+    // 全体を緑にして、Aの円を白で抜く
+    body = '<mask id="' + uid + '"><rect x="0" y="0" width="' + w + '" height="' + h + '" fill="white"/>' +
+           '<circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '" fill="black"/></mask>' +
+           '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="' + FILL + '" mask="url(#' + uid + ')"/>';
+  } else if (type === 'AandNotB') {
+    // Aで塗ってBの部分を白で抜く
+    body = '<mask id="' + uid + '"><rect x="0" y="0" width="' + w + '" height="' + h + '" fill="white"/>' +
+           '<circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="black"/></mask>' +
+           '<circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '" fill="' + FILL + '" mask="url(#' + uid + ')"/>';
+  } else if (type === 'demorgan1') {
+    // ¬(A∩B) = AとBの重なり以外すべて
+    // 全体を緑 → A∩B(重なり)を白で抜く
+    // 重なり部分はAかつBなので、Aの円形マスクの中でBの形だけを黒にする
+    body = '<mask id="' + uid + '"><rect x="0" y="0" width="' + w + '" height="' + h + '" fill="white"/>' +
+           '<circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '" fill="white"/>' +
+           '<circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="white"/>' +
+           '<g><circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="black" clip-path="url(#' + uid + 'clip)"/></g></mask>' +
+           '<clipPath id="' + uid + 'clip"><circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '"/></clipPath>' +
+           '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="' + FILL + '" mask="url(#' + uid + ')"/>';
+  } else if (type === 'demorgan2') {
+    // ¬(A∪B) = AにもBにも含まれない部分(両円の外側)
+    body = '<mask id="' + uid + '"><rect x="0" y="0" width="' + w + '" height="' + h + '" fill="white"/>' +
+           '<circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '" fill="black"/>' +
+           '<circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="black"/></mask>' +
+           '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="' + FILL + '" mask="url(#' + uid + ')"/>';
+  }
+  
+  // 円の輪郭線とラベル(常に上に重ねる)
+  const outlines = '<circle cx="' + cx1 + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + STROKE + '" stroke-width="1.3"/>' +
+                   '<circle cx="' + cx2 + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + STROKE + '" stroke-width="1.3"/>';
+  const labels = '<text x="' + (cx1 - r + 4) + '" y="' + (cy - r + 8) + '" font-size="9" fill="' + STROKE + '" font-weight="bold">A</text>' +
+                 '<text x="' + (cx2 + r - 8) + '" y="' + (cy - r + 8) + '" font-size="9" fill="' + STROKE + '" font-weight="bold">B</text>';
+  
+  return '<svg class="venn-svg" width="56" height="36" viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg">' +
+         '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.5"/>' +
+         body + outlines + labels + '</svg>';
+}
+
+function renderExtraInfoIfPresent(unitId) {
+  const container = document.getElementById('extraInfo-' + unitId);
+  if (!container) return;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!unit || !unit.extraInfo) { container.innerHTML = ''; return; }
+  const ei = unit.extraInfo;
+  let html = '<div class="extra-info-section"><div class="extra-info-title">' + ei.title + '</div>';
+  html += '<table class="extra-table"><thead><tr>';
+  html += '<th>意味</th><th>ベン図</th><th>集合記号</th><th>論理演算記号</th><th>用途</th>';
+  html += '</tr></thead><tbody>';
+  ei.rows.forEach(r => {
+    html += '<tr>';
+    html += '<td class="label-cell">' + r.set_name + '</td>';
+    html += '<td class="venn-cell">' + vennSvg(r.venn) + '</td>';
+    html += '<td class="symbol-cell">' + r.set_symbol + '</td>';
+    html += '<td class="symbol-cell">' + r.logic + '</td>';
+    html += '<td class="desc-cell">' + r.desc + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>

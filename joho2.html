@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報1 第2章 暗記プログラム</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+  min-height: 100vh; padding: 20px; color: #1e293b;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { text-align: center; color: #a16207; margin-bottom: 20px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+.page-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+.page-tab { flex: 1; min-width: 200px; padding: 14px; background: white; border: 3px solid #eab308; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; color: #a16207; transition: all 0.2s; }
+.page-tab:hover { background: #fef9c3; }
+.page-tab.active { background: #eab308; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.unit-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 24px; border-top: 6px solid #eab308; }
+.unit-title { color: #a16207; font-size: 22px; margin-bottom: 12px; border-bottom: 3px solid #eab308; padding-bottom: 8px; }
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.mode-tab { flex: 1; min-width: 110px; padding: 8px 10px; background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; color: #475569; transition: all 0.2s; }
+.mode-tab:hover { background: #e2e8f0; }
+.mode-tab.active { background: #eab308; color: white; border-color: #eab308; }
+.timer-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.timer-display { font-size: 22px; font-weight: bold; color: #b45309; font-family: monospace; }
+.records { display: flex; gap: 6px; font-size: 12px; flex-wrap: wrap; }
+.record-item { background: white; padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24; }
+.passage { background: #f8fafc; border-left: 5px solid #eab308; padding: 16px; border-radius: 8px; line-height: 2.2; font-size: 15px; margin-bottom: 14px; min-height: 100px; }
+.blank { display: inline-block; min-width: 70px; padding: 2px 12px; margin: 0 4px; border: 2px dashed #94a3b8; border-radius: 6px; background: #fef9c3; text-align: center; cursor: pointer; transition: all 0.2s; }
+.blank.filled { background: #dbeafe; border-style: solid; border-color: #3b82f6; cursor: pointer; }
+.blank.correct { background: #bbf7d0; border-color: #16a34a; color: #166534; font-weight: bold; position: relative; }
+.blank.has-glossary { cursor: help; border-bottom: 3px double #16a34a; }
+.glossary-popup { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: normal; white-space: normal; min-width: 220px; max-width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50; line-height: 1.6; text-align: left; display: none; }
+.glossary-popup.show { display: block; }
+.glossary-popup::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #1e293b; }
+.glossary-popup .term-en { color: #fbbf24; font-weight: bold; }
+.glossary-popup .term-kana { color: #86efac; }
+.blank.wrong { background: #fecaca; border-color: #dc2626; animation: shake 0.4s; }
+.blank.selected { background: #fed7aa; border-color: #f97316; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.word-bank { background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 12px; margin-bottom: 14px; min-height: 50px; }
+.word-bank-title { font-weight: bold; color: #166534; margin-bottom: 6px; font-size: 13px; }
+.word-bank-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.word-chip { background: white; border: 2px solid #22c55e; border-radius: 18px; padding: 5px 12px; cursor: pointer; font-weight: bold; color: #166534; transition: all 0.2s; user-select: none; font-size: 14px; }
+.word-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+.word-chip.used { opacity: 0.3; pointer-events: none; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #eab308; color: white; }
+.btn-primary:hover { background: #a16207; }
+.btn-success { background: #22c55e; color: white; } .btn-success:hover { background: #16a34a; }
+.btn-warning { background: #f59e0b; color: white; } .btn-warning:hover { background: #d97706; }
+.btn-danger { background: #ef4444; color: white; } .btn-danger:hover { background: #dc2626; }
+.btn-secondary { background: #64748b; color: white; } .btn-secondary:hover { background: #475569; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.message { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+.msg-success { background: #bbf7d0; color: #166534; }
+.msg-warning { background: #fed7aa; color: #9a3412; }
+.msg-info { background: #dbeafe; color: #1e40af; }
+.quiz-question { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 12px; font-size: 15px; font-weight: bold; border-left: 5px solid #f59e0b; }
+.quiz-options { display: grid; gap: 8px; }
+.quiz-option { background: white; border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; font-size: 14px; text-align: left; }
+.quiz-option:hover { background: #f1f5f9; border-color: #eab308; }
+.quiz-option.correct { background: #bbf7d0; border-color: #16a34a; }
+.quiz-option.wrong { background: #fecaca; border-color: #dc2626; }
+.quiz-explain { background: #fef9c3; border-left: 5px solid #facc15; padding: 12px 14px; border-radius: 8px; margin-top: 12px; font-size: 14px; line-height: 1.7; color: #713f12; }
+.quiz-explain .ex-title { font-weight: bold; color: #a16207; margin-bottom: 4px; display: block; }
+.quiz-explain .ex-example { display: block; margin-top: 6px; padding: 6px 10px; background: white; border-radius: 6px; border-left: 3px solid #16a34a; color: #166534; font-size: 13px; }
+.kanji-ruby { font-size: 0.6em; color: #6b7280; margin-left: 2px; }
+ruby rt { font-size: 0.55em; color: #475569; font-weight: normal; }
+.ox-buttons { display: flex; gap: 16px; justify-content: center; margin-top: 12px; }
+.ox-btn { width: 80px; height: 80px; border: 4px solid; border-radius: 50%; font-size: 40px; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; }
+.ox-btn.maru { color: #dc2626; border-color: #dc2626; } .ox-btn.maru:hover { background: #dc2626; color: white; }
+.ox-btn.batsu { color: #1e40af; border-color: #1e40af; } .ox-btn.batsu:hover { background: #1e40af; color: white; }
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
+.confetti { position: absolute; width: 10px; height: 10px; animation: fall 3s linear forwards; }
+@keyframes fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.progress { background: #e2e8f0; border-radius: 10px; height: 20px; overflow: hidden; margin-bottom: 10px; }
+.progress-bar { background: linear-gradient(90deg, #22c55e, #16a34a); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; }
+.hidden { display: none !important; }
+.mode-content { padding-top: 4px; }
+.back-to-top { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #eab308; color: white; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+.back-to-top:hover { background: #a16207; }
+@media (max-width: 600px) { h1 { font-size: 22px; } .passage { font-size: 13px; line-height: 2; } .btn { padding: 6px 12px; font-size: 12px; } .unit-title { font-size: 18px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📡 情報1 第2章「コミュニケーション」暗記プログラム</h1>
+  <div class="page-tabs" id="pageTabs"></div>
+  <div id="unitsContainer"></div>
+</div>
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ページトップへ">↑</button>
+<div class="confetti-container" id="confettiContainer"></div>
+<script>
+const ALL_UNITS = [
+  {
+    "id": "unit1",
+    "title": "1節 コミュニケーション",
+    "fill": {
+      "text": "相手と直接対面しているかどうか、また直接対面していない場合は[同期性]の有無によってコミュニケーションを分類できます。1対1の[個別型]、1対多の[マスコミ型]、多対1の[逆マスコミ型]、多対多の[会議型]に分類できます。場所を選ばず仕事をする働き方を[テレワーク]といいます。"
+    },
+    "glossary": {
+      "同期性": {
+        "en": "synchronization",
+        "kana": "シンクロナイゼーション",
+        "desc": "「sync(同時)」が語源。送信と受信が同時に行われる性質のこと。電話は同期、メールは非同期です。"
+      },
+      "個別型": {
+        "en": "individual type",
+        "kana": "インディビジュアル タイプ",
+        "desc": "「individual(個別の)」+「type(型)」。1対1のコミュニケーション形態。"
+      },
+      "マスコミ型": {
+        "en": "mass communication type",
+        "kana": "マス コミュニケーション タイプ",
+        "desc": "「mass(大衆)」が語源。1人から大勢へ伝える形態。テレビ放送など。"
+      },
+      "逆マスコミ型": {
+        "en": "reverse mass communication type",
+        "kana": "リバース マス コミュニケーション タイプ",
+        "desc": "「reverse(逆の)」が語源。多数から1人へ情報が集まる形態。アンケートなど。"
+      },
+      "会議型": {
+        "en": "conference type",
+        "kana": "カンファレンス タイプ",
+        "desc": "「conference(会議)」が語源。多対多で対等に発信する形態。"
+      },
+      "テレワーク": {
+        "en": "telework",
+        "kana": "テレワーク",
+        "desc": "「tele(遠くの)」+「work(働く)」の造語。在宅ワークやノマドワークを含みます。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "直接対面していないコミュニケーションを分類する基準は?",
+        "opts": [
+          "情報量",
+          "同期性",
+          "人数",
+          "時間"
+        ],
+        "a": 1,
+        "explain": "直接対面していない場合、「同期性」(リアルタイムかどうか)で分類します。電話は同期、メールは非同期です。"
+      },
+      {
+        "q": "1対多のコミュニケーション形態は?",
+        "opts": [
+          "個別型",
+          "マスコミ型",
+          "逆マスコミ型",
+          "会議型"
+        ],
+        "a": 1,
+        "explain": "マスコミ型は1人が情報源となって複数人に発信する形態。テレビ放送やオンライン授業などが該当します。"
+      },
+      {
+        "q": "会議のような多対多の形態は?",
+        "opts": [
+          "個別型",
+          "マスコミ型",
+          "逆マスコミ型",
+          "会議型"
+        ],
+        "a": 3,
+        "explain": "会議型は複数の人がそれぞれ対等に発信し、全員で情報を共有する形態。ビジネス会議やグループディスカッションが代表例です。"
+      },
+      {
+        "q": "場所を選ばないで仕事をする働き方は?",
+        "opts": [
+          "テレワーク",
+          "SOHO",
+          "ノマド",
+          "フリーランス"
+        ],
+        "a": 0,
+        "explain": "テレワークは「tele(遠くの)」+「work(働く)」。在宅勤務、モバイルワーク、ノマドワークすべてを含む広い概念です。"
+      },
+      {
+        "q": "間接コミュニケーション(非同期)の例は?",
+        "opts": [
+          "電話",
+          "会話",
+          "電子メール",
+          "プレゼンテーション"
+        ],
+        "a": 2,
+        "explain": "電子メールは「送ってもすぐ読まれない」=非同期。一方、電話は同期、会話とプレゼンは直接コミュニケーションです。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "電話は間接コミュニケーション(同期)に分類される。",
+        "a": true,
+        "explain": "電話は「離れた場所」(間接)で「同時に」(同期)話せるコミュニケーションです。"
+      },
+      {
+        "q": "電子メールは間接コミュニケーション(非同期)である。",
+        "a": true,
+        "explain": "メールは送信と受信のタイミングがずれるため非同期コミュニケーションです。"
+      },
+      {
+        "q": "テレワークには在宅ワークやノマドワークも含まれる。",
+        "a": true,
+        "explain": "テレワーク=「離れた場所で働く」全般。在宅(自宅)・サテライトオフィス・モバイル(カフェ等)などすべて含みます。"
+      },
+      {
+        "q": "個別型は秘密性の高いコミュニケーションに向いている。",
+        "a": true,
+        "explain": "1対1の個別型は他に漏れにくいので秘密の話に向きます。逆にマスコミ型では秘密の話は不向きです。"
+      },
+      {
+        "q": "新しいコミュニケーション手段は、すべての場合で従来手段より優れている。",
+        "a": false,
+        "explain": "場面によります。重要な気持ちを伝える時は手書きの手紙が良い場合もあります。情報の特性と目的に応じて選ぶことが大切です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "テレワークの「Tele」の意味は?",
+        "opts": [
+          "電話",
+          "離れた場所",
+          "技術",
+          "遠隔操作"
+        ],
+        "a": 1,
+        "explain": "Tele(テレ)はギリシャ語で「遠くの」を意味します。テレビ(tele+vision=遠くを見る)、テレフォン(tele+phone=遠くの音)などにも使われています。"
+      },
+      {
+        "q": "同期コミュニケーションの直接型に該当するのは?",
+        "opts": [
+          "会話",
+          "電話",
+          "メール",
+          "SNS"
+        ],
+        "a": 0,
+        "explain": "会話は「直接対面」+「同時(同期)」の代表例。電話は同期だが間接、メールやSNSは非同期です。"
+      },
+      {
+        "q": "技術進歩によるコミュニケーション変化に該当しないものは?",
+        "opts": [
+          "時間的な変化",
+          "空間的な変化",
+          "情報量の変化",
+          "物質的な変化"
+        ],
+        "a": 3,
+        "explain": "教科書で挙げられる変化は「時間的・空間的・情報量的」の3つ。物質的変化は通常含まれません。"
+      },
+      {
+        "q": "テレビ会議システムが可能にしたのは?",
+        "opts": [
+          "表情・身振りでのメッセージ伝達",
+          "テキストの送信",
+          "画像の編集",
+          "音楽の配信"
+        ],
+        "a": 0,
+        "explain": "テレビ会議は映像と音声で遠隔地でも表情や身振りを伝えられるため、対面に近いコミュニケーションが可能です。"
+      }
+    ]
+  },
+  {
+    "id": "unit2",
+    "title": "2節 電子メールの利用",
+    "fill": {
+      "text": "メールアドレスは[ユーザ名]@ドメイン名で構成されます。同じメールを複数の受信者に送ることを[同報]といい、宛先・[CC]・[BCC]の3種類があります。CCは関係しない人にも送る欄、[BCC]は他の受信者には表示されない欄です。本文末尾には[署名](シグネチャ)を付けて自分の名前や連絡先を記載します。"
+    },
+    "glossary": {
+      "ユーザ名": {
+        "en": "user name",
+        "kana": "ユーザー ネーム",
+        "desc": "メールアドレスの@より前の部分。利用者を識別する名前です。"
+      },
+      "同報": {
+        "en": "broadcast",
+        "kana": "ブロードキャスト",
+        "desc": "「broad(広い)」+「cast(投げる)」。同じ情報を複数人に同時送信することです。"
+      },
+      "CC": {
+        "en": "Carbon Copy",
+        "kana": "カーボン コピー(シーシー)",
+        "desc": "カーボン紙(複写紙)で写しを作ることが語源。「あなたにも知っておいてほしい」という意味で送る宛先です。"
+      },
+      "BCC": {
+        "en": "Blind Carbon Copy",
+        "kana": "ブラインド カーボン コピー(ビーシーシー)",
+        "desc": "「Blind(見えない)」+「Carbon Copy(複写)」。他の受信者にアドレスが見えないCC。秘密の同報に使います。"
+      },
+      "署名": {
+        "en": "signature",
+        "kana": "シグネチャ",
+        "desc": "「sign(印す)」が語源。メール末尾に付ける自分の名前・連絡先などの情報です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "メールアドレスの構成として正しいのは?",
+        "opts": [
+          "ユーザ名#ドメイン名",
+          "ユーザ名@ドメイン名",
+          "ドメイン名@ユーザ名",
+          "ドメイン名#ユーザ名"
+        ],
+        "a": 1,
+        "explain": "メールアドレスは「ユーザ名@ドメイン名」。@(アットマーク)の左がユーザ名、右がドメイン名。",
+        "example": "「taro@example.co.jp」なら、taroがユーザ名、example.co.jpがドメイン名。"
+      },
+      {
+        "q": "メールの本文末尾に付ける自分の名前や連絡先を何という?",
+        "opts": [
+          "ヘッダ",
+          "署名",
+          "フッタ",
+          "タイトル"
+        ],
+        "a": 1,
+        "explain": "署名(signature/シグネチャ)はメール末尾に付ける名刺のような情報。氏名・所属・連絡先などを記載します。"
+      },
+      {
+        "q": "他の受信者に表示されない宛先欄は?",
+        "opts": [
+          "宛先",
+          "CC",
+          "BCC",
+          "From"
+        ],
+        "a": 2,
+        "explain": "BCC(Blind Carbon Copy)は「見えない」CC。複数の人にメールを送る時、互いのアドレスを知られたくない場合に使います。"
+      },
+      {
+        "q": "同じメールを複数人に送ることを何という?",
+        "opts": [
+          "一斉送信",
+          "同報",
+          "返信",
+          "転送"
+        ],
+        "a": 1,
+        "explain": "同報(どうほう)はメール用語で「同時に複数人へ送る」こと。To/CC/BCCを使い分けて行います。"
+      },
+      {
+        "q": "メールが届かない時のエラー「User unknown」の原因は?",
+        "opts": [
+          "ユーザ名の間違い",
+          "ドメイン名の間違い",
+          "サイズ超過",
+          "ボックス満杯"
+        ],
+        "a": 0,
+        "explain": "「User unknown」=ユーザ不明。@より前(ユーザ名)が間違っていることを意味します。ドメイン違いなら「Host not found」エラーになります。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "送信した電子メールは取り戻すことができる。",
+        "a": false,
+        "explain": "一度送信したメールは取り戻せません。アドレス間違いに注意して、送信前に必ず確認しましょう。"
+      },
+      {
+        "q": "BCC欄に入れたアドレスは他の受信者に表示されない。",
+        "a": true,
+        "explain": "BCCは「他の人には内緒で」送るためのもの。複数のお客様にメールを送る時、互いのアドレスを知られないようBCCを使うのがマナーです。"
+      },
+      {
+        "q": "HTMLメールにはウイルスが存在する可能性がある。",
+        "a": true,
+        "explain": "HTMLメールはWebページのように装飾できる反面、悪意あるスクリプトを仕込むこともできるため危険性があります。テキスト形式が安全。"
+      },
+      {
+        "q": "電子メールのデータは一般に暗号化されている。",
+        "a": false,
+        "explain": "通常のメールは暗号化されていません。途中で盗聴される可能性があるため、機密情報は本文に書かず、暗号化したファイルを添付するなどの工夫が必要です。"
+      },
+      {
+        "q": "電子メールは必ず相手に届くことが保証されている。",
+        "a": false,
+        "explain": "メールは経由するサーバの障害などで届かないことがあります。重要な連絡では「届きましたか?」と確認することも必要です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "CCの語源は?",
+        "opts": [
+          "Computer Copy",
+          "Carbon Copy",
+          "Common Copy",
+          "Cross Copy"
+        ],
+        "a": 1,
+        "explain": "CC = Carbon Copy[カーボン コピー]。昔の事務でカーボン紙(複写紙)を挟んで写しを作っていたことが由来です。"
+      },
+      {
+        "q": "BCCのBの意味は?",
+        "opts": [
+          "Black",
+          "Blind",
+          "Big",
+          "Both"
+        ],
+        "a": 1,
+        "explain": "BCC = Blind Carbon Copy[ブラインド カーボン コピー]。「Blind(見えない)」=他の受信者から見えないCC、という意味です。"
+      },
+      {
+        "q": "メールのエラーメール送信者として正しいのは?",
+        "opts": [
+          "MAILER-DAEMON",
+          "SMTP-Server",
+          "POP-Server",
+          "User-Agent"
+        ],
+        "a": 0,
+        "explain": "メールが届かない時、自動返信するのは「MAILER-DAEMON[メーラーデーモン]」。Daemonは「バックグラウンドで動くプログラム」の意味で、悪魔の意味ではありません。"
+      },
+      {
+        "q": "メールのヘッダ情報に含まれないものは?",
+        "opts": [
+          "From",
+          "To",
+          "Subject",
+          "本文の文字数"
+        ],
+        "a": 3,
+        "explain": "ヘッダ情報は送信者(From)、宛先(To)、件名(Subject)、日時(Date)、経由サーバ(Received)などの管理情報。本文の文字数は記録されません。"
+      }
+    ]
+  },
+  {
+    "id": "unit3",
+    "title": "3節 ネットワーク",
+    "fill": {
+      "text": "同一建物内など狭い範囲のネットワークを[LAN]、離れたLANを結合した広域ネットワークを[WAN]といいます。サービスを提供する側を[サーバ]、要求する側を[クライアント]といい、これらに分かれるシステムを[クライアントサーバシステム]、対等な関係のシステムを[ピアツーピア]システムといいます。LANを構成する集線装置を[ハブ]、ネットワークを接続する機器を[ルータ]といいます。"
+    },
+    "glossary": {
+      "LAN": {
+        "en": "Local Area Network",
+        "kana": "ローカル エリア ネットワーク(ラン)",
+        "desc": "「Local(局所的)」+「Area(範囲)」+「Network(網)」。同一建物内など狭い範囲のネットワークです。"
+      },
+      "WAN": {
+        "en": "Wide Area Network",
+        "kana": "ワイド エリア ネットワーク(ワン)",
+        "desc": "「Wide(広い)」+「Area(範囲)」+「Network(網)」。離れた拠点を結ぶ広域ネットワークです。"
+      },
+      "サーバ": {
+        "en": "server",
+        "kana": "サーバー",
+        "desc": "「serve(提供する)」+「-er(する人/物)」。サービスを提供する側のコンピュータです。"
+      },
+      "クライアント": {
+        "en": "client",
+        "kana": "クライアント",
+        "desc": "ラテン語「保護を求める者」が語源。サービスを要求する側のコンピュータです。"
+      },
+      "クライアントサーバシステム": {
+        "en": "client-server system",
+        "kana": "クライアント サーバー システム",
+        "desc": "クライアントとサーバが明確に分かれるシステム形態です。"
+      },
+      "ピアツーピア": {
+        "en": "peer-to-peer / P2P",
+        "kana": "ピア トゥ ピア",
+        "desc": "「peer(対等な仲間)」が語源。コンピュータ同士が対等な関係。略称はP2P[ピーツーピー]。"
+      },
+      "ハブ": {
+        "en": "hub",
+        "kana": "ハブ",
+        "desc": "「車輪の中心(中心軸)」が原義。ネットワークの中心となる集線装置です。"
+      },
+      "ルータ": {
+        "en": "router",
+        "kana": "ルーター",
+        "desc": "「route(経路)」+「-er(する物)」。経路を選択してネットワークをつなぐ機器です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "同一建物内などの狭い範囲のネットワークは?",
+        "opts": [
+          "LAN",
+          "WAN",
+          "MAN",
+          "PAN"
+        ],
+        "a": 0,
+        "explain": "LAN(Local Area Network)は学校や会社の建物内など狭い範囲のネットワーク。家庭の無線Wi-Fiも家庭内LANです。"
+      },
+      {
+        "q": "離れたLAN同士を結合したネットワークは?",
+        "opts": [
+          "LAN",
+          "WAN",
+          "VLAN",
+          "VPN"
+        ],
+        "a": 1,
+        "explain": "WAN(Wide Area Network)は通信事業者の回線で離れたLAN同士を結ぶ広域ネットワーク。",
+        "example": "東京本社のLANと大阪支社のLANを通信回線で結ぶとWANになります。"
+      },
+      {
+        "q": "サービスを提供する側のコンピュータは?",
+        "opts": [
+          "クライアント",
+          "サーバ",
+          "ホスト",
+          "ノード"
+        ],
+        "a": 1,
+        "explain": "サーバ(server)は「serve(給仕する)」+「-er」=サービスを提供する側のコンピュータ。レストランのウェイターのイメージです。"
+      },
+      {
+        "q": "コンピュータが対等な関係のシステムは?",
+        "opts": [
+          "クライアントサーバ",
+          "ピアツーピア",
+          "スタンドアロン",
+          "メインフレーム"
+        ],
+        "a": 1,
+        "explain": "ピアツーピア(P2P)は「peer(対等な仲間)同士」のシステム。サーバとクライアントの区別がなく、全員が対等。",
+        "example": "BitTorrentやSkypeの一部機能、ブロックチェーンなどが代表例です。"
+      },
+      {
+        "q": "異なるネットワーク同士を接続する機器は?",
+        "opts": [
+          "ハブ",
+          "ルータ",
+          "スイッチ",
+          "モデム"
+        ],
+        "a": 1,
+        "explain": "ルータ(router)はネットワーク同士をつなぐ機器。家庭でも「ホームルータ」がインターネットと家庭内LANをつなぎます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "LANはLocal Area Networkの略である。",
+        "a": true,
+        "explain": "LAN = Local Area Network[ローカル エリア ネットワーク]。Localは「局所的・地域的」という意味。"
+      },
+      {
+        "q": "スタンドアロンはネットワークに接続されたコンピュータである。",
+        "a": false,
+        "explain": "スタンドアロン(standalone)は「単独で立つ」=ネットワークに接続せず単体で動作するコンピュータです。"
+      },
+      {
+        "q": "ファイアウォールは外部からの侵入を防ぐ機能である。",
+        "a": true,
+        "explain": "ファイアウォール(firewall=防火壁)は外部からの不正アクセスを防ぐ仕組み。建物の防火壁のように悪い通信をブロックします。"
+      },
+      {
+        "q": "プロバイダ(ISP)はインターネット接続業者である。",
+        "a": true,
+        "explain": "プロバイダ(ISP=Internet Service Provider)はインターネット接続を提供する業者。NTTドコモ、KDDI、ソフトバンクなどが該当します。"
+      },
+      {
+        "q": "無線LANではアクセスポイントが必要である。",
+        "a": true,
+        "explain": "無線LAN(Wi-Fi)では、コンピュータと有線LANをつなぐ「アクセスポイント」が必要。家庭用ルータには通常内蔵されています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "WANのWの意味は?",
+        "opts": [
+          "Wide",
+          "Wireless",
+          "World",
+          "Web"
+        ],
+        "a": 0,
+        "explain": "WAN = Wide Area Network。Wide(ワイド)=「広い」、つまり広範囲のネットワークという意味です。"
+      },
+      {
+        "q": "ファイル共有のためのサーバは?",
+        "opts": [
+          "Webサーバ",
+          "ファイルサーバ",
+          "FTPサーバ",
+          "メールサーバ"
+        ],
+        "a": 1,
+        "explain": "ファイルサーバはネットワーク上でファイルを共有するための専用サーバ。会社内で資料を共有する際に使われます。"
+      },
+      {
+        "q": "集中処理システムで処理を行うのは?",
+        "opts": [
+          "ホストコンピュータ",
+          "クライアント",
+          "端末",
+          "ルータ"
+        ],
+        "a": 0,
+        "explain": "集中処理システムでは大型のホストコンピュータが全処理を担当。端末は入出力のみ行います。銀行の勘定系システムなど、信頼性が必要な分野で使われます。"
+      },
+      {
+        "q": "プロキシサーバの主な役割は?",
+        "opts": [
+          "印刷",
+          "クライアントの代理",
+          "データベース管理",
+          "メール配信"
+        ],
+        "a": 1,
+        "explain": "プロキシサーバは「proxy(代理)」サーバ。クライアントの代わりにWebサーバに接続することで、キャッシュ機能や匿名性を提供します。"
+      }
+    ]
+  },
+  {
+    "id": "unit4",
+    "title": "4節 共通の取り決め",
+    "fill": {
+      "text": "通信に関する取り決め(約束事)を[プロトコル]といいます。インターネットの統一プロトコルが[TCP/IP]で、4つの階層に分かれています。Webページの閲覧には[HTTP]、メール送信には[SMTP]、メール受信には[POP]や[IMAP]、ファイル転送には[FTP]を使います。データを「種類」と「具体的な値」に分けて記述する言語を[XML]といいます。"
+    },
+    "glossary": {
+      "プロトコル": {
+        "en": "protocol",
+        "kana": "プロトコル",
+        "desc": "もとは外交用語で「儀礼・規則」の意味。通信の約束事のことです。"
+      },
+      "TCP/IP": {
+        "en": "Transmission Control Protocol / Internet Protocol",
+        "kana": "ティーシーピー アイピー",
+        "desc": "「Transmission Control Protocol(伝送制御プロトコル)」+「Internet Protocol(インターネットプロトコル)」。インターネットの基本通信規約です。"
+      },
+      "HTTP": {
+        "en": "HyperText Transfer Protocol",
+        "kana": "エイチティーティーピー",
+        "desc": "「HyperText(ハイパーテキスト=リンク付きの文書)」+「Transfer(転送)」+「Protocol(規約)」。Webページの通信規約です。"
+      },
+      "SMTP": {
+        "en": "Simple Mail Transfer Protocol",
+        "kana": "エスエムティーピー",
+        "desc": "「Simple(簡単な)」+「Mail(メール)」+「Transfer(転送)」+「Protocol(規約)」。メール送信用の規約です。"
+      },
+      "POP": {
+        "en": "Post Office Protocol",
+        "kana": "ピーオーピー(ポップ)",
+        "desc": "「Post Office(郵便局)」+「Protocol(規約)」。メールをサーバから取り出す受信規約です。"
+      },
+      "IMAP": {
+        "en": "Internet Message Access Protocol",
+        "kana": "アイマップ",
+        "desc": "「Internet(インターネット)」+「Message(メッセージ)」+「Access(アクセス)」+「Protocol(規約)」。メールをサーバに置いたまま読む規約です。"
+      },
+      "FTP": {
+        "en": "File Transfer Protocol",
+        "kana": "エフティーピー",
+        "desc": "「File(ファイル)」+「Transfer(転送)」+「Protocol(規約)」。ファイル転送用の規約です。"
+      },
+      "XML": {
+        "en": "eXtensible Markup Language",
+        "kana": "エックスエムエル",
+        "desc": "「eXtensible(拡張可能な)」+「Markup(マークアップ)」+「Language(言語)」。データ記述用の言語です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "通信の取り決めを意味する用語は?",
+        "opts": [
+          "プロトコル",
+          "プロセス",
+          "プログラム",
+          "プロパティ"
+        ],
+        "a": 0,
+        "explain": "プロトコル(protocol)は元々外交用語で「儀礼・約束事」。通信における「お互いの約束事」を指します。"
+      },
+      {
+        "q": "インターネットの統一プロトコルは?",
+        "opts": [
+          "HTTP",
+          "TCP/IP",
+          "FTP",
+          "SMTP"
+        ],
+        "a": 1,
+        "explain": "TCP/IPはインターネットの基本通信規約。これがあるおかげで、世界中のコンピュータが種類を超えて通信できます。"
+      },
+      {
+        "q": "Webページの閲覧に使うプロトコルは?",
+        "opts": [
+          "HTTP",
+          "SMTP",
+          "POP",
+          "FTP"
+        ],
+        "a": 0,
+        "explain": "HTTP(HyperText Transfer Protocol)はWebページの送受信用プロトコル。URLが「http://」で始まるのはこのため。"
+      },
+      {
+        "q": "メール送信に使うプロトコルは?",
+        "opts": [
+          "POP",
+          "IMAP",
+          "SMTP",
+          "HTTP"
+        ],
+        "a": 2,
+        "explain": "SMTPはメール送信用、POPやIMAPは受信用と役割が違います。",
+        "example": "SMTPは郵便局へ手紙を出す行為、POP/IMAPは郵便受けから手紙を取り出す行為に例えられます。"
+      },
+      {
+        "q": "国際標準化された文字コードは?",
+        "opts": [
+          "JIS",
+          "シフトJIS",
+          "EUC",
+          "Unicode"
+        ],
+        "a": 3,
+        "explain": "Unicodeは世界の言語を統一的に扱える国際標準文字コード。今のスマホ・PCの多くで採用されています。絵文字もUnicodeの一部です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "TCP/IPは7階層に分かれている。",
+        "a": false,
+        "explain": "TCP/IPは4階層(アプリケーション層・トランスポート層・インターネット層・ネットワークインタフェース層)。7階層なのはOSI参照モデルです。"
+      },
+      {
+        "q": "OSI参照モデルは7階層で構成されている。",
+        "a": true,
+        "explain": "OSI参照モデルは国際標準化機構(ISO)が定めた通信モデルで7階層です。実際にはTCP/IPが普及しましたが、概念整理として今も使われます。"
+      },
+      {
+        "q": "PDF形式は環境に依存せず表示できる。",
+        "a": true,
+        "explain": "PDF(Portable Document Format)はAdobe社が開発した電子文書形式。OSや機種が違っても同じレイアウトで表示できるのが最大の特徴です。"
+      },
+      {
+        "q": "XMLは情報の種類と具体的な値を分けて記述できる。",
+        "a": true,
+        "explain": "XMLは<タグ>で情報の種類を、その中身で具体的な値を表します。データ交換の標準形式として広く使われています。"
+      },
+      {
+        "q": "Webアプリケーションは特定OSでしか動作しない。",
+        "a": false,
+        "explain": "Webアプリはブラウザがあれば動くため、Windows・Mac・Linux・スマホなど、OSを問わず動作するのが特徴です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "TCP/IPの第4層(アプリケーション層)に該当しないものは?",
+        "opts": [
+          "HTTP",
+          "TCP",
+          "SMTP",
+          "FTP"
+        ],
+        "a": 1,
+        "explain": "TCPはトランスポート層(第3層)のプロトコル。第4層はHTTP・SMTP・FTPなど、用途別のサービスプロトコルです。"
+      },
+      {
+        "q": "メールデータをサーバに残しどこからでも見られるプロトコルは?",
+        "opts": [
+          "POP",
+          "SMTP",
+          "IMAP",
+          "HTTP"
+        ],
+        "a": 2,
+        "explain": "IMAPはサーバにメールを残すので、PCでもスマホでも同じメールを見られます。POPはダウンロードして消すため、複数機器で見られないのが欠点でした。"
+      },
+      {
+        "q": "画像ファイルの拡張子に該当しないものは?",
+        "opts": [
+          "jpg",
+          "png",
+          "txt",
+          "gif"
+        ],
+        "a": 2,
+        "explain": "txtはテキスト(文書)ファイル。画像はjpg/png/gif/bmp/tiffなどです。"
+      },
+      {
+        "q": "OSの違いを吸収するソフトウェアは?",
+        "opts": [
+          "ブラウザ",
+          "仮想マシン",
+          "ドライバ",
+          "コンパイラ"
+        ],
+        "a": 1,
+        "explain": "仮想マシン(virtual machine)はソフトウェア上の仮想的なコンピュータ。Windows上でMac風の動作をさせるなど、OSの違いを吸収できます。"
+      }
+    ]
+  },
+  {
+    "id": "unit5",
+    "title": "5節 インターネットの仕組み",
+    "fill": {
+      "text": "インターネットに接続するコンピュータが持つ番号を[IPアドレス]といい、IPv4は[32]ビット、IPv6は128ビットで表されます。覚えやすい名前としてIPアドレスの代わりに[ドメイン名]を使います。ドメイン名をIPアドレスに変換する仕組みを[DNS]といいます。データを小さく分割して送信する方式を[パケット交換方式]、ルータが経路選択することを[ルーティング]といいます。公衆回線を専用回線のように利用する仕組みを[VPN]といいます。"
+    },
+    "glossary": {
+      "32": {
+        "en": "32 bit",
+        "kana": "サーティーツー ビット",
+        "desc": "IPv4のビット数。2の32乗=約43億個のアドレスが表現できます。"
+      },
+      "IPアドレス": {
+        "en": "Internet Protocol address",
+        "kana": "アイピー アドレス",
+        "desc": "「Internet Protocol(インターネットプロトコル)」+「address(住所)」。コンピュータのネット上の住所です。"
+      },
+      "ドメイン名": {
+        "en": "domain name",
+        "kana": "ドメイン ネーム",
+        "desc": "「domain(領域・分野)」+「name(名前)」。IPアドレスを覚えやすい英数字で表したものです。"
+      },
+      "DNS": {
+        "en": "Domain Name System",
+        "kana": "ディーエヌエス",
+        "desc": "「Domain(領域)」+「Name(名前)」+「System(系統)」。ドメイン名をIPアドレスに変換する仕組みです。"
+      },
+      "パケット交換方式": {
+        "en": "packet switching",
+        "kana": "パケット スイッチング",
+        "desc": "「packet(小包)」+「switching(切り替え)」。データを小さな小包に分けて送る方式です。"
+      },
+      "ルーティング": {
+        "en": "routing",
+        "kana": "ルーティング",
+        "desc": "「route(経路)」+「-ing(進行)」。最適な経路を選んでパケットを届けることです。"
+      },
+      "VPN": {
+        "en": "Virtual Private Network",
+        "kana": "ブイピーエヌ",
+        "desc": "「Virtual(仮想の)」+「Private(専用の)」+「Network(網)」。公衆回線を専用線のように使う仕組みです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "IPv4のIPアドレスのビット数は?",
+        "opts": [
+          "16ビット",
+          "32ビット",
+          "64ビット",
+          "128ビット"
+        ],
+        "a": 1,
+        "explain": "IPv4は32ビット。2の32乗で約43億個のアドレスを表せます。",
+        "example": "192.168.0.1のような4つの数字で表現されます。"
+      },
+      {
+        "q": "ドメイン名をIPアドレスに変換する仕組みは?",
+        "opts": [
+          "DNS",
+          "IP",
+          "DHCP",
+          "ARP"
+        ],
+        "a": 0,
+        "explain": "DNS(Domain Name System)は人間が分かりやすい名前(google.com等)とコンピュータが使う番号(IPアドレス)を相互変換します。",
+        "example": "「www.kantei.go.jp」とブラウザに入力すると、DNSがIPアドレスに変換してくれます。"
+      },
+      {
+        "q": "インターネットで使われる通信方式は?",
+        "opts": [
+          "回線交換方式",
+          "パケット交換方式",
+          "回線占有方式",
+          "直接接続方式"
+        ],
+        "a": 1,
+        "explain": "パケット交換方式はデータを小さな「小包」に分け、それぞれ別の経路で送る方式。途中で問題が起きても他の経路で配送できるので強い。"
+      },
+      {
+        "q": "ルータの経路選択を何という?",
+        "opts": [
+          "ルーティング",
+          "スイッチング",
+          "フォワーディング",
+          "ブリッジング"
+        ],
+        "a": 0,
+        "explain": "ルーティング(routing)は「最適な経路を選ぶ」こと。ナビが目的地までの最適ルートを示すのと同じです。"
+      },
+      {
+        "q": "公衆回線を専用回線のように利用する仕組みは?",
+        "opts": [
+          "LAN",
+          "WAN",
+          "VLAN",
+          "VPN"
+        ],
+        "a": 3,
+        "explain": "VPN(Virtual Private Network)は通信を暗号化することで公衆回線(インターネット)を専用回線のように使える仕組み。社外から会社のネットワークに安全に接続するなどに使われます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "IPv6は128ビットで表される。",
+        "a": true,
+        "explain": "IPv6は128ビット。アドレス数は2の128乗=約340澗(かん)個。事実上枯渇しないと言われる膨大な数です。"
+      },
+      {
+        "q": "IPアドレスの枯渇問題に対応するためIPv6が作られた。",
+        "a": true,
+        "explain": "IPv4の43億個では世界中のスマホ・IoT機器に足りなくなったため、IPv6が作られました。"
+      },
+      {
+        "q": "回線交換方式はインターネットで使われている方式である。",
+        "a": false,
+        "explain": "回線交換は固定電話の方式。インターネットはパケット交換方式です。"
+      },
+      {
+        "q": "IPはパケットの確実な配送を保証する。",
+        "a": false,
+        "explain": "IPは「ベストエフォート」=最善は尽くすが保証しない方式。確実性は上位のTCPが担います。"
+      },
+      {
+        "q": "TCPはパケットが届いていない場合に再送して信頼性を確保する。",
+        "a": true,
+        "explain": "TCP(Transmission Control Protocol)は届いたか確認し、届いていなければ再送します。これにより信頼性のある通信が実現します。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "IoTの意味は?",
+        "opts": [
+          "Internet of Things",
+          "Internet of Technology",
+          "Information of Things",
+          "International of Technology"
+        ],
+        "a": 0,
+        "explain": "IoT = Internet of Things[インターネット オブ シングス]=「モノのインターネット」。家電や車などモノがインターネットにつながる仕組みです。",
+        "example": "スマート家電(リモコンで操作できるエアコン)、見守りカメラ、自動運転車などがIoTの例です。"
+      },
+      {
+        "q": "ドメインのトップレベルで「日本」を表すのは?",
+        "opts": [
+          "us",
+          "uk",
+          "jp",
+          "de"
+        ],
+        "a": 2,
+        "explain": "jpは「Japan」=日本。usは米国、ukは英国、deはドイツ(Deutschland)を表します。"
+      },
+      {
+        "q": "組織区分「政府関係機関」を表すのは?",
+        "opts": [
+          "co",
+          "go",
+          "ed",
+          "ac"
+        ],
+        "a": 1,
+        "explain": "goはgovernment(政府)。例:「kantei.go.jp」=日本政府(首相官邸)。coは企業、edは教育、acは大学/学術機関です。"
+      },
+      {
+        "q": "VPNの意味は?",
+        "opts": [
+          "Virtual Public Network",
+          "Virtual Private Network",
+          "Visual Private Network",
+          "Visual Public Network"
+        ],
+        "a": 1,
+        "explain": "VPN = Virtual Private Network[バーチャル プライベート ネットワーク]=「仮想専用線」。公衆網を仮想的に専用線にする技術です。"
+      }
+    ]
+  },
+  {
+    "id": "unit6",
+    "title": "6節 Webページの閲覧とメールの仕組み",
+    "fill": {
+      "text": "ブラウザでWebページを閲覧する際、クライアントとWebサーバは[HTTP]プロトコルでやり取りします。閲覧時はまずDNSサーバに[IPアドレス]を問い合わせ、その後Webサーバに要求を送ります。メール送受信ではSMTPで[送信]、POPやIMAPで[受信]を行います。POPはメールを[ダウンロード]するのに対し、IMAPはサーバに残します。代理サーバとして[プロキシサーバ]も利用されます。"
+    },
+    "glossary": {
+      "HTTP": {
+        "en": "HyperText Transfer Protocol",
+        "kana": "エイチティーティーピー",
+        "desc": "「HyperText(ハイパーテキスト)」+「Transfer(転送)」+「Protocol(規約)」。Webページの通信規約です。"
+      },
+      "IPアドレス": {
+        "en": "Internet Protocol address",
+        "kana": "アイピー アドレス",
+        "desc": "コンピュータのネット上の住所。DNSがドメイン名から変換してくれます。"
+      },
+      "送信": {
+        "en": "send",
+        "kana": "センド",
+        "desc": "メールを相手のサーバへ届ける操作。SMTPプロトコルを使います。"
+      },
+      "受信": {
+        "en": "receive",
+        "kana": "レシーブ",
+        "desc": "サーバから自分宛のメールを取り出す操作。POPやIMAPを使います。"
+      },
+      "ダウンロード": {
+        "en": "download",
+        "kana": "ダウンロード",
+        "desc": "「down(下へ)」+「load(積む)」。サーバから自分の端末にデータを取り込むことです。"
+      },
+      "プロキシサーバ": {
+        "en": "proxy server",
+        "kana": "プロキシ サーバー",
+        "desc": "「proxy(代理)」+「server(サーバー)」。クライアントの代わりにサイトに接続する代理サーバです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "Webページ閲覧で使われるプロトコルは?",
+        "opts": [
+          "HTTP",
+          "SMTP",
+          "POP",
+          "FTP"
+        ],
+        "a": 0,
+        "explain": "HTTPはWebページ専用のプロトコル。今は安全な「HTTPS」(暗号化版)が標準です。"
+      },
+      {
+        "q": "メール送信で使われるプロトコルは?",
+        "opts": [
+          "POP",
+          "IMAP",
+          "SMTP",
+          "HTTP"
+        ],
+        "a": 2,
+        "explain": "SMTP(Simple Mail Transfer Protocol)は「Simple(シンプルな)Mail(メール)Transfer(転送)Protocol(規約)」。送信専用です。"
+      },
+      {
+        "q": "メールをサーバに残す受信プロトコルは?",
+        "opts": [
+          "POP",
+          "IMAP",
+          "SMTP",
+          "FTP"
+        ],
+        "a": 1,
+        "explain": "IMAPはサーバにメールを残します。スマホとPCで同じ受信箱を共有できるので、現代ではIMAPが主流。"
+      },
+      {
+        "q": "クライアントの代わりにWebサーバに接続するサーバは?",
+        "opts": [
+          "DNSサーバ",
+          "プロキシサーバ",
+          "ファイルサーバ",
+          "プリントサーバ"
+        ],
+        "a": 1,
+        "explain": "プロキシサーバ(代理サーバ)はクライアントの代わりにWebに接続。会社で社員のWeb閲覧を制限・監視するなどに使われます。"
+      },
+      {
+        "q": "Webページ閲覧で最初に行うのは?",
+        "opts": [
+          "IPアドレスをDNSに問い合わせ",
+          "Webサーバに直接アクセス",
+          "データの暗号化",
+          "ファイルのダウンロード"
+        ],
+        "a": 0,
+        "explain": "ドメイン名(www.example.com等)はDNSサーバに問い合わせてIPアドレスに変換しないとWebサーバへ接続できません。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "POPはメールデータをクライアントにダウンロードする。",
+        "a": true,
+        "explain": "POPはダウンロード型。サーバから自分の端末にメールを取り込み、サーバ側からは削除されるのが基本動作です。"
+      },
+      {
+        "q": "IMAPはサーバに残すのでどのクライアントからでも読める。",
+        "a": true,
+        "explain": "IMAPは複数の端末(PC、スマホ、タブレット)で同じメールを管理できるのが大きなメリットです。"
+      },
+      {
+        "q": "プッシュ型メールは新着を端末に通知する仕組みである。",
+        "a": true,
+        "explain": "プッシュ型メールではサーバから「新着があります」と端末に通知。スマホでメールがすぐ届くのはこの仕組みのおかげです。"
+      },
+      {
+        "q": "プロキシサーバには一度閲覧したページを保存するキャッシュ機能がある。",
+        "a": true,
+        "explain": "プロキシのキャッシュ機能により、同じページへの再アクセスが高速化され、回線負荷も減ります。"
+      },
+      {
+        "q": "メールの送信と受信では同じプロトコルを使う。",
+        "a": false,
+        "explain": "送信はSMTP、受信はPOPまたはIMAPと、別々のプロトコルを使います。役割が違うため使い分けられています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "URL「http://www.kantei.go.jp/index.html」のホスト名は?",
+        "opts": [
+          "www",
+          "kantei",
+          "go",
+          "jp"
+        ],
+        "a": 0,
+        "explain": "ホスト名は最も左の「www」。ドメイン名「kantei.go.jp」は組織情報、index.htmlはファイル名です。"
+      },
+      {
+        "q": "URLのファイル名がindex.htmlの時の特徴は?",
+        "opts": [
+          "必ず必要",
+          "省略可能",
+          "重複不可",
+          "大文字必須"
+        ],
+        "a": 1,
+        "explain": "index.htmlやdefault.htmlはWebサイトの「トップページ」のデフォルト名。URLで省略しても自動的にこのファイルが表示されます。"
+      },
+      {
+        "q": "POPとIMAPの違いとして正しいのは?",
+        "opts": [
+          "送信と受信",
+          "暗号化の有無",
+          "データ保存場所",
+          "料金の差"
+        ],
+        "a": 2,
+        "explain": "どちらも受信用ですが、POPは「ダウンロードして端末に保存」、IMAPは「サーバに残したまま閲覧」と保存場所が違います。"
+      },
+      {
+        "q": "メールサーバが24時間稼働している理由は?",
+        "opts": [
+          "メールはいつ届くか分からないから",
+          "法律で決まっているから",
+          "コストが安いから",
+          "技術的制約"
+        ],
+        "a": 0,
+        "explain": "メールはいつ送られてくるか分からないため、サーバは常時稼働して受信を待ち受ける必要があります。"
+      }
+    ]
+  },
+  {
+    "id": "unit7",
+    "title": "7節 インターネットを利用したサービス",
+    "fill": {
+      "text": "多種多様なWebコンテンツを整理して提供するWebサイトを[ポータルサイト]、Webサイトの更新情報を配信する仕組みを[RSS]といいます。登録メンバー全員にメールが届くシステムを[メーリングリスト]、主催者が定期的に情報を提供するメールを[メールマガジン]といいます。人とのつながりを構築するサービスを[SNS]、複数人でWebサイトを共同構築できるシステムを[Wiki]といいます。インターネットを利用した電話技術を[VoIP]といいます。"
+    },
+    "glossary": {
+      "ポータルサイト": {
+        "en": "portal site",
+        "kana": "ポータル サイト",
+        "desc": "「portal(玄関・入口)」+「site(場所)」。ネットへの「玄関口」となるサイトです。"
+      },
+      "RSS": {
+        "en": "RDF Site Summary / Really Simple Syndication",
+        "kana": "アールエスエス",
+        "desc": "「Site(サイト)」+「Summary(要約)」。Webサイトの更新情報を配信する仕組みです。"
+      },
+      "メーリングリスト": {
+        "en": "mailing list",
+        "kana": "メーリング リスト",
+        "desc": "「mail(郵便)」+「list(一覧)」。登録された全員に一斉メール配信されるシステムです。"
+      },
+      "メールマガジン": {
+        "en": "mail magazine",
+        "kana": "メール マガジン",
+        "desc": "「mail(メール)」+「magazine(雑誌)」。和製英語。雑誌のように定期配信されるメールです。"
+      },
+      "SNS": {
+        "en": "Social Networking Service",
+        "kana": "エスエヌエス",
+        "desc": "「Social(社会的)」+「Networking(つながり)」+「Service(サービス)」。人と人をつなぐWebサービスです。"
+      },
+      "Wiki": {
+        "en": "Wiki",
+        "kana": "ウィキ",
+        "desc": "ハワイ語の「wiki wiki(速い・急ぐ)」が語源。誰でもブラウザから編集できるシステムです。"
+      },
+      "VoIP": {
+        "en": "Voice over Internet Protocol",
+        "kana": "ブイオーアイピー(ボイップ)",
+        "desc": "「Voice(音声)」+「over(〜上で)」+「IP(インターネットプロトコル)」。ネット上で音声通話する技術です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "インターネットの「玄関口」となるサイトは?",
+        "opts": [
+          "検索サイト",
+          "ポータルサイト",
+          "ブログ",
+          "SNS"
+        ],
+        "a": 1,
+        "explain": "ポータル(portal)は「玄関」の意味。検索・天気・ニュース・地図など多様なサービスを集めたサイトです。",
+        "example": "Yahoo! Japan、MSNなどがポータルサイトの代表例。"
+      },
+      {
+        "q": "Webサイトの更新情報を配信する仕組みは?",
+        "opts": [
+          "RSS",
+          "XML",
+          "HTTP",
+          "POP"
+        ],
+        "a": 0,
+        "explain": "RSS(RDF Site Summary)はWebサイトの更新情報を自動配信する仕組み。RSSリーダーに登録すれば、複数のサイトの更新を一度に確認できます。"
+      },
+      {
+        "q": "登録メンバー全員にメールが届くシステムは?",
+        "opts": [
+          "メーリングリスト",
+          "メールマガジン",
+          "SNS",
+          "BBS"
+        ],
+        "a": 0,
+        "explain": "メーリングリストは登録した全員に1通のメールで一斉配信されるシステム。メンバー全員が投稿できるのが特徴です。"
+      },
+      {
+        "q": "人とのつながりを構築するサービスは?",
+        "opts": [
+          "BBS",
+          "SNS",
+          "Wiki",
+          "RSS"
+        ],
+        "a": 1,
+        "explain": "SNS(Social Networking Service)は人と人のつながりを目的としたサービス。",
+        "example": "Facebook、Instagram、X(旧Twitter)、LINEなどが代表的なSNS。"
+      },
+      {
+        "q": "インターネットを利用した電話技術は?",
+        "opts": [
+          "SIP",
+          "VoIP",
+          "VPN",
+          "VLAN"
+        ],
+        "a": 1,
+        "explain": "VoIP(Voice over IP)はインターネット回線で音声通話する技術。LINE電話やZoom音声通話、Skypeなどがこの技術を利用しています。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "メーリングリストへの送信は主催者しかできない。",
+        "a": false,
+        "explain": "メーリングリストはメンバー全員が投稿できます。「主催者のみが送る」のはメールマガジン。"
+      },
+      {
+        "q": "メールマガジンの送信は主催者のみに限られる。",
+        "a": true,
+        "explain": "メールマガジン(メルマガ)は主催者が一方的に配信する雑誌形式。読者は受信のみで、投稿はできません。"
+      },
+      {
+        "q": "Wikiシステムは複数人で共同編集ができる。",
+        "a": true,
+        "explain": "Wikiは誰でもブラウザから編集できる情報共有システム。Wikipediaが代表例。"
+      },
+      {
+        "q": "BBSは特定の人しか書き込みできない。",
+        "a": false,
+        "explain": "BBS(電子掲示板)は通常誰でも書き込めます。匿名で投稿できるため誹謗中傷が発生しやすいという問題もあります。"
+      },
+      {
+        "q": "ブログには読者がコメントを書けるコメント機能がある。",
+        "a": true,
+        "explain": "ブログのコメント機能は読者と作者の双方向コミュニケーションを実現します。トラックバック機能で関連ブログ同士を結ぶこともできます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "BBSの意味は?",
+        "opts": [
+          "Bulletin Board System",
+          "Big Big System",
+          "Best Brain System",
+          "Basic Board Service"
+        ],
+        "a": 0,
+        "explain": "BBS = Bulletin Board System[ブレチン ボード システム]。Bulletin Board=「掲示板」の意味です。"
+      },
+      {
+        "q": "SNSの意味は?",
+        "opts": [
+          "Social Network Service",
+          "Social Networking Service",
+          "Service Network System",
+          "Smart News Service"
+        ],
+        "a": 1,
+        "explain": "SNS = Social Networking Service[ソーシャル ネットワーキング サービス]。Networkに「-ing」がついて「つながりを作る」というニュアンスです。"
+      },
+      {
+        "q": "インターネット通話の品質保証として使われる用語は?",
+        "opts": [
+          "QoS",
+          "QoL",
+          "QC",
+          "QR"
+        ],
+        "a": 0,
+        "explain": "QoS = Quality of Service[クオリティ オブ サービス]=サービス品質。インターネット通話は通常QoSが保証されないため音質が悪くなることがあります。"
+      },
+      {
+        "q": "ブログのトラックバック機能とは?",
+        "opts": [
+          "コメント機能",
+          "相互リンク通知機能",
+          "検索機能",
+          "編集機能"
+        ],
+        "a": 1,
+        "explain": "トラックバック(trackback)は「自分の記事から他のブログにリンクを張ったよ」と相手に通知する機能。ブログ同士を結びます。"
+      }
+    ]
+  },
+  {
+    "id": "unit8",
+    "title": "社会の中の情報システム",
+    "fill": {
+      "text": "コンビニエンスストアの販売管理に使われるシステムを[POSシステム]といいます。商品の生産履歴管理システムを[トレーサビリティ]といいます。インターネット普及により蓄積された膨大なデータを[ビッグデータ]、サーバに処理を任せ意識せず利用できる形態を[クラウドコンピューティング]といいます。個人番号として12桁の番号を使う制度は[マイナンバー制度](社会保障・税番号制度)です。"
+    },
+    "glossary": {
+      "POSシステム": {
+        "en": "Point Of Sales system",
+        "kana": "ピーオーエス システム",
+        "desc": "「Point(地点)」+「Of(の)」+「Sales(販売)」+「System(系統)」。販売時点情報管理システムです。"
+      },
+      "トレーサビリティ": {
+        "en": "traceability",
+        "kana": "トレーサビリティ",
+        "desc": "「trace(追跡する)」+「-ability(できること)」。商品の生産履歴を追跡できる仕組みです。"
+      },
+      "ビッグデータ": {
+        "en": "big data",
+        "kana": "ビッグ データ",
+        "desc": "「big(大きな)」+「data(データ)」。膨大かつ多様なデータの総称です。"
+      },
+      "クラウドコンピューティング": {
+        "en": "cloud computing",
+        "kana": "クラウド コンピューティング",
+        "desc": "「cloud(雲)」+「computing(計算)」。インターネットの「雲の向こう」のサーバを使う形態です。"
+      },
+      "マイナンバー制度": {
+        "en": "My Number system",
+        "kana": "マイ ナンバー システム",
+        "desc": "「My(私の)」+「Number(番号)」。日本で個人に12桁の番号を割り当てる社会保障・税番号制度です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "コンビニの販売管理システムは?",
+        "opts": [
+          "ATM",
+          "POSシステム",
+          "ITS",
+          "GPS"
+        ],
+        "a": 1,
+        "explain": "POSシステムはレジで商品バーコードを読み取り「何が、いつ、いくつ売れたか」を集計するシステム。在庫管理や売上分析に使われます。",
+        "example": "コンビニで「夏は冷たい飲み物が売れる」「19時にお弁当が売れる」などの分析がPOSデータから行われています。"
+      },
+      {
+        "q": "商品の生産履歴を管理する仕組みは?",
+        "opts": [
+          "ロジスティクス",
+          "トレーサビリティ",
+          "データマイニング",
+          "プロファイリング"
+        ],
+        "a": 1,
+        "explain": "トレーサビリティ(traceability)は「trace(追跡)」+「-ability(可能性)」=追跡可能性。生産から消費まで履歴を追えます。",
+        "example": "牛肉の個体識別番号、野菜の生産者表示、食品の原産地表示などがトレーサビリティの実例です。"
+      },
+      {
+        "q": "膨大かつ多様なデータの総称は?",
+        "opts": [
+          "ビッグデータ",
+          "データベース",
+          "データウェアハウス",
+          "メタデータ"
+        ],
+        "a": 0,
+        "explain": "ビッグデータは量・種類・更新頻度の3点で特徴的なデータ。AIで分析することで新しい発見につながります。"
+      },
+      {
+        "q": "サーバに処理を任せる形態は?",
+        "opts": [
+          "クラウドコンピューティング",
+          "エッジコンピューティング",
+          "スタンドアロン",
+          "メインフレーム"
+        ],
+        "a": 0,
+        "explain": "クラウド(cloud=雲)というのは、利用者から見るとサーバの実体が見えない(雲の向こうにある)ことから命名されました。Gmail、Google Drive、Office 365などが代表例。"
+      },
+      {
+        "q": "個人番号制度の通称は?",
+        "opts": [
+          "マイナンバー制度",
+          "住基ネット",
+          "個人ID制度",
+          "社会保障番号"
+        ],
+        "a": 0,
+        "explain": "マイナンバー制度は2016年から開始。12桁の番号で社会保障・税・災害対策の3分野で個人を識別します。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "POSはPoint Of Salesの略である。",
+        "a": true,
+        "explain": "POS = Point Of Sales[ポイント オブ セールス]=「販売時点」。販売時点で情報を管理するシステムという意味です。"
+      },
+      {
+        "q": "カーナビゲーションは人工衛星からの電波を利用している。",
+        "a": true,
+        "explain": "カーナビはGPS(Global Positioning System)で位置を測定。複数の人工衛星からの電波の到達時間差から自分の位置を計算しています。"
+      },
+      {
+        "q": "ITSは交通問題解決のためのシステムである。",
+        "a": true,
+        "explain": "ITS(Intelligent Transport Systems)は高度道路交通システム。ETC、VICS(渋滞情報)、自動運転技術などが含まれます。"
+      },
+      {
+        "q": "クラウドコンピューティングでは利用者がサーバを意識する必要がある。",
+        "a": false,
+        "explain": "クラウドの特徴は「利用者がサーバを意識せず使える」点。サーバの場所や仕組みを知らなくてもサービスが使えます。"
+      },
+      {
+        "q": "電子タグはRFタグやICタグとも呼ばれる。",
+        "a": true,
+        "explain": "電子タグは「RFタグ(Radio Frequency=無線)」「ICタグ(Integrated Circuit=集積回路)」とも呼ばれます。Suicaや会社のIDカードなどに使われています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "リレーショナルデータベースを管理するシステムは?",
+        "opts": [
+          "DBMS",
+          "OS",
+          "RDB",
+          "SQL"
+        ],
+        "a": 0,
+        "explain": "DBMS(Database Management System)はデータベース管理システム。データの登録・検索・更新・削除を効率的に行います。MySQL、PostgreSQL、Oracleなどが代表例。"
+      },
+      {
+        "q": "マイナンバーの桁数は?",
+        "opts": [
+          "10桁",
+          "11桁",
+          "12桁",
+          "13桁"
+        ],
+        "a": 2,
+        "explain": "マイナンバーは個人に12桁の番号を割り当てます(法人は13桁)。"
+      },
+      {
+        "q": "ITSの意味は?",
+        "opts": [
+          "Intelligent Transport Systems",
+          "Internet Traffic System",
+          "International Trade System",
+          "Information Transport Service"
+        ],
+        "a": 0,
+        "explain": "ITS = Intelligent Transport Systems[インテリジェント トランスポート システムズ]=「賢い交通システム」の意。"
+      },
+      {
+        "q": "ATMで行えないものは?",
+        "opts": [
+          "現金支払い",
+          "預金",
+          "振込",
+          "商品購入"
+        ],
+        "a": 3,
+        "explain": "ATM(Automated Teller Machine)は銀行の自動取引機。現金引き出し・預け入れ・残高照会・振込ができますが、商品購入はできません。"
+      }
+    ]
+  },
+  {
+    "id": "unit9",
+    "title": "8節 情報の共有化と合意形成",
+    "fill": {
+      "text": "利害関係者の意見一致を図ることを[合意形成](コンセンサス)といいます。利害関係者を[ステークホルダー]といいます。住民の意見を反映させる手続きを[パブリックコメント](意見公募手続)といいます。役割を生かして協同・協調することを[協働]といい、知識をデータベース化して共有することを[ナレッジマネジメント](知識管理)といいます。スケジュール管理や共有フォルダを提供するソフトを[グループウェア]といいます。"
+    },
+    "glossary": {
+      "合意形成": {
+        "en": "consensus building",
+        "kana": "コンセンサス ビルディング",
+        "desc": "「consensus(合意)」+「building(構築)」。利害関係者の意見一致を図ることです。"
+      },
+      "ステークホルダー": {
+        "en": "stakeholder",
+        "kana": "ステークホルダー",
+        "desc": "「stake(賭け金・利害)」+「holder(保持者)」。利害関係を持つ人のことです。"
+      },
+      "パブリックコメント": {
+        "en": "public comment",
+        "kana": "パブリック コメント",
+        "desc": "「public(公の)」+「comment(意見)」。行政が広く一般から意見を募集する手続きです。"
+      },
+      "協働": {
+        "en": "collaboration",
+        "kana": "コラボレーション",
+        "desc": "「co-(共に)」+「labor(働く)」。複数の人や組織が協力して働くことです。"
+      },
+      "ナレッジマネジメント": {
+        "en": "knowledge management",
+        "kana": "ナレッジ マネジメント",
+        "desc": "「knowledge(知識)」+「management(管理)」。組織の知識を共有・活用する経営手法です。"
+      },
+      "グループウェア": {
+        "en": "groupware",
+        "kana": "グループウェア",
+        "desc": "「group(集団)」+「ware(用品・ソフト)」。グループでの作業を支援するソフトウェアです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "利害関係者の意見一致を図ることを何という?",
+        "opts": [
+          "合意形成",
+          "討論",
+          "投票",
+          "調停"
+        ],
+        "a": 0,
+        "explain": "合意形成(コンセンサス)は議論を経て関係者全員が「これでOK」と納得する過程。多数決と異なり、少数意見も配慮します。"
+      },
+      {
+        "q": "利害関係者を意味する用語は?",
+        "opts": [
+          "ステークホルダー",
+          "メンバー",
+          "コミッティー",
+          "プレイヤー"
+        ],
+        "a": 0,
+        "explain": "ステークホルダー(stakeholder)は「stake(賭け金)」を持つ人=ある事業や決定に影響を受ける人々。",
+        "example": "企業の場合、株主・従業員・取引先・消費者・地域住民すべてがステークホルダーです。"
+      },
+      {
+        "q": "住民から意見を公募する手続きは?",
+        "opts": [
+          "アンケート",
+          "パブリックコメント",
+          "ヒアリング",
+          "住民投票"
+        ],
+        "a": 1,
+        "explain": "パブリックコメント(public comment)は「公の意見公募」。行政が政策を決める前に広く市民から意見を募集する制度です。"
+      },
+      {
+        "q": "個人の知識をデータベース化して共有することを?",
+        "opts": [
+          "データマイニング",
+          "ナレッジマネジメント",
+          "プロジェクト管理",
+          "ワークフロー"
+        ],
+        "a": 1,
+        "explain": "ナレッジマネジメント(知識管理)は社員一人ひとりの経験やノウハウを組織全体で共有する経営手法。",
+        "example": "営業マンが客先で得たコツや失敗事例を共有DBに登録し、新人がそれを学べるようにする等。"
+      },
+      {
+        "q": "スケジュール管理や共有フォルダを提供するソフトは?",
+        "opts": [
+          "データベース",
+          "グループウェア",
+          "OS",
+          "ブラウザ"
+        ],
+        "a": 1,
+        "explain": "グループウェアはチーム作業を支援するソフト。Microsoft Teams、Google Workspace、サイボウズなどが代表例です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "合意形成は別名コンセンサスとも呼ばれる。",
+        "a": true,
+        "explain": "consensus(コンセンサス)はラテン語の「con(共に)+sentire(感じる)」が語源。「共感する=合意する」という意味です。"
+      },
+      {
+        "q": "ナレッジマネジメントは形式知だけを管理する。",
+        "a": false,
+        "explain": "ナレッジマネジメントは形式知(マニュアル化できる知識)だけでなく、暗黙知(言語化しにくい経験的な知識)も含めて管理します。",
+        "example": "熟練職人の「勘」「コツ」のような暗黙知を、若手に伝える仕組みも含まれます。"
+      },
+      {
+        "q": "電子政府により行政手続きの一部はオンラインでできる。",
+        "a": true,
+        "explain": "マイナポータルなどから、各種申請や住民票取得などがオンラインでできるようになっています。"
+      },
+      {
+        "q": "グループウェアは複数人での作業を支援する。",
+        "a": true,
+        "explain": "グループウェアにはスケジュール共有、文書共有、メッセージ機能、ワークフローなどがあり、チーム作業を効率化します。"
+      },
+      {
+        "q": "パブリックコメントは行政の決定後に意見を出す手続きである。",
+        "a": false,
+        "explain": "パブリックコメントは「決定前」に意見を募集する制度。市民の意見を政策に反映させる目的があります。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "形式知に対する用語は?",
+        "opts": [
+          "暗黙知",
+          "潜在知",
+          "直感知",
+          "感覚知"
+        ],
+        "a": 0,
+        "explain": "暗黙知は経験や勘などの言語化しにくい知識。形式知は文章や手順書で表せる明確な知識です。両方を活用するのがナレッジマネジメントのポイント。"
+      },
+      {
+        "q": "グループウェアに含まれない機能は?",
+        "opts": [
+          "スケジュール管理",
+          "掲示板",
+          "ワークフロー",
+          "画像編集"
+        ],
+        "a": 3,
+        "explain": "画像編集は専門ソフト(Photoshop等)の機能。グループウェアはチーム連携機能が中心です。"
+      },
+      {
+        "q": "表計算ソフトの共有機能で可能なことは?",
+        "opts": [
+          "同時に複数人で更新",
+          "音声通話",
+          "動画編集",
+          "メール送信"
+        ],
+        "a": 0,
+        "explain": "Google スプレッドシートやMicrosoft 365のExcelでは、複数人が同時に同じシートを編集できます。誰がどこを変更したかも分かります。"
+      },
+      {
+        "q": "モニター制度の主な目的は?",
+        "opts": [
+          "住民意見の反映",
+          "住民の監視",
+          "商品販売",
+          "広告掲載"
+        ],
+        "a": 0,
+        "explain": "モニター制度は無作為または公募で選ばれた住民から意見を聞き、行政に反映させる制度です。"
+      }
+    ]
+  },
+  {
+    "id": "unit10",
+    "title": "人に優しい情報技術",
+    "fill": {
+      "text": "高齢者や障がいのある人にとっての障壁を取り除く方策を[バリアフリー]、年齢や身体能力に関係なく誰もが利用できるデザインを[ユニバーサルデザイン]といいます。アクセスしやすさを[アクセシビリティ]といいます。離れた場所での医療を[遠隔医療]、離れた場所での教育を[遠隔教育]、ネットワークを活用した教育を[eラーニング]といいます。画面を読み上げるソフトウェアを[スクリーンリーダー]といいます。"
+    },
+    "glossary": {
+      "バリアフリー": {
+        "en": "barrier free",
+        "kana": "バリア フリー",
+        "desc": "「barrier(障壁)」+「free(無い)」。障壁を取り除く考え方です。"
+      },
+      "ユニバーサルデザイン": {
+        "en": "universal design",
+        "kana": "ユニバーサル デザイン",
+        "desc": "「universal(普遍的・全ての)」+「design(設計)」。最初から誰もが使えるよう設計する考え方です。"
+      },
+      "アクセシビリティ": {
+        "en": "accessibility",
+        "kana": "アクセシビリティ",
+        "desc": "「access(近づく)」+「-ibility(できること)」。情報やサービスへの「アクセスしやすさ」のことです。"
+      },
+      "遠隔医療": {
+        "en": "telemedicine",
+        "kana": "テレメディシン",
+        "desc": "「tele(遠くの)」+「medicine(医療)」。離れた場所での診療を可能にする医療です。"
+      },
+      "遠隔教育": {
+        "en": "distance learning",
+        "kana": "ディスタンス ラーニング",
+        "desc": "「distance(距離)」+「learning(学習)」。離れた場所での教育を可能にします。"
+      },
+      "eラーニング": {
+        "en": "e-learning",
+        "kana": "イー ラーニング",
+        "desc": "「electronic(電子的な)」+「learning(学習)」。ネットワークを活用した教育のことです。"
+      },
+      "スクリーンリーダー": {
+        "en": "screen reader",
+        "kana": "スクリーン リーダー",
+        "desc": "「screen(画面)」+「reader(読み手)」。画面の文字を読み上げる支援ソフトです。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "障壁を取り除く方策は?",
+        "opts": [
+          "バリアフリー",
+          "ユニバーサルデザイン",
+          "アクセシビリティ",
+          "コンプライアンス"
+        ],
+        "a": 0,
+        "explain": "バリアフリーは「既にある障壁を取り除く」発想。",
+        "example": "駅の段差にスロープを後付けする、視覚障がい者向けに点字ブロックを追加する等。"
+      },
+      {
+        "q": "誰もが利用できることを目指したデザインは?",
+        "opts": [
+          "バリアフリー",
+          "ユニバーサルデザイン",
+          "アクセシビリティ",
+          "インクルーシブ"
+        ],
+        "a": 1,
+        "explain": "ユニバーサルデザインは「最初から障壁を作らない」発想。バリアフリーが事後対応なのに対し、こちらは設計段階から全員に配慮します。",
+        "example": "シャンプーボトルのギザギザ(リンスとの区別)、ウォシュレットの大きなボタン、低床バスなど。"
+      },
+      {
+        "q": "アクセスしやすさを意味する用語は?",
+        "opts": [
+          "ユーザビリティ",
+          "アクセシビリティ",
+          "プレイアビリティ",
+          "リーダビリティ"
+        ],
+        "a": 1,
+        "explain": "アクセシビリティは「access(近づく)+ -ibility(できること)」=利用しやすさ。Webサイトでは画像に代替テキストを付けるなどの配慮が含まれます。"
+      },
+      {
+        "q": "ネットワークを活用した教育は?",
+        "opts": [
+          "eラーニング",
+          "遠隔教育",
+          "通信教育",
+          "放送教育"
+        ],
+        "a": 0,
+        "explain": "eラーニング(e-learning)は「electronic(電子的な)」+「learning(学習)」。インターネットを使った教育全般を指します。"
+      },
+      {
+        "q": "画面の文字を読み上げるソフトは?",
+        "opts": [
+          "ナレーター",
+          "スクリーンリーダー",
+          "ボイスレコーダー",
+          "音声認識"
+        ],
+        "a": 1,
+        "explain": "スクリーンリーダーは画面の内容を音声で読み上げる支援ソフト。視覚障がい者がコンピュータを使うために不可欠です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "バリアフリーは最初から障壁を作らない考え方である。",
+        "a": false,
+        "explain": "バリアフリーは「既にある障壁を取り除く」考え方。「最初から作らない」のはユニバーサルデザインです。"
+      },
+      {
+        "q": "ユニバーサルデザインは年齢や身体能力に関係なく利用できることを目指す。",
+        "a": true,
+        "explain": "ユニバーサル(universal)=「普遍的な、全員のための」。年齢・性別・国籍・身体能力を問わず誰もが使えるデザインです。"
+      },
+      {
+        "q": "遠隔医療では専門医がいない地域でも診療を受けられる可能性がある。",
+        "a": true,
+        "explain": "遠隔医療により、地方や離島などでも都市部の専門医による診察を受けられます。コロナ禍でも普及が進みました。"
+      },
+      {
+        "q": "eラーニングはネットワーク技術を活用した教育である。",
+        "a": true,
+        "explain": "eラーニングはオンライン授業、動画教材、学習管理システムなど多様な形式があり、いつでもどこでも学べるのが特徴です。"
+      },
+      {
+        "q": "触覚ディスプレイは凹凸で情報を伝える装置である。",
+        "a": true,
+        "explain": "触覚ディスプレイは画面の代わりに表面の凹凸でグラフや図形を表現。視覚障がい者でも触れて情報を理解できます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "画像ファイルに代替文字列を設定する目的は?",
+        "opts": [
+          "ファイルサイズの削減",
+          "画像が見られない人への配慮",
+          "検索エンジン対策のみ",
+          "装飾"
+        ],
+        "a": 1,
+        "explain": "代替テキスト(alt属性)は画像が見えない人(視覚障がい者やネット環境が悪い人)にスクリーンリーダーで内容を伝えるためのもの。Webアクセシビリティの基本です。"
+      },
+      {
+        "q": "タッチパネル液晶の特徴は?",
+        "opts": [
+          "入力のみ",
+          "出力のみ",
+          "入力と出力の両方",
+          "データ記憶"
+        ],
+        "a": 2,
+        "explain": "タッチパネルは画面表示(出力)とタッチ操作(入力)を兼ねます。スマホやタブレットの直感的な操作はこのおかげです。"
+      },
+      {
+        "q": "遠隔教育の例として正しくないものは?",
+        "opts": [
+          "通信教育",
+          "テレビ講義",
+          "eラーニング",
+          "対面授業"
+        ],
+        "a": 3,
+        "explain": "対面授業は「直接会う」教育で遠隔ではありません。通信教育・テレビ講義・eラーニングはすべて遠隔教育の一形態です。"
+      },
+      {
+        "q": "ユニバーサルデザインの例として正しいものは?",
+        "opts": [
+          "色だけで情報を表現",
+          "文字サイズ変更可能",
+          "音声のみで案内",
+          "一部の人だけ使える"
+        ],
+        "a": 1,
+        "explain": "文字サイズ変更可能なら、視力の弱い人も読めます。これがユニバーサル(普遍的)な配慮です。",
+        "example": "スマホやWebサイトで文字サイズを大きくできる機能、誰でも使えるピクトグラム(絵文字標識)など。"
+      }
+    ]
+  }
+];
+const PAGES = [{"title":"📄 ページ1(1〜3節)","units":[0,1,2]},{"title":"📄 ページ2(4〜6節)","units":[3,4,5]},{"title":"📄 ページ3(7節+情報システム)","units":[6,7]},{"title":"📄 ページ4(8節+人に優しい情報技術)","units":[8,9]}];
+let currentPage = 0;
+let unitStates = {};
+let timerIntervals = {};
+
+function initUnitState(unitId) {
+  if (!unitStates[unitId]) {
+    unitStates[unitId] = {
+      mode: 'fill',
+      challenge: { active: false, answers: [], blanks: [], parts: [], selectedWord: null, startTime: null, elapsed: 0, shuffledWords: null },
+      records: [],
+      quiz4: { idx: 0, score: 0, answered: false },
+      ox: { idx: 0, score: 0, answered: false },
+      quiz4check: { idx: 0, score: 0, answered: false }
+    };
+  }
+  return unitStates[unitId];
+}
+
+function init() {
+  renderPageTabs();
+  // URLハッシュからジャンプ先を決定 (#unitN)
+  let initialPage = 0;
+  let targetUnitId = null;
+  const hash = (location.hash || '').replace('#', '');
+  if (hash) {
+    for (let p = 0; p < PAGES.length; p++) {
+      const found = PAGES[p].units.some(idx => ALL_UNITS[idx] && ALL_UNITS[idx].id === hash);
+      if (found) { initialPage = p; targetUnitId = hash; break; }
+    }
+  }
+  currentPage = initialPage;
+  renderPageTabs();
+  renderPage(initialPage);
+  if (targetUnitId) {
+    setTimeout(function() {
+      const card = document.getElementById('card-' + targetUnitId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        card.style.transition = 'box-shadow 0.4s';
+        const orig = card.style.boxShadow;
+        card.style.boxShadow = '0 0 0 4px #fbbf24, 0 8px 30px rgba(245,158,11,.4)';
+        setTimeout(function(){ card.style.boxShadow = orig; }, 1800);
+      }
+    }, 100);
+  }
+}
+
+window.addEventListener('hashchange', function() { init(); });
+
+
+function renderPageTabs() {
+  const container = document.getElementById('pageTabs');
+  container.innerHTML = '';
+  PAGES.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'page-tab' + (i === currentPage ? ' active' : '');
+    btn.textContent = p.title;
+    btn.onclick = () => switchPage(i);
+    container.appendChild(btn);
+  });
+}
+
+function switchPage(pageIdx) {
+  Object.keys(timerIntervals).forEach(uid => { clearInterval(timerIntervals[uid]); delete timerIntervals[uid]; });
+  currentPage = pageIdx;
+  renderPageTabs();
+  renderPage(pageIdx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderPage(pageIdx) {
+  const container = document.getElementById('unitsContainer');
+  container.innerHTML = '';
+  PAGES[pageIdx].units.forEach(unitIdx => {
+    const unit = ALL_UNITS[unitIdx];
+    initUnitState(unit.id);
+    container.appendChild(createUnitCard(unit));
+  });
+}
+
+function createUnitCard(unit) {
+  const state = unitStates[unit.id];
+  const card = document.createElement('div');
+  card.className = 'unit-card';
+  card.id = 'card-' + unit.id;
+  card.innerHTML = '<h2 class="unit-title">' + unit.title + '</h2>' +
+    '<div class="mode-tabs">' +
+    '<button class="mode-tab active" data-mode="fill" data-uid="' + unit.id + '">✏️ 穴埋め</button>' +
+    '<button class="mode-tab" data-mode="quiz4" data-uid="' + unit.id + '">🎯 4択練習</button>' +
+    '<button class="mode-tab" data-mode="ox" data-uid="' + unit.id + '">⭕❌ 〇×</button>' +
+    '<button class="mode-tab" data-mode="quiz4check" data-uid="' + unit.id + '">📝 確認4択</button>' +
+    '</div><div class="mode-content" id="content-' + unit.id + '"></div>';
+  card.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.onclick = () => {
+      const uid = tab.dataset.uid;
+      const mode = tab.dataset.mode;
+      card.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.mode = mode;
+      renderModeContent(uid);
+    };
+  });
+  setTimeout(() => renderModeContent(unit.id), 0);
+  return card;
+}
+
+function renderModeContent(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('content-' + unitId);
+  if (!container) return;
+  if (state.mode === 'fill') renderFill(unitId, container);
+  else if (state.mode === 'quiz4') renderQuiz(unitId, container, 'quiz4');
+  else if (state.mode === 'ox') renderOx(unitId, container);
+  else if (state.mode === 'quiz4check') renderQuiz(unitId, container, 'quiz4check');
+}
+
+function renderFill(unitId, container) {
+  const state = unitStates[unitId];
+  container.innerHTML =
+    '<div class="timer-box">' +
+    '<div>⏱️ <span class="timer-display" id="timer-' + unitId + '">' + formatTime(state.challenge.elapsed) + '</span></div>' +
+    '<div class="records" id="records-' + unitId + '"></div>' +
+    '<button class="btn btn-secondary" onclick="resetRecords(\'' + unitId + '\')">記録リセット</button>' +
+    '</div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="startChallenge(\'' + unitId + '\')">🚀 チャレンジ</button>' +
+    '<button class="btn btn-warning" onclick="showOhon(\'' + unitId + '\')">📖 お手本</button>' +
+    '<button class="btn btn-success" onclick="resumeChallenge(\'' + unitId + '\')">▶️ 再開</button>' +
+    '<button class="btn btn-danger" onclick="judge(\'' + unitId + '\')">✓ 判定</button>' +
+    '</div>' +
+    '<div id="message-' + unitId + '"></div>' +
+    '<div class="passage" id="passage-' + unitId + '"></div>' +
+    '<div class="word-bank">' +
+    '<div class="word-bank-title" id="wordBankTitle-' + unitId + '">【語群】チャレンジボタンを押すと表示されます</div>' +
+    '<div class="word-bank-words" id="wordBankWords-' + unitId + '"></div>' +
+    '</div>';
+  showOhon(unitId);
+  renderRecords(unitId);
+}
+
+function parseFillText(text) {
+  const blanks = [], parts = [];
+  let lastIdx = 0;
+  const regex = /\[([^\]]+)\]/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    parts.push({ type: 'text', content: text.substring(lastIdx, match.index) });
+    parts.push({ type: 'blank', idx: blanks.length });
+    blanks.push(match[1]);
+    lastIdx = match.index + match[0].length;
+  }
+  parts.push({ type: 'text', content: text.substring(lastIdx) });
+  return { parts, blanks };
+}
+
+// {漢字|ふりがな} を <ruby> に変換するヘルパー
+function applyRuby(text) {
+  return text.replace(/\{([^|}]+)\|([^}]+)\}/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+
+// テキストノードとしてrubyを含むHTMLを挿入するヘルパー
+function appendWithRuby(parent, text) {
+  const html = applyRuby(text);
+  if (html === text) {
+    parent.appendChild(document.createTextNode(text));
+  } else {
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    parent.appendChild(span);
+  }
+}
+
+function showOhon(unitId) {
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const { parts, blanks } = parseFillText(unit.fill.text);
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank correct';
+      const term = blanks[p.idx];
+      span.textContent = term;
+      // 語句解説があれば追加
+      const gloss = unit.glossary && unit.glossary[term];
+      if (gloss) {
+        span.classList.add('has-glossary');
+        const popup = document.createElement('span');
+        popup.className = 'glossary-popup';
+        let popupHTML = '';
+        if (gloss.en) popupHTML += '<div><span class="term-en">' + gloss.en + '</span>';
+        if (gloss.kana) popupHTML += ' <span class="term-kana">[' + gloss.kana + ']</span>';
+        if (gloss.en) popupHTML += '</div>';
+        popupHTML += '<div style="margin-top:4px;">' + gloss.desc + '</div>';
+        popup.innerHTML = popupHTML;
+        span.appendChild(popup);
+        span.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.glossary-popup.show').forEach(p => { if (p !== popup) p.classList.remove('show'); });
+          popup.classList.toggle('show');
+        };
+        span.onmouseenter = () => popup.classList.add('show');
+        span.onmouseleave = () => popup.classList.remove('show');
+      }
+      passage.appendChild(span);
+    }
+  });
+  document.getElementById('wordBankWords-' + unitId).innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】チャレンジボタンを押すと表示されます';
+  showMessage(unitId, 'お手本を表示中です。緑の下線が引かれた語句にマウスを乗せる(またはタップする)と詳しい説明が表示されます。', 'info');
+}
+
+function startChallenge(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const parsed = parseFillText(unit.fill.text);
+  state.challenge.active = true;
+  state.challenge.blanks = parsed.blanks;
+  state.challenge.answers = new Array(parsed.blanks.length).fill(null);
+  state.challenge.parts = parsed.parts;
+  state.challenge.selectedWord = null;
+  state.challenge.elapsed = 0;
+  state.challenge.startTime = Date.now();
+  state.challenge.shuffledWords = [...parsed.blanks].sort(() => Math.random() - 0.5);
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, '語群から語句を選び、空欄をタップして埋めてください。', 'info');
+}
+
+function renderChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  ch.parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank';
+      const ans = ch.answers[p.idx];
+      if (ans) { span.textContent = ans; span.classList.add('filled'); }
+      else span.textContent = '?'.repeat(Math.min(ch.blanks[p.idx].length, 6));
+      span.onclick = () => fillBlank(unitId, p.idx);
+      passage.appendChild(span);
+    }
+  });
+  const usedWords = ch.answers.filter(a => a !== null);
+  const wordBankEl = document.getElementById('wordBankWords-' + unitId);
+  wordBankEl.innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】タップして選択してください';
+  const usedCounts = {};
+  usedWords.forEach(w => { usedCounts[w] = (usedCounts[w] || 0) + 1; });
+  const tempUsed = {};
+  ch.shuffledWords.forEach((word) => {
+    tempUsed[word] = (tempUsed[word] || 0) + 1;
+    const isUsed = tempUsed[word] <= (usedCounts[word] || 0);
+    const chip = document.createElement('span');
+    chip.className = 'word-chip' + (isUsed ? ' used' : '');
+    if (ch.selectedWord === word && !isUsed) chip.classList.add('selected');
+    chip.textContent = word;
+    chip.onclick = () => selectWord(unitId, word, chip);
+    wordBankEl.appendChild(chip);
+  });
+}
+
+function selectWord(unitId, word, chip) {
+  if (chip.classList.contains('used')) return;
+  unitStates[unitId].challenge.selectedWord = word;
+  const card = document.getElementById('card-' + unitId);
+  card.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+}
+
+function fillBlank(unitId, blankIdx) {
+  const ch = unitStates[unitId].challenge;
+  if (ch.selectedWord) {
+    ch.answers[blankIdx] = ch.selectedWord;
+    ch.selectedWord = null;
+    renderChallenge(unitId);
+  } else if (ch.answers[blankIdx]) {
+    ch.answers[blankIdx] = null;
+    renderChallenge(unitId);
+  }
+}
+
+function judge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.active) { showMessage(unitId, 'まずチャレンジボタンを押してください。', 'warning'); return; }
+  if (ch.answers.includes(null)) { showMessage(unitId, 'まだ空欄があります。すべての空欄を埋めてください。', 'warning'); return; }
+  let allCorrect = true;
+  const passage = document.getElementById('passage-' + unitId);
+  const blankEls = passage.querySelectorAll('.blank');
+  ch.answers.forEach((ans, i) => {
+    const correct = ch.blanks[i];
+    const el = blankEls[i];
+    if (ans === correct) { el.classList.remove('filled', 'wrong'); el.classList.add('correct'); }
+    else { el.classList.remove('filled', 'correct'); el.classList.add('wrong'); allCorrect = false; }
+  });
+  if (allCorrect) {
+    stopTimer(unitId);
+    ch.active = false;
+    saveRecord(unitId, ch.elapsed);
+    showMessage(unitId, '🎉 合格! タイム: ' + formatTime(ch.elapsed), 'success');
+    confetti();
+  } else {
+    showMessage(unitId, 'おしい! もう一歩です。間違った語句が語群に戻ります。再挑戦してください。', 'warning');
+    setTimeout(() => {
+      ch.answers = ch.answers.map((ans, i) => ans === ch.blanks[i] ? ans : null);
+      renderChallenge(unitId);
+    }, 1500);
+  }
+}
+
+function resumeChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.blanks || ch.blanks.length === 0) { showMessage(unitId, '再開できる挑戦がありません。チャレンジボタンを押してください。', 'warning'); return; }
+  ch.active = true;
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, 'やっていたところから再開します。', 'info');
+}
+
+function startTimer(unitId) {
+  stopTimer(unitId);
+  const state = unitStates[unitId];
+  state.challenge.startTime = Date.now() - state.challenge.elapsed;
+  timerIntervals[unitId] = setInterval(() => {
+    state.challenge.elapsed = Date.now() - state.challenge.startTime;
+    const el = document.getElementById('timer-' + unitId);
+    if (el) el.textContent = formatTime(state.challenge.elapsed);
+  }, 100);
+}
+
+function stopTimer(unitId) {
+  if (timerIntervals[unitId]) { clearInterval(timerIntervals[unitId]); delete timerIntervals[unitId]; }
+}
+
+function formatTime(ms) {
+  const sec = Math.floor(ms / 1000);
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+function saveRecord(unitId, time) {
+  const state = unitStates[unitId];
+  state.records.push(time);
+  state.records.sort((a, b) => a - b);
+  state.records = state.records.slice(0, 3);
+  renderRecords(unitId);
+}
+
+function renderRecords(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('records-' + unitId);
+  if (!container) return;
+  container.innerHTML = '<span style="font-weight:bold;color:#92400e;">🏆ベスト3:</span>';
+  if (state.records.length === 0) {
+    container.innerHTML += '<span class="record-item">記録なし</span>';
+  } else {
+    state.records.forEach((r, i) => {
+      const span = document.createElement('span');
+      span.className = 'record-item';
+      span.textContent = (i + 1) + '位 ' + formatTime(r);
+      container.appendChild(span);
+    });
+  }
+}
+
+function resetRecords(unitId) {
+  if (!confirm('この単元の記録をリセットしますか?')) return;
+  const state = unitStates[unitId];
+  state.records = [];
+  state.challenge.elapsed = 0;
+  const el = document.getElementById('timer-' + unitId);
+  if (el) el.textContent = '00:00';
+  renderRecords(unitId);
+  showMessage(unitId, '記録をリセットしました。', 'info');
+}
+
+function showMessage(unitId, text, type) {
+  const el = document.getElementById('message-' + unitId);
+  if (!el) return;
+  el.innerHTML = '<div class="message msg-' + type + '">' + text + '</div>';
+  if (type !== 'success') {
+    setTimeout(() => {
+      const cur = el.querySelector('.msg-' + type);
+      if (cur && cur.textContent === text) el.innerHTML = '';
+    }, 4000);
+  }
+}
+
+function confetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#fbbf24'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function renderQuiz(unitId, container, kind) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="' + kind + '-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="' + kind + '-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextQuiz(\'' + unitId + '\',\'' + kind + '\')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetQuiz(\'' + unitId + '\',\'' + kind + '\')">最初から</button>' +
+    '</div>';
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderQuizQuestion(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit[kind];
+  const qs = state[kind];
+  const c = document.getElementById(kind + '-container-' + unitId);
+  const p = document.getElementById(kind + '-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  let html = '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div><div class="quiz-options">';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-option" data-i="' + i + '">' + (i + 1) + '. ' + opt + '</button>'; });
+  html += '</div>';
+  c.innerHTML = html;
+  c.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.onclick = () => answerQuiz(unitId, kind, parseInt(btn.dataset.i));
+  });
+}
+
+function answerQuiz(unitId, kind, i) {
+  const state = unitStates[unitId];
+  const qs = state[kind];
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit[kind][qs.idx];
+  const opts = document.querySelectorAll('#' + kind + '-container-' + unitId + ' .quiz-option');
+  opts.forEach((opt, idx) => {
+    if (idx === q.a) opt.classList.add('correct');
+    if (idx === i && i !== q.a) opt.classList.add('wrong');
+    opt.disabled = true;
+  });
+  if (i === q.a) { qs.score++; confetti(); }
+  // 解説を表示
+  if (q.explain) {
+    const c = document.getElementById(kind + '-container-' + unitId);
+    const explainDiv = document.createElement('div');
+    explainDiv.className = 'quiz-explain';
+    let html = '<span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    explainDiv.innerHTML = html;
+    c.appendChild(explainDiv);
+  }
+}
+
+function nextQuiz(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state[kind].answered && state[kind].idx < unit[kind].length) return;
+  state[kind].idx++;
+  state[kind].answered = false;
+  renderQuizQuestion(unitId, kind);
+}
+
+function resetQuiz(unitId, kind) {
+  unitStates[unitId][kind] = { idx: 0, score: 0, answered: false };
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderOx(unitId, container) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="ox-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="ox-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextOx(\'' + unitId + '\')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetOx(\'' + unitId + '\')">最初から</button>' +
+    '</div>';
+  renderOxQuestion(unitId);
+}
+
+function renderOxQuestion(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit.ox;
+  const qs = state.ox;
+  const c = document.getElementById('ox-container-' + unitId);
+  const p = document.getElementById('ox-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  c.innerHTML =
+    '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div>' +
+    '<div class="ox-buttons">' +
+    '<button class="ox-btn maru" data-v="true">○</button>' +
+    '<button class="ox-btn batsu" data-v="false">×</button>' +
+    '</div>' +
+    '<div id="ox-result-' + unitId + '" style="margin-top:14px;"></div>';
+  c.querySelectorAll('.ox-btn').forEach(btn => { btn.onclick = () => answerOx(unitId, btn.dataset.v === 'true'); });
+}
+
+function answerOx(unitId, val) {
+  const state = unitStates[unitId];
+  const qs = state.ox;
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit.ox[qs.idx];
+  const result = document.getElementById('ox-result-' + unitId);
+  let html = '';
+  if (val === q.a) {
+    qs.score++;
+    html = '<div class="message msg-success">✓ 正解! 答えは「' + (q.a ? '○' : '×') + '」です。</div>';
+    confetti();
+  } else {
+    html = '<div class="message msg-warning">✗ 不正解。正解は「' + (q.a ? '○' : '×') + '」です。</div>';
+  }
+  // 解説を表示
+  if (q.explain) {
+    html += '<div class="quiz-explain"><span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    html += '</div>';
+  }
+  result.innerHTML = html;
+}
+
+function nextOx(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state.ox.answered && state.ox.idx < unit.ox.length) return;
+  state.ox.idx++;
+  state.ox.answered = false;
+  renderOxQuestion(unitId);
+}
+
+function resetOx(unitId) {
+  unitStates[unitId].ox = { idx: 0, score: 0, answered: false };
+  renderOxQuestion(unitId);
+}
+
+init();
+</script>
+</body>
+</html>

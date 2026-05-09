@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報1 第1章 暗記プログラム</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+  min-height: 100vh; padding: 20px; color: #1e293b;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { text-align: center; color: #0369a1; margin-bottom: 20px; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+.page-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+.page-tab { flex: 1; min-width: 200px; padding: 14px; background: white; border: 3px solid #0ea5e9; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px; color: #0369a1; transition: all 0.2s; }
+.page-tab:hover { background: #e0f2fe; }
+.page-tab.active { background: #0ea5e9; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.unit-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 24px; border-top: 6px solid #0ea5e9; }
+.unit-title { color: #0369a1; font-size: 22px; margin-bottom: 12px; border-bottom: 3px solid #0ea5e9; padding-bottom: 8px; }
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.mode-tab { flex: 1; min-width: 110px; padding: 8px 10px; background: #f1f5f9; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; color: #475569; transition: all 0.2s; }
+.mode-tab:hover { background: #e2e8f0; }
+.mode-tab.active { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+.timer-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.timer-display { font-size: 22px; font-weight: bold; color: #b45309; font-family: monospace; }
+.records { display: flex; gap: 6px; font-size: 12px; flex-wrap: wrap; }
+.record-item { background: white; padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24; }
+.passage { background: #f8fafc; border-left: 5px solid #0ea5e9; padding: 16px; border-radius: 8px; line-height: 2.2; font-size: 15px; margin-bottom: 14px; min-height: 100px; }
+.blank { display: inline-block; min-width: 70px; padding: 2px 12px; margin: 0 4px; border: 2px dashed #94a3b8; border-radius: 6px; background: #fef9c3; text-align: center; cursor: pointer; transition: all 0.2s; }
+.blank.filled { background: #dbeafe; border-style: solid; border-color: #3b82f6; cursor: pointer; }
+.blank.correct { background: #bbf7d0; border-color: #16a34a; color: #166534; font-weight: bold; position: relative; }
+.blank.has-glossary { cursor: help; border-bottom: 3px double #16a34a; }
+.glossary-popup { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: normal; white-space: normal; min-width: 220px; max-width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50; line-height: 1.6; text-align: left; display: none; }
+.glossary-popup.show { display: block; }
+.glossary-popup::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: #1e293b; }
+.glossary-popup .term-en { color: #fbbf24; font-weight: bold; }
+.glossary-popup .term-kana { color: #86efac; }
+.blank.wrong { background: #fecaca; border-color: #dc2626; animation: shake 0.4s; }
+.blank.selected { background: #fed7aa; border-color: #f97316; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.word-bank { background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 12px; margin-bottom: 14px; min-height: 50px; }
+.word-bank-title { font-weight: bold; color: #166534; margin-bottom: 6px; font-size: 13px; }
+.word-bank-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.word-chip { background: white; border: 2px solid #22c55e; border-radius: 18px; padding: 5px 12px; cursor: pointer; font-weight: bold; color: #166534; transition: all 0.2s; user-select: none; font-size: 14px; }
+.word-chip:hover { background: #22c55e; color: white; transform: scale(1.05); }
+.word-chip.used { opacity: 0.3; pointer-events: none; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #0ea5e9; color: white; }
+.btn-primary:hover { background: #0369a1; }
+.btn-success { background: #22c55e; color: white; } .btn-success:hover { background: #16a34a; }
+.btn-warning { background: #f59e0b; color: white; } .btn-warning:hover { background: #d97706; }
+.btn-danger { background: #ef4444; color: white; } .btn-danger:hover { background: #dc2626; }
+.btn-secondary { background: #64748b; color: white; } .btn-secondary:hover { background: #475569; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.message { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+.msg-success { background: #bbf7d0; color: #166534; }
+.msg-warning { background: #fed7aa; color: #9a3412; }
+.msg-info { background: #dbeafe; color: #1e40af; }
+.quiz-question { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 12px; font-size: 15px; font-weight: bold; border-left: 5px solid #f59e0b; }
+.quiz-options { display: grid; gap: 8px; }
+.quiz-option { background: white; border: 2px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: all 0.2s; font-size: 14px; text-align: left; }
+.quiz-option:hover { background: #f1f5f9; border-color: #0ea5e9; }
+.quiz-option.correct { background: #bbf7d0; border-color: #16a34a; }
+.quiz-option.wrong { background: #fecaca; border-color: #dc2626; }
+.quiz-explain { background: #fef9c3; border-left: 5px solid #facc15; padding: 12px 14px; border-radius: 8px; margin-top: 12px; font-size: 14px; line-height: 1.7; color: #713f12; }
+.quiz-explain .ex-title { font-weight: bold; color: #a16207; margin-bottom: 4px; display: block; }
+.quiz-explain .ex-example { display: block; margin-top: 6px; padding: 6px 10px; background: white; border-radius: 6px; border-left: 3px solid #16a34a; color: #166534; font-size: 13px; }
+.kanji-ruby { font-size: 0.6em; color: #6b7280; margin-left: 2px; }
+ruby rt { font-size: 0.55em; color: #475569; font-weight: normal; }
+.ox-buttons { display: flex; gap: 16px; justify-content: center; margin-top: 12px; }
+.ox-btn { width: 80px; height: 80px; border: 4px solid; border-radius: 50%; font-size: 40px; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; }
+.ox-btn.maru { color: #dc2626; border-color: #dc2626; } .ox-btn.maru:hover { background: #dc2626; color: white; }
+.ox-btn.batsu { color: #1e40af; border-color: #1e40af; } .ox-btn.batsu:hover { background: #1e40af; color: white; }
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
+.confetti { position: absolute; width: 10px; height: 10px; animation: fall 3s linear forwards; }
+@keyframes fall { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.progress { background: #e2e8f0; border-radius: 10px; height: 20px; overflow: hidden; margin-bottom: 10px; }
+.progress-bar { background: linear-gradient(90deg, #22c55e, #16a34a); height: 100%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; }
+.hidden { display: none !important; }
+.mode-content { padding-top: 4px; }
+.back-to-top { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: #0ea5e9; color: white; border: none; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+.back-to-top:hover { background: #0369a1; }
+@media (max-width: 600px) { h1 { font-size: 22px; } .passage { font-size: 13px; line-height: 2; } .btn { padding: 6px 12px; font-size: 12px; } .unit-title { font-size: 18px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📚 情報1 第1章「情報社会」暗記プログラム</h1>
+  <div class="page-tabs" id="pageTabs"></div>
+  <div id="unitsContainer"></div>
+</div>
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="ページトップへ">↑</button>
+<div class="confetti-container" id="confettiContainer"></div>
+<script>
+const ALL_UNITS = [
+  {
+    "id": "unit1",
+    "title": "1節 情報と情報社会",
+    "fill": {
+      "text": "事実や事柄などを数字や文字、記号で表現したものを[データ]といいます。これを目的に応じて整理してできたものが[情報]であり、情報を分析し問題解決に役立つように蓄積したものが[知識]です。情報には、他者に渡しても自分の手元に残る[残存性]、容易にコピーできる[複製性]、短時間で広く伝わる[伝播性]という特徴があります。ICTが浸透した社会を[情報社会]といいます。"
+    },
+    "glossary": {
+      "データ": {
+        "en": "data",
+        "kana": "データ",
+        "desc": "ラテン語「datum(与えられたもの)」の複数形が語源。事実そのものという意味です。"
+      },
+      "情報": {
+        "en": "information",
+        "kana": "インフォメーション",
+        "desc": "「形作る(form)」+「中に(in)」が語源。データに意味を与えて形にしたものです。"
+      },
+      "知識": {
+        "en": "knowledge",
+        "kana": "ナレッジ",
+        "desc": "古英語「cnawan(知る)」が語源。経験や学習によって得た理解のことです。"
+      },
+      "残存性": {
+        "en": "persistence",
+        "kana": "パーシステンス",
+        "desc": "「残り続ける性質」のこと。情報は他者に渡しても消えません。"
+      },
+      "複製性": {
+        "en": "reproducibility",
+        "kana": "リプロデュサビリティ",
+        "desc": "「複製できる性質」のこと。デジタル情報は劣化なくコピーできます。"
+      },
+      "伝播性": {
+        "en": "propagation",
+        "kana": "プロパゲーション",
+        "desc": "「広く伝わる性質」のこと。情報は短時間で世界中に拡散します。"
+      },
+      "情報社会": {
+        "en": "information society",
+        "kana": "インフォメーション ソサエティ",
+        "desc": "ICT(情報通信技術)が社会基盤になった社会のこと。「ICT」=Information and Communication Technology[インフォメーション アンド コミュニケーション テクノロジー]。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "事実や事柄を数字や記号で表現したものは何?",
+        "opts": [
+          "データ",
+          "情報",
+          "知識",
+          "メディア"
+        ],
+        "a": 0,
+        "explain": "データ(data)は事実そのものを記号化したもの。これを目的に応じて整理すると「情報」になります。",
+        "example": "「30、25、28」という数字の並びはデータ。これに「気温(℃)」と意味付けすると情報になります。"
+      },
+      {
+        "q": "情報を分析し問題解決に役立つよう蓄積したものは?",
+        "opts": [
+          "データ",
+          "情報",
+          "知識",
+          "記号"
+        ],
+        "a": 2,
+        "explain": "データ→情報→知識という流れ。情報を分析・蓄積して問題解決に活かせるものが「知識」です。",
+        "example": "気温データの分析結果を蓄積し「夏は28度を超えると売上が伸びる」と分かれば、それは知識です。"
+      },
+      {
+        "q": "「他者に渡しても自分の手元からなくならない」情報の特徴は?",
+        "opts": [
+          "複製性",
+          "伝播性",
+          "残存性",
+          "即時性"
+        ],
+        "a": 2,
+        "explain": "残存性(ざんぞんせい)は情報が消えずに残る性質。「もの」と違い、人に渡しても自分のところに残ります。",
+        "example": "友達にレシピを教えても、自分も覚えています。これが残存性です。"
+      },
+      {
+        "q": "ICTが浸透した社会のことを何というか?",
+        "opts": [
+          "データ社会",
+          "情報社会",
+          "メディア社会",
+          "ネット社会"
+        ],
+        "a": 1,
+        "explain": "ICT(Information and Communication Technology=情報通信技術)が社会のあらゆる分野に浸透した社会を「情報社会」と呼びます。"
+      },
+      {
+        "q": "情報の特徴に当てはまらないものは?",
+        "opts": [
+          "残存性",
+          "複製性",
+          "伝播性",
+          "物質性"
+        ],
+        "a": 3,
+        "explain": "情報は「物体ではない」のが特徴です。残存性・複製性・伝播性の3つが情報の主な特徴とされます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "「データ」とは事実や事柄などを数字や文字、記号で表現したもののことである。",
+        "a": true,
+        "explain": "データは生の事実を記号化したものです。意味付けされる前の段階を指します。"
+      },
+      {
+        "q": "情報は他者に渡すと自分の手元からなくなる。",
+        "a": false,
+        "explain": "情報には「残存性」があり、他者に渡しても自分の手元に残ります。「もの」とは違う情報の重要な特徴です。"
+      },
+      {
+        "q": "ディジタル情報は劣化させずに大量に複製できる。",
+        "a": true,
+        "explain": "デジタルは0と1の数値で表現されるため、何度コピーしても元と全く同じ品質を保てます。これが「複製性」です。"
+      },
+      {
+        "q": "ICTとは「情報通信技術」を意味する。",
+        "a": true,
+        "explain": "ICT = Information and Communication Technology[インフォメーション アンド コミュニケーション テクノロジー]。「情報通信技術」と訳されます。"
+      },
+      {
+        "q": "一度インターネットに流出した情報は、発信者が消去すれば完全に消去できる。",
+        "a": false,
+        "explain": "情報には「伝播性」があり、流出した情報は他人がコピー・転載しているため、発信者だけでは完全に消すことはできません。これは「デジタルタトゥー」とも呼ばれます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "次のうち情報の3つの種類に含まれないものは?",
+        "opts": [
+          "生命の内部に生じる情報",
+          "社会に通用する情報",
+          "機械的に処理できる情報",
+          "物理的に存在する情報"
+        ],
+        "a": 3,
+        "explain": "情報は①生命内部の情報(感情・感覚)②社会に通用する情報(言語)③機械的に処理できる情報(記号)に分類されます。",
+        "example": "①「美味しい!」という感情、②「ありがとう」という言葉、③コンピュータが処理する文字コード。"
+      },
+      {
+        "q": "EUの司法裁判所が認めた、過去の情報を削除できる権利は?",
+        "opts": [
+          "プライバシー権",
+          "忘れられる権利",
+          "肖像権",
+          "知る権利"
+        ],
+        "a": 1,
+        "explain": "「忘れられる権利」(right to be forgotten)は、ネット上の自分に関する古い情報を削除する権利。EUで認められています。"
+      },
+      {
+        "q": "「ありがとう」という言語は、どの種類の情報か?",
+        "opts": [
+          "生命の内部に生じる情報",
+          "社会に通用する情報",
+          "機械的に処理できる情報",
+          "すべて該当"
+        ],
+        "a": 1,
+        "explain": "言語は「社会に通用する情報」。記号と意味が一体となっており、その言語を理解する人々の間で意味が伝わります。"
+      },
+      {
+        "q": "ICTの正式名称は?",
+        "opts": [
+          "Information and Computer Technology",
+          "Information and Communication Technology",
+          "Internet and Computer Technology",
+          "International Communication Technology"
+        ],
+        "a": 1,
+        "explain": "ICT = Information and Communication Technology(情報通信技術)。コンピュータだけでなく「通信」を含むのがポイント。日本ではIT(Information Technology)と呼ぶこともあります。"
+      }
+    ]
+  },
+  {
+    "id": "unit2",
+    "title": "2節 社会の変化と個人の責任",
+    "fill": {
+      "text": "ネットワークを介して商品やサービスを取引することを[電子商取引]といいます。企業同士の取引は[BtoB]、企業と消費者の取引は[BtoC]、消費者同士の取引は[CtoC]です。利用者の要求で情報が届く配信を[プル型]、テレビのように一方的に配信されるのは[プッシュ型]です。自宅などをオフィスとする労働形態を[SOHO]といいます。"
+    },
+    "glossary": {
+      "電子商取引": {
+        "en": "electronic commerce / EC",
+        "kana": "エレクトロニック コマース",
+        "desc": "「electronic(電子の)」+「commerce(商取引)」の組み合わせ。略称はEC[イーシー]です。"
+      },
+      "BtoB": {
+        "en": "Business to Business",
+        "kana": "ビジネス トゥ ビジネス",
+        "desc": "B(Business=企業)からB(Business=企業)への取引。「to」を数字の「2」に置き換えて「B2B[ビーツービー]」と書くこともあります。"
+      },
+      "BtoC": {
+        "en": "Business to Consumer",
+        "kana": "ビジネス トゥ コンシューマー",
+        "desc": "B(Business=企業)からC(Consumer=消費者)への取引。Amazonのネット通販などが代表例。「B2C」とも書きます。"
+      },
+      "CtoC": {
+        "en": "Consumer to Consumer",
+        "kana": "コンシューマー トゥ コンシューマー",
+        "desc": "C(Consumer=消費者)からC(Consumer=消費者)への取引。フリマアプリやネットオークションが代表例。「C2C」とも書きます。"
+      },
+      "プル型": {
+        "en": "pull type",
+        "kana": "プル タイプ",
+        "desc": "「pull(引っ張る)」が語源。利用者が「自分から取りに行く」配信形態。Webページの閲覧などです。"
+      },
+      "プッシュ型": {
+        "en": "push type",
+        "kana": "プッシュ タイプ",
+        "desc": "「push(押す)」が語源。送信側が一方的に「押し付ける」配信形態。テレビ放送などです。"
+      },
+      "SOHO": {
+        "en": "Small Office / Home Office",
+        "kana": "ソーホー",
+        "desc": "「Small Office(小さな事務所)/Home Office(自宅事務所)」の頭文字。自宅や小規模事務所で働く労働形態です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "企業と消費者の間の取引は?",
+        "opts": [
+          "BtoB",
+          "BtoC",
+          "CtoC",
+          "BtoG"
+        ],
+        "a": 1,
+        "explain": "BtoCはBusiness to Consumer。企業(Business)が消費者(Consumer)に商品やサービスを売る取引です。",
+        "example": "Amazonや楽天で買い物をする、ユニクロのオンラインストアで服を買う、などが該当します。"
+      },
+      {
+        "q": "ネットオークションのように個人間で行われる取引は?",
+        "opts": [
+          "BtoB",
+          "BtoC",
+          "CtoC",
+          "GtoC"
+        ],
+        "a": 2,
+        "explain": "CtoCはConsumer to Consumer。個人(消費者)同士の取引です。",
+        "example": "メルカリ、ヤフオク、ラクマなどのフリマアプリ・オークションサイト。"
+      },
+      {
+        "q": "利用者の要求で情報が届く形態は?",
+        "opts": [
+          "プル型",
+          "プッシュ型",
+          "ストリーム型",
+          "放送型"
+        ],
+        "a": 0,
+        "explain": "プル型(pull=引っ張る)は、利用者が「自分から取りに行く」配信形態。多くのインターネットサービスはプル型です。",
+        "example": "YouTubeで観たい動画を選んで再生する、ニュースサイトを開いて記事を読むなど。"
+      },
+      {
+        "q": "テレビやラジオのように一方的に情報を配信する仕組みは?",
+        "opts": [
+          "プル型",
+          "プッシュ型",
+          "双方向型",
+          "要求型"
+        ],
+        "a": 1,
+        "explain": "プッシュ型(push=押す)は、送信側が一方的に情報を「押し出す」配信。受信側は受け取るだけ。",
+        "example": "テレビ・ラジオ放送、スマホのプッシュ通知、メールマガジンなど。"
+      },
+      {
+        "q": "自宅などをオフィスとする労働形態は?",
+        "opts": [
+          "テレワーク",
+          "SOHO",
+          "ノマド",
+          "フリーランス"
+        ],
+        "a": 1,
+        "explain": "SOHO(ソーホー)は「Small Office / Home Office」の略。自宅や小規模事務所で働く形態です。テレワークと似ていますが、SOHOは「働く場所の規模」を表す言葉です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "BtoBとは企業と消費者間の取引のことである。",
+        "a": false,
+        "explain": "BtoBは企業同士の取引(Business to Business)。企業と消費者間はBtoC。",
+        "example": "BtoBの例:部品メーカーが自動車メーカーに部品を販売する。"
+      },
+      {
+        "q": "インターネットでのオークションはCtoCに該当する場合がある。",
+        "a": true,
+        "explain": "個人同士で行うネットオークションはCtoC。ただし、企業が出品する場合はBtoCになります。"
+      },
+      {
+        "q": "プル型は利用者が主体的に情報を取得する形態である。",
+        "a": true,
+        "explain": "利用者が「pull(引っ張る)」=自分から取りに行く形態がプル型です。"
+      },
+      {
+        "q": "電車内では、優先席付近では電源を切ることが推奨されている。",
+        "a": true,
+        "explain": "優先席付近では電源OFFがマナー。心臓ペースメーカーなど医療機器への影響を避けるためです。混雑時は特に注意が必要。"
+      },
+      {
+        "q": "インターネット上の電子商取引では暗号化を確認する必要はない。",
+        "a": false,
+        "explain": "クレジットカード番号などの個人情報を入力する場合、暗号化(SSL/TLS)されたサイトかを必ず確認すべきです。URLが「https://」で始まっていれば暗号化されています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "通信速度などの品質を保証しない代わりに安価なサービス形態は?",
+        "opts": [
+          "ギャランティ型",
+          "ベストエフォート型",
+          "プレミアム型",
+          "スタンダード型"
+        ],
+        "a": 1,
+        "explain": "ベストエフォート型(best effort=最善の努力)は、最善は尽くすが品質保証はしない安価なサービス。一般家庭の光回線などはこのタイプ。一方ギャランティ型(guarantee=保証)は品質保証付きで高価。"
+      },
+      {
+        "q": "インターネットの特徴に「両面性」があるものは?",
+        "opts": [
+          "開放性",
+          "匿名性",
+          "即時性",
+          "すべて該当"
+        ],
+        "a": 3,
+        "explain": "インターネットの特徴はすべて両面性(光と影)を持っています。開放性は便利な反面悪用されやすく、匿名性は発言しやすい反面誹謗中傷の温床に、即時性は情報拡散の速さでデマも広まりやすいです。"
+      },
+      {
+        "q": "電子マネー以外の決済方法に該当しないものは?",
+        "opts": [
+          "銀行振込",
+          "クレジットカード",
+          "代引き",
+          "現金書留"
+        ],
+        "a": 3,
+        "explain": "電子商取引で使われる決済方法は「銀行振込」「クレジットカード」「電子マネー」「代引き」など。「現金書留」は通常の郵便サービスで、電子商取引の決済では一般的に使われません。"
+      },
+      {
+        "q": "病院内で携帯電話の電源を切る理由は?",
+        "opts": [
+          "通話料節約",
+          "医療機器への影響",
+          "他人への配慮",
+          "すべて該当"
+        ],
+        "a": 1,
+        "explain": "病院内で電源を切る最大の理由は、心臓ペースメーカーなど医療機器の誤動作を防ぐため。電波が機器に影響する可能性があります。"
+      }
+    ]
+  },
+  {
+    "id": "unit3",
+    "title": "3節 情報社会の問題",
+    "fill": {
+      "text": "コンピュータやネットワークを悪用した犯罪を[サイバー犯罪]といいます。不正アクセスでファイルを削除・{改竄|かいざん}する行為を[クラッキング]、それを行う人を[クラッカー]といいます。コンピュータ環境に適応できない症状を[テクノ不安症]、過度に情報機器に依存する症状を[テクノ依存症]といいます。情報を得る機会や量に差が生じる現象を[ディジタルデバイド]といいます。"
+    },
+    "glossary": {
+      "サイバー犯罪": {
+        "en": "cybercrime",
+        "kana": "サイバークライム",
+        "desc": "「cyber(サイバー、コンピュータネットワーク上の)」+「crime(犯罪)」。元はギリシャ語の「kybernētēs(舵取り)」が語源です。"
+      },
+      "クラッキング": {
+        "en": "cracking",
+        "kana": "クラッキング",
+        "desc": "「crack(割る・破る)」が語源。システムを破壊・改竄(かいざん=データなどを書きかえてしまうこと)する不正行為のこと。"
+      },
+      "クラッカー": {
+        "en": "cracker",
+        "kana": "クラッカー",
+        "desc": "クラッキングを行う人。善意の「ハッカー(hacker[ハッカー])」とは区別されます。"
+      },
+      "テクノ不安症": {
+        "en": "techno-anxious",
+        "kana": "テクノ アングザス",
+        "desc": "「techno(技術)」+「anxious(不安な)」。コンピュータ環境に適応できない症状です。"
+      },
+      "テクノ依存症": {
+        "en": "techno-centered",
+        "kana": "テクノ センタード",
+        "desc": "「techno(技術)」+「centered(中心の)」。情報機器に過度に依存する症状です。"
+      },
+      "ディジタルデバイド": {
+        "en": "digital divide",
+        "kana": "デジタル ディバイド",
+        "desc": "「digital(デジタル)」+「divide(分断・隔たり)」。情報技術を活用できる人と、できない人の間に生まれる経済的・社会的な格差のこと。「情報格差」とも呼ばれます。例:①世代間=スマホ決済ができず買い物に困る高齢者、②地域=高速回線がなくオンライン授業が受けにくい山間地域、③経済=PCを買えずプログラミング教育を受けられない子供、④身体=視覚障がいで動画コンテンツが楽しめない人、⑤国家間=ネット普及率が低い発展途上国、など。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "コンピュータやネットワークを悪用した犯罪の総称は?",
+        "opts": [
+          "ハッキング",
+          "サイバー犯罪",
+          "スパム",
+          "フィッシング"
+        ],
+        "a": 1,
+        "explain": "サイバー犯罪(cybercrime)は、コンピュータやネットワークを悪用したあらゆる犯罪の総称です。「ハイテク犯罪」とも呼ばれます。",
+        "example": "オークション詐欺、不正アクセス、クラッキング、なりすましメールなどが含まれます。"
+      },
+      {
+        "q": "不正アクセスでファイル改竄(かいざん)を行う人は?",
+        "opts": [
+          "ハッカー",
+          "クラッカー",
+          "プログラマ",
+          "管理者"
+        ],
+        "a": 1,
+        "explain": "クラッカー(cracker)は不正な目的でシステムを破壊・改竄する人。「ハッカー(hacker)」は本来コンピュータ技術に精通した善意の人を指す言葉なので、混同しないようにしましょう。",
+        "example": "クラッカーがWebサーバに侵入してホームページを書き換えるなどの被害があります。"
+      },
+      {
+        "q": "情報機器に過度に依存する症状は?",
+        "opts": [
+          "テクノ不安症",
+          "テクノ依存症",
+          "テクノストレス",
+          "ノモフォビア"
+        ],
+        "a": 1,
+        "explain": "テクノ依存症は情報機器に過度に依存してしまう症状。テクノ不安症(コンピュータに適応できない)とあわせて「テクノストレス」と呼ばれます。",
+        "example": "スマホが手放せない、メール返信が遅れると不安になる、長時間ゲームに没頭するなどの状態です。"
+      },
+      {
+        "q": "情報格差を意味する用語は?",
+        "opts": [
+          "ディジタルデバイド",
+          "インフォメーションギャップ",
+          "データ格差",
+          "テクノ格差"
+        ],
+        "a": 0,
+        "explain": "ディジタルデバイド(digital divide)は「digital(デジタル)」+「divide(分断)」。情報技術を活用できる人と、できない人の間に生じる格差です。",
+        "example": "高齢者がスマホ決済できず買い物に困る、地方で高速回線がなくオンライン授業が受けにくい、視覚障害がありWebサイトが利用できない等。"
+      },
+      {
+        "q": "サイバー犯罪に対処するための法律は?",
+        "opts": [
+          "不正アクセス禁止法",
+          "個人情報保護法",
+          "どちらも",
+          "どちらでもない"
+        ],
+        "a": 2,
+        "explain": "「不正アクセス禁止法」は他人のIDで侵入する行為を禁じ、「個人情報保護法」は個人情報の流出を防ぐ法律です。両方ともサイバー犯罪対策に役立ちます。",
+        "example": "他人のパスワードで勝手にログインすると不正アクセス禁止法違反、個人情報を無断転売すると個人情報保護法違反になります。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "クラッカーとはコンピュータ技術に精通した人を指す善意の用語である。",
+        "a": false,
+        "explain": "クラッカーは悪意を持つ人。コンピュータ技術に精通した善意の人は「ハッカー」と呼びます。報道では混同されがちですが、本来は別物です。"
+      },
+      {
+        "q": "テクノ不安症とテクノ依存症をあわせてテクノストレスという。",
+        "a": true,
+        "explain": "テクノストレスは情報機器による精神的ストレスの総称。「適応できない側(不安症)」と「依存しすぎる側(依存症)」の両方を含みます。"
+      },
+      {
+        "q": "ディジタルデバイドの要因には世代間格差や地域格差がある。",
+        "a": true,
+        "explain": "ディジタルデバイドの要因は多岐にわたり、世代間格差・地域格差・経済格差・身体条件格差などがあります。",
+        "example": "若者と高齢者の間でのスマホ利用率の差、都市と地方の通信インフラ整備の差などです。"
+      },
+      {
+        "q": "ねずみ講は無限連鎖講の防止に関する法律で禁じられている。",
+        "a": true,
+        "explain": "ねずみ講(無限連鎖講)は「無限連鎖講の防止に関する法律」で禁止されています。会員を増やしながら利益を分配する仕組みは破綻が必然のため違法です。"
+      },
+      {
+        "q": "サイバー犯罪は完全に防ぐ対策が確立されている。",
+        "a": false,
+        "explain": "サイバー犯罪は手口が次々と新しくなるため、完全な対策はありません。常に最新の知識を身につけ、対応する必要があります。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "ディジタルデバイドの要因に該当しないものは?",
+        "opts": [
+          "世代間格差",
+          "地域格差",
+          "身体条件格差",
+          "言語格差"
+        ],
+        "a": 3,
+        "explain": "教科書では「世代間格差・地域格差・身体条件格差」が主な要因として挙げられています。言語格差は通常含まれません。",
+        "example": "世代間=高齢者vs若者、地域=都市vs地方、身体条件=視覚や聴覚の障害、などです。"
+      },
+      {
+        "q": "コンピュータ技術に精通した人(善意)を指す言葉は?",
+        "opts": [
+          "クラッカー",
+          "ハッカー",
+          "プログラマ",
+          "エンジニア"
+        ],
+        "a": 1,
+        "explain": "ハッカー(hacker)は本来「優れた技術を持つ人」を意味する敬意ある言葉。悪用する人はクラッカー(cracker)と区別されます。"
+      },
+      {
+        "q": "電子メールを使ったねずみ講は何犯罪に分類される?",
+        "opts": [
+          "不正アクセス",
+          "コンピュータに関連する詐欺",
+          "非合法な情報の売買",
+          "サイバーストーキング"
+        ],
+        "a": 1,
+        "explain": "ねずみ講は「金銭をだまし取る」行為なので「コンピュータに関連する詐欺・窃盗・横領」に分類されます。"
+      },
+      {
+        "q": "サイバー犯罪の3つの分類に含まれないものは?",
+        "opts": [
+          "詐欺・窃盗・横領",
+          "不正アクセス",
+          "非合法な情報の売買",
+          "個人情報の収集"
+        ],
+        "a": 3,
+        "explain": "サイバー犯罪の3分類は「詐欺・窃盗・横領」「不正アクセス」「非合法な情報の売買や公開」。単に個人情報を収集するだけでは犯罪に分類されません(目的次第)。"
+      }
+    ]
+  },
+  {
+    "id": "unit4",
+    "title": "4節 個人情報とその保護",
+    "fill": {
+      "text": "組み合わせると個人を特定できる情報を[個人情報]といいます。氏名・性別・住所・生年月日を[基本四情報]といいます。顔写真などを無断で撮影されない権利を[肖像権]、有名人の名前や肖像を商品化する権利を[パブリシティ権]といいます。個人情報の管理方針を定めたものを[プライバシーポリシー]といいます。正規サイトを装って暗証番号などを盗む詐欺を[フィッシング]といいます。"
+    },
+    "glossary": {
+      "個人情報": {
+        "en": "personal information",
+        "kana": "パーソナル インフォメーション",
+        "desc": "「personal(個人の)」+「information(情報)」。組み合わせで個人を特定できる情報です。"
+      },
+      "基本四情報": {
+        "en": "basic four data",
+        "kana": "ベーシック フォー データ",
+        "desc": "行政で個人特定に必要な4つの情報(氏名・性別・住所・生年月日)。"
+      },
+      "肖像権": {
+        "en": "portrait rights",
+        "kana": "ポートレート ライツ",
+        "desc": "「portrait(肖像)」+「rights(権利)」。誰にでも認められる人格的権利です。"
+      },
+      "パブリシティ権": {
+        "en": "publicity rights",
+        "kana": "パブリシティ ライツ",
+        "desc": "「publicity(公表・宣伝)」+「rights(権利)」。有名人だけに認められる財産的権利です。"
+      },
+      "プライバシーポリシー": {
+        "en": "privacy policy",
+        "kana": "プライバシー ポリシー",
+        "desc": "「privacy(私生活)」+「policy(方針)」。個人情報の管理方針を定めた文書です。"
+      },
+      "フィッシング": {
+        "en": "phishing",
+        "kana": "フィッシング",
+        "desc": "「fishing(釣り)」と「sophisticated(洗練された)」を組み合わせた造語。釣りのように獲物(個人情報)を釣り上げる詐欺です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "基本四情報に含まれないものは?",
+        "opts": [
+          "氏名",
+          "性別",
+          "電話番号",
+          "生年月日"
+        ],
+        "a": 2,
+        "explain": "基本四情報は「氏名・性別・住所・生年月日」の4つ。電話番号は含まれません。行政が個人を特定するための基本情報です。"
+      },
+      {
+        "q": "顔写真を無断で撮影されない権利は?",
+        "opts": [
+          "肖像権",
+          "パブリシティ権",
+          "プライバシー権",
+          "著作権"
+        ],
+        "a": 0,
+        "explain": "肖像権(portrait rights)は誰にでも認められる人格的権利。無断で撮影・公表されない権利です。",
+        "example": "街中で勝手に撮影された写真をSNSに無断で投稿されると、肖像権侵害になります。"
+      },
+      {
+        "q": "有名人だけに認められる権利は?",
+        "opts": [
+          "肖像権",
+          "パブリシティ権",
+          "プライバシー権",
+          "個人情報権"
+        ],
+        "a": 1,
+        "explain": "パブリシティ権(publicity rights)は財産的権利。有名人の名前や肖像には経済的価値があり、それを商品化する権利です。",
+        "example": "有名タレントの写真を勝手に商品パッケージに使うとパブリシティ権侵害です。"
+      },
+      {
+        "q": "正規サイトを装って暗証番号を盗む詐欺は?",
+        "opts": [
+          "スパイウェア",
+          "フィッシング",
+          "クラッキング",
+          "スパム"
+        ],
+        "a": 1,
+        "explain": "フィッシング(phishing)は「fishing(釣り)」をもじった造語。本物そっくりのサイトで個人情報を「釣り上げる」詐欺です。",
+        "example": "銀行を装ったメールから偽サイトに誘導され、IDとパスワードを入力させられる手口。"
+      },
+      {
+        "q": "キーボード入力を記録するスパイウェアは?",
+        "opts": [
+          "キーロガー",
+          "クッキー",
+          "ウイルス",
+          "フィッシング"
+        ],
+        "a": 0,
+        "explain": "キーロガー(keylogger)は「key(キー)」+「logger(記録するもの)」。打ち込んだ文字を全て記録するソフトで、パスワードなどを盗むのに悪用されます。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "基本四情報とは氏名・性別・住所・生年月日のことである。",
+        "a": true,
+        "explain": "行政手続きなどで個人を特定するために必要な4つの情報を「基本四情報」といいます。"
+      },
+      {
+        "q": "肖像権は有名人だけに認められる権利である。",
+        "a": false,
+        "explain": "肖像権は誰にでも認められる人格的権利です。有名人だけに認められるのは「パブリシティ権」(財産的権利)。"
+      },
+      {
+        "q": "パブリシティ権は財産的な権利である。",
+        "a": true,
+        "explain": "パブリシティ権は「経済的価値」を守る財産的権利。有名人の名前や肖像が商品の宣伝に使われると価値が生まれるため認められます。"
+      },
+      {
+        "q": "クッキーはWebサーバが閲覧者の情報を保存する仕組みである。",
+        "a": true,
+        "explain": "クッキー(cookie)はWebサーバが閲覧者のブラウザに一時的に情報を保存する仕組み。ログイン状態の保持や閲覧履歴の追跡に使われます。"
+      },
+      {
+        "q": "ソーシャルエンジニアリングは機械的に情報を盗む行為である。",
+        "a": false,
+        "explain": "ソーシャルエンジニアリングは「人を騙す」行為で、機械的・技術的ではなく人間的な手段を使います。",
+        "example": "管理者になりすまして電話でパスワードを聞き出す、肩越しにパスワード入力を盗み見る、など。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "人為的に機密情報を入手する行為は?",
+        "opts": [
+          "スパイウェア",
+          "フィッシング",
+          "ソーシャルエンジニアリング",
+          "クラッキング"
+        ],
+        "a": 2,
+        "explain": "ソーシャルエンジニアリングは「social(社会的)」+「engineering(工学・技術)」。技術ではなく人間心理を悪用して情報を盗み出す手法です。",
+        "example": "ゴミ箱から書類を漁る、社員になりすまして電話で情報を聞き出すなど。"
+      },
+      {
+        "q": "アクセスログに記録されない情報は?",
+        "opts": [
+          "日時",
+          "送信元アドレス",
+          "宛先アドレス",
+          "メールの本文"
+        ],
+        "a": 3,
+        "explain": "アクセスログには「いつ」「どこから」「どこへ」などの通信記録が残りますが、メール本文は記録されません(プライバシー保護のため)。"
+      },
+      {
+        "q": "個人情報の流出原因に該当しないものは?",
+        "opts": [
+          "USBメモリの紛失",
+          "メールの誤送信",
+          "ファイアウォールの設置",
+          "スパイウェア感染"
+        ],
+        "a": 2,
+        "explain": "ファイアウォールは「外部からの侵入を防ぐ」セキュリティ機能なので、個人情報の流出を防ぐ側です。流出原因にはなりません。"
+      },
+      {
+        "q": "プライバシーポリシーとは?",
+        "opts": [
+          "個人情報の管理方針",
+          "プライバシー法律",
+          "個人情報のリスト",
+          "プライバシー専門家"
+        ],
+        "a": 0,
+        "explain": "プライバシーポリシー(privacy policy)は企業が「お客様の個人情報をどう扱うか」を定めた方針文書。サービス利用前に必ず確認すべきものです。"
+      }
+    ]
+  },
+  {
+    "id": "unit5",
+    "title": "5節 メディアとその特徴",
+    "fill": {
+      "text": "情報を物理的に伝達するメディアを[伝達メディア]、情報を表現するためのメディアを[表現メディア]、情報を人々に伝えるメディアを[情報メディア]といいます。詳しい説明には[文字]が、瞬間的な理解には[図]が適しています。日本工業規格である[JIS]では、赤=禁止、黄=注意、青=指示、緑=安全と規定されています。"
+    },
+    "glossary": {
+      "伝達メディア": {
+        "en": "transmission media",
+        "kana": "トランスミッション メディア",
+        "desc": "「transmission(伝達)」+「media(媒体)」。紙や電波など物理的に情報を運ぶ媒体です。"
+      },
+      "表現メディア": {
+        "en": "representation media",
+        "kana": "レプリゼンテーション メディア",
+        "desc": "「representation(表現)」+「media(媒体)」。文字や音声など情報を表す形式です。"
+      },
+      "情報メディア": {
+        "en": "information media",
+        "kana": "インフォメーション メディア",
+        "desc": "「information(情報)」+「media(媒体)」。新聞・テレビ・電話など情報を人々に届ける手段です。"
+      },
+      "文字": {
+        "en": "character",
+        "kana": "キャラクター",
+        "desc": "もとはギリシャ語「彫刻された印」が語源。詳細な情報伝達に向いています。"
+      },
+      "図": {
+        "en": "figure / diagram",
+        "kana": "フィギュア / ダイアグラム",
+        "desc": "視覚的に瞬時に理解できる表現方法です。"
+      },
+      "JIS": {
+        "en": "Japanese Industrial Standards",
+        "kana": "ジス(日本産業規格)",
+        "desc": "「Japanese Industrial Standards」の頭文字。日本の工業製品に関する統一規格です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "紙、空気、光、電波などのメディアの分類は?",
+        "opts": [
+          "伝達メディア",
+          "表現メディア",
+          "情報メディア",
+          "記録メディア"
+        ],
+        "a": 0,
+        "explain": "伝達メディアは情報を物理的に運ぶ媒体。空気は音声を伝え、電波は電気信号を伝えます。"
+      },
+      {
+        "q": "文字、音声、図、表などのメディアの分類は?",
+        "opts": [
+          "伝達メディア",
+          "表現メディア",
+          "情報メディア",
+          "通信メディア"
+        ],
+        "a": 1,
+        "explain": "表現メディアは情報を「どう表すか」の方法。文字、音声、図、写真、動画などです。"
+      },
+      {
+        "q": "新聞、テレビ、インターネットなどの分類は?",
+        "opts": [
+          "伝達メディア",
+          "表現メディア",
+          "情報メディア",
+          "記録メディア"
+        ],
+        "a": 2,
+        "explain": "情報メディアは情報を「人々に届ける」手段。マスメディア(新聞・テレビ)とパーソナルメディア(電話・SNS)に分かれます。"
+      },
+      {
+        "q": "日本工業規格でJIS指定の「禁止」を表す色は?",
+        "opts": [
+          "赤",
+          "黄",
+          "青",
+          "緑"
+        ],
+        "a": 0,
+        "explain": "JISで色は「赤=禁止、黄=注意、青=指示、緑=安全」と決められています。",
+        "example": "赤の禁止マーク=立入禁止・喫煙禁止、黄の注意マーク=滑りやすい・段差注意。"
+      },
+      {
+        "q": "瞬間的な理解に適したメディアは?",
+        "opts": [
+          "文字",
+          "図",
+          "音声",
+          "動画"
+        ],
+        "a": 1,
+        "explain": "図やマークは見た瞬間に意味が伝わるため、瞬間的な理解に向いています。標識やトイレのマークなどが代表例。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "電波は伝達メディアに分類される。",
+        "a": true,
+        "explain": "電波は情報を物理的に伝えるので伝達メディア。テレビやラジオ放送、Wi-Fi、携帯電話などで使われます。"
+      },
+      {
+        "q": "文字は瞬間的な理解に最適なメディアである。",
+        "a": false,
+        "explain": "文字は読まないと意味が分からないため瞬間的な理解には不向きです。瞬間的理解には「図」が適しています。"
+      },
+      {
+        "q": "マスメディアは双方向の情報伝達を行う。",
+        "a": false,
+        "explain": "マスメディア(新聞・テレビ・ラジオ)は基本的に一方向(発信者→受信者)。双方向は電話やインターネットの特徴です。"
+      },
+      {
+        "q": "JISでは緑色は安全を表す。",
+        "a": true,
+        "explain": "緑=安全。非常口の標識や安全な場所を示すサインに使われています。"
+      },
+      {
+        "q": "色から受けるイメージは個人差や文化による違いがある。",
+        "a": true,
+        "explain": "色のイメージは文化・個人で違います。",
+        "example": "日本では太陽は赤いが、ヨーロッパでは黄色で描かれることが多い。日本のトイレ表示は男性=青・女性=赤ですが、欧米ではあまり色分けしません。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "伝達メディアの分類で「時間を越えて情報を伝える」のは?",
+        "opts": [
+          "通信メディア",
+          "記録メディア",
+          "表現メディア",
+          "情報メディア"
+        ],
+        "a": 1,
+        "explain": "伝達メディアは「通信メディア(空間を超える:電波など)」と「記録メディア(時間を超える:紙・光ディスクなど)」に分かれます。"
+      },
+      {
+        "q": "マスメディアに該当しないものは?",
+        "opts": [
+          "新聞",
+          "テレビ",
+          "ラジオ",
+          "電話"
+        ],
+        "a": 3,
+        "explain": "電話は1対1のパーソナルメディアです。マスメディアは「不特定多数に発信する」メディアを指します。"
+      },
+      {
+        "q": "JISの「注意」を表す色は?",
+        "opts": [
+          "赤",
+          "黄",
+          "青",
+          "緑"
+        ],
+        "a": 1,
+        "explain": "黄色は「注意」を表します。工事現場の看板や踏切などで使われます。"
+      },
+      {
+        "q": "駅や空港のアナウンスは何の特性を利用しているか?",
+        "opts": [
+          "視覚情報の即時性",
+          "聴覚情報はどちら向きでも受信できる",
+          "文字の精密性",
+          "図の直感性"
+        ],
+        "a": 1,
+        "explain": "聴覚情報は「どこを見ていても聞こえる」のが特徴。駅でホームのどこにいてもアナウンスが届くのはこの特性を利用しています。"
+      }
+    ]
+  },
+  {
+    "id": "unit6",
+    "title": "6節 メディアリテラシー",
+    "fill": {
+      "text": "さまざまな情報を多くの人に伝えることを[マスコミュニケーション]、そのためのメディアを[マスメディア]といいます。情報を分析・評価し真偽を判断する能力を[メディアリテラシー]といいます。情報の信憑性を確認するため複数の情報源を比較することを[クロスチェック]といいます。テレビ番組内の広告を[コマーシャル]、検索結果上位に表示されるスポンサー広告を[ペイドリスティング]といいます。"
+    },
+    "glossary": {
+      "マスコミュニケーション": {
+        "en": "mass communication",
+        "kana": "マス コミュニケーション",
+        "desc": "「mass(大衆)」+「communication(伝達)」。多くの人へ情報を伝えること。略してマスコミ。"
+      },
+      "マスメディア": {
+        "en": "mass media",
+        "kana": "マス メディア",
+        "desc": "「mass(大衆)」+「media(媒体)」。新聞・テレビ・ラジオなど大衆向けメディアです。"
+      },
+      "メディアリテラシー": {
+        "en": "media literacy",
+        "kana": "メディア リテラシー",
+        "desc": "「media(媒体)」+「literacy(読み書き能力)」。情報を読み解き、活用する能力です。"
+      },
+      "クロスチェック": {
+        "en": "cross check",
+        "kana": "クロス チェック",
+        "desc": "「cross(交差して)」+「check(確認)」。複数の情報源で照合して確認することです。"
+      },
+      "コマーシャル": {
+        "en": "Commercial Message / CM",
+        "kana": "コマーシャル メッセージ",
+        "desc": "「commercial(商業の)」+「message(メッセージ)」。テレビ・ラジオ番組内の広告。略称はCM[シーエム]。"
+      },
+      "ペイドリスティング": {
+        "en": "paid listing",
+        "kana": "ペイド リスティング",
+        "desc": "「paid(有料の)」+「listing(一覧表示)」。お金を払って検索結果の上位に表示される広告です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "マスコミのためのメディアの総称は?",
+        "opts": [
+          "マスコミュニケーション",
+          "マスメディア",
+          "メディアリテラシー",
+          "コマーシャル"
+        ],
+        "a": 1,
+        "explain": "マスメディアは「mass(大衆)」+「media(媒体)」。新聞・テレビ・ラジオなど大衆向けのメディアです。",
+        "example": "朝日新聞、NHK、TBSラジオなどがマスメディアの代表例。"
+      },
+      {
+        "q": "情報を分析し真偽を判断する能力は?",
+        "opts": [
+          "リテラシー",
+          "メディアリテラシー",
+          "クロスチェック",
+          "信憑性"
+        ],
+        "a": 1,
+        "explain": "メディアリテラシーはメディアの情報を正しく読み解き、活用する能力。情報があふれる現代に必須のスキルです。"
+      },
+      {
+        "q": "複数情報源を比較して信憑性を確認することは?",
+        "opts": [
+          "ダブルチェック",
+          "クロスチェック",
+          "ペイドリスティング",
+          "プル確認"
+        ],
+        "a": 1,
+        "explain": "クロスチェック(cross check)は複数の情報源で照合・検証すること。フェイクニュース対策の基本です。",
+        "example": "一つのニュースだけ信じず、新聞・テレビ・公式サイトなど複数の情報源で確認する。"
+      },
+      {
+        "q": "テレビ番組内の広告は?",
+        "opts": [
+          "バナー広告",
+          "コマーシャル",
+          "ペイドリスティング",
+          "ポスター"
+        ],
+        "a": 1,
+        "explain": "コマーシャル(CM)はテレビやラジオの番組内に流れる広告。番組制作費は広告主の広告料で賄われています。"
+      },
+      {
+        "q": "検索結果上位に表示される広告は?",
+        "opts": [
+          "バナー広告",
+          "コマーシャル",
+          "ペイドリスティング",
+          "プッシュ広告"
+        ],
+        "a": 2,
+        "explain": "ペイドリスティング(paid listing)は「有料で表示される一覧」。検索エンジンで「広告」「PR」などと表示される結果です。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "リテラシーは元々「文字を読み書きする能力」を意味する。",
+        "a": true,
+        "explain": "リテラシー(literacy)は元々「読み書き能力」。今では「情報や技術を読み解き活用する能力」全般を指します。"
+      },
+      {
+        "q": "インターネットで誰もが発信できるため、情報の信頼性は常に高い。",
+        "a": false,
+        "explain": "誰でも発信できるからこそ、誤情報・デマも多くあります。発信者を確認し、複数の情報源と比較することが重要です。"
+      },
+      {
+        "q": "印象操作とは発信者が意図的に異なる印象を与えることである。",
+        "a": true,
+        "explain": "印象操作はグラフの軸を歪めたり、写真の切り取り方を変えたりして、事実と異なる印象を与える手法。",
+        "example": "グラフの縦軸を途中から始めて差を大きく見せる、円グラフを傾けて大きく見せる等。"
+      },
+      {
+        "q": "バナー広告はテレビ番組内に流れる広告である。",
+        "a": false,
+        "explain": "バナー広告はWebページ上に表示される画像広告。テレビ番組内の広告は「コマーシャル(CM)」です。"
+      },
+      {
+        "q": "無料サービスでは広告主の広告料が運営費にあてられている。",
+        "a": true,
+        "explain": "「無料」のサービスは広告主が支払う広告料で運営費を賄っています。利用者は広告を見ることで対価を支払っているとも言えます。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "情報の信憑性確認として正しくないものは?",
+        "opts": [
+          "発信者が誰かを確認",
+          "資料の出所を確認",
+          "他のメディアと比較",
+          "すべて正しい"
+        ],
+        "a": 3,
+        "explain": "すべて正しい確認方法です。信憑性確認には「発信者・出所・更新日・他メディアとの比較・事実か意見かの判断・問い合わせ可否」など複数の観点があります。"
+      },
+      {
+        "q": "CMの正式名称は?",
+        "opts": [
+          "Customer Message",
+          "Commercial Message",
+          "Common Message",
+          "Communication Message"
+        ],
+        "a": 1,
+        "explain": "CM = Commercial Message[コマーシャル メッセージ]。「Commercial(商業の)」+「Message(メッセージ)」です。"
+      },
+      {
+        "q": "バナー(banner)の意味は?",
+        "opts": [
+          "看板",
+          "旗",
+          "標識",
+          "広告"
+        ],
+        "a": 1,
+        "explain": "banner(バナー)は本来「旗」を意味する英語。Web上では旗のように目立つ画像広告を指します。"
+      },
+      {
+        "q": "ペイドリスティングの問題点は?",
+        "opts": [
+          "多すぎて検索結果が見にくい",
+          "料金が高い",
+          "信頼できない",
+          "すべて該当"
+        ],
+        "a": 0,
+        "explain": "人気のキーワードでは広告(ペイドリスティング)が大量に表示され、本来の検索結果が見つけにくくなる問題があります。"
+      }
+    ]
+  },
+  {
+    "id": "unit7",
+    "title": "コンピュータの発達",
+    "fill": {
+      "text": "エイケンらが開発したリレー式計算機が[マークワン](MARK Ⅰ)、エッカートとモークリーが開発した真空管式コンピュータが[エニアック](ENIAC)です。プログラムを記憶装置に記憶させる方式を[プログラム内蔵方式]といい、これを提唱したのが[ノイマン]です。半導体の集積密度が1〜2年で倍増する経験則を[ムーアの法則]といいます。"
+    },
+    "glossary": {
+      "マークワン": {
+        "en": "MARK Ⅰ",
+        "kana": "マーク ワン",
+        "desc": "1944年エイケンらが開発したリレー式計算機。「MARK(印・型)」+「Ⅰ(1号)」=最初のモデルという意味です。"
+      },
+      "エニアック": {
+        "en": "ENIAC",
+        "kana": "エニアック",
+        "desc": "「Electronic Numerical Integrator And Computer[エレクトロニック ニューメリカル インテグレーター アンド コンピューター](電子的数値積分計算機)」の頭文字。1946年完成の世界初の電子計算機の1つです。"
+      },
+      "プログラム内蔵方式": {
+        "en": "stored-program system",
+        "kana": "ストアド プログラム システム",
+        "desc": "「stored(記憶された)」+「program(プログラム)」。プログラムをメモリに記憶しておく方式で、現在のコンピュータの基礎です。"
+      },
+      "ノイマン": {
+        "en": "John von Neumann",
+        "kana": "ジョン フォン ノイマン",
+        "desc": "ハンガリー出身の数学者(1903-1957)。プログラム内蔵方式を提唱し、ノイマン型コンピュータの礎を築きました。"
+      },
+      "ムーアの法則": {
+        "en": "Moore's Law",
+        "kana": "ムーアズ ロー",
+        "desc": "インテル創業者ゴードン・ムーアが1965年に提唱。「半導体の集積密度は1〜2年で2倍になる」という経験則です。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "真空管を使った世界初の電子計算機は?",
+        "opts": [
+          "MARK Ⅰ",
+          "ENIAC",
+          "EDVAC",
+          "EDSAC"
+        ],
+        "a": 1,
+        "explain": "ENIAC(エニアック)は1946年に完成した真空管式電子計算機。約18,000本の真空管と50万個の配線を使い、計算速度は当時の機械式計算機の1000倍以上でした。"
+      },
+      {
+        "q": "プログラム内蔵方式を提唱した人は?",
+        "opts": [
+          "エイケン",
+          "エッカート",
+          "ノイマン",
+          "パスカル"
+        ],
+        "a": 2,
+        "explain": "ジョン・フォン・ノイマン(1903-1957)はハンガリー出身の天才数学者。プログラムをメモリに記憶させて実行する方式は今も「ノイマン型」と呼ばれます。"
+      },
+      {
+        "q": "集積密度が1〜2年で倍増する法則は?",
+        "opts": [
+          "ノイマンの法則",
+          "ムーアの法則",
+          "エイケンの法則",
+          "パスカルの法則"
+        ],
+        "a": 1,
+        "explain": "ムーアの法則はインテル創業者ゴードン・ムーアが1965年に提唱。半世紀にわたりほぼ正確に予言通りに進歩してきました。"
+      },
+      {
+        "q": "リレー式計算機MARK Ⅰを開発したのは?",
+        "opts": [
+          "エイケン",
+          "ノイマン",
+          "エッカート",
+          "モークリー"
+        ],
+        "a": 0,
+        "explain": "ハワード・エイケンが1944年にIBMと共同開発したMARK Ⅰは、リレー(電磁石スイッチ)を使った計算機です。"
+      },
+      {
+        "q": "電信機を発明したのは?",
+        "opts": [
+          "ベル",
+          "モールス",
+          "マルコーニ",
+          "エジソン"
+        ],
+        "a": 1,
+        "explain": "サミュエル・モールス(1837年に電信機発明)。「モールス信号」も彼の名前から。ベルは電話、マルコーニは無線、エジソンは蓄音機などを発明しました。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "ENIACは真空管を使った電子計算機である。",
+        "a": true,
+        "explain": "ENIACは約18,000本の真空管を使った巨大な電子計算機。重さ30トン、消費電力は150kWでした。"
+      },
+      {
+        "q": "パスカルが発明した計算機は電子式であった。",
+        "a": false,
+        "explain": "パスカルが1642年に発明した計算機は歯車を組み合わせた機械式。電子式ではありません。"
+      },
+      {
+        "q": "ノイマン型コンピュータは現在のコンピュータの基礎になっている。",
+        "a": true,
+        "explain": "今のスマホもPCもサーバも、すべてノイマン型(プログラム内蔵方式)を基礎にしています。70年以上前の発想が今も使われているのは驚きです。"
+      },
+      {
+        "q": "ベルは電話機の特許を取得した。",
+        "a": true,
+        "explain": "アレクサンダー・グラハム・ベルは1876年に電話機の特許を取得。彼の名前は周波数の単位「ベル(bell)/デシベル(dB)」にも残っています。"
+      },
+      {
+        "q": "光ファイバは電波より少ない情報しか伝えられない。",
+        "a": false,
+        "explain": "光ファイバは電波よりはるかに大量・高速に情報を伝えられます。インターネットの基幹回線にも広く使われています。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "半導体素子の発達順序として正しいのは?",
+        "opts": [
+          "真空管→IC→トランジスタ→LSI",
+          "真空管→トランジスタ→IC→LSI",
+          "トランジスタ→真空管→IC→LSI",
+          "IC→真空管→トランジスタ→LSI"
+        ],
+        "a": 1,
+        "explain": "正しい順序:真空管(1900年代)→トランジスタ(1947年)→IC(1958年)→LSI(1960年代)→マイクロプロセッサ。だんだん小型化・集積化が進みました。"
+      },
+      {
+        "q": "ICの正式名称は?",
+        "opts": [
+          "Integrated Circuit",
+          "Internal Circuit",
+          "Information Circuit",
+          "International Circuit"
+        ],
+        "a": 0,
+        "explain": "IC = Integrated Circuit[インテグレーテッド サーキット]=集積回路。複数のトランジスタを1つの基板にまとめた回路です。"
+      },
+      {
+        "q": "パーソナルコンピュータの理想を最初に提唱したのは?",
+        "opts": [
+          "ノイマン",
+          "アラン・ケイ",
+          "エイケン",
+          "ベル"
+        ],
+        "a": 1,
+        "explain": "アラン・ケイは1977年に「Dynabook(ダイナブック)」構想を提唱。当時はメインフレームの時代でしたが、彼の構想が今のノートPC・タブレットの原型です。"
+      },
+      {
+        "q": "無線機を発明したのは?",
+        "opts": [
+          "モールス",
+          "ベル",
+          "マルコーニ",
+          "エジソン"
+        ],
+        "a": 2,
+        "explain": "グリエルモ・マルコーニはイタリア出身。1895年に無線通信に成功し、1909年にノーベル物理学賞を受賞しました。"
+      }
+    ]
+  },
+  {
+    "id": "unit8",
+    "title": "コンピュータの構成",
+    "fill": {
+      "text": "コンピュータ本体と周辺機器を合わせて[ハードウェア]といいます。演算・制御・入力・出力・記憶を合わせて[五大機能]といいます。コンピュータを動かすプログラムやファイルの総称を[ソフトウェア]、応用ソフトと周辺機器を仲介する基本ソフトウェアを[OS](オペレーティングシステム)といいます。アイコンとマウスで操作する環境を[GUI]、文字列で命令を実行する環境を[CUI]といいます。"
+    },
+    "glossary": {
+      "ハードウェア": {
+        "en": "hardware",
+        "kana": "ハードウェア",
+        "desc": "「hard(硬い)」+「ware(物・用品)」。コンピュータの「触れる」物理的な部分です。"
+      },
+      "五大機能": {
+        "en": "five functions",
+        "kana": "ファイブ ファンクションズ",
+        "desc": "演算・制御・入力・出力・記憶の5つの基本機能のこと。"
+      },
+      "ソフトウェア": {
+        "en": "software",
+        "kana": "ソフトウェア",
+        "desc": "「soft(柔らかい)」+「ware(物・用品)」。ハードウェアの対義語で、プログラムなど無形のものです。"
+      },
+      "OS": {
+        "en": "Operating System",
+        "kana": "オペレーティング システム",
+        "desc": "「Operating(操作する)」+「System(系統)」。コンピュータの基本ソフトウェア。WindowsやmacOSなどです。"
+      },
+      "GUI": {
+        "en": "Graphical User Interface",
+        "kana": "グラフィカル ユーザー インターフェース(ジーユーアイ)",
+        "desc": "「Graphical(視覚的な)」+「User(利用者)」+「Interface(接点)」。アイコンやマウスで操作する画面のことです。"
+      },
+      "CUI": {
+        "en": "Character User Interface",
+        "kana": "キャラクター ユーザー インターフェース(シーユーアイ)",
+        "desc": "「Character(文字)」+「User(利用者)」+「Interface(接点)」。文字でコマンドを入力する操作環境。CLI(Command Line Interface[コマンド ライン インターフェース])ともいいます。"
+      }
+    },
+    "quiz4": [
+      {
+        "q": "コンピュータの五大機能に含まれないものは?",
+        "opts": [
+          "演算",
+          "制御",
+          "入力",
+          "通信"
+        ],
+        "a": 3,
+        "explain": "五大機能は「演算・制御・入力・出力・記憶」。通信は含まれません(現代では重要ですが、古典的な分類では別扱い)。"
+      },
+      {
+        "q": "コンピュータと周辺機器を接続する規格は?",
+        "opts": [
+          "インタフェース",
+          "プロトコル",
+          "OS",
+          "ドライバ"
+        ],
+        "a": 0,
+        "explain": "インタフェース(interface)は「接点・接続規格」。USB、HDMI、Bluetoothなどが代表例。",
+        "example": "プリンタをUSBケーブルでPCにつなぐ時の「USB」がインタフェースです。"
+      },
+      {
+        "q": "応用ソフトと周辺機器を仲介する基本ソフトは?",
+        "opts": [
+          "ドライバ",
+          "OS",
+          "BIOS",
+          "コンパイラ"
+        ],
+        "a": 1,
+        "explain": "OS(Operating System=オペレーティングシステム)がアプリと周辺機器を仲介します。WindowsやmacOS、Linux、iOS、Androidなどが代表例。"
+      },
+      {
+        "q": "アイコンとマウスで操作する環境は?",
+        "opts": [
+          "GUI",
+          "CUI",
+          "OS",
+          "UI"
+        ],
+        "a": 0,
+        "explain": "GUI(Graphical User Interface)はアイコンや窓(ウィンドウ)を視覚的に操作する環境。直感的に使えるのが特徴です。"
+      },
+      {
+        "q": "文字列で命令を実行する環境(別名CLI)は?",
+        "opts": [
+          "GUI",
+          "CUI",
+          "OS",
+          "API"
+        ],
+        "a": 1,
+        "explain": "CUI(Character User Interface)/CLI(Command Line Interface)は文字でコマンドを打って操作する環境。サーバ管理などで使われます。",
+        "example": "Windowsの「コマンドプロンプト」、Macの「ターミナル」がCUIの例。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "OSはオペレーティングシステムの略称である。",
+        "a": true,
+        "explain": "OS = Operating System。コンピュータを「操作する」基本ソフトウェアです。"
+      },
+      {
+        "q": "GUIはCharacter User Interfaceの略である。",
+        "a": false,
+        "explain": "GUIは「Graphical(視覚的な)User Interface」の略。Character User Interfaceの略はCUIです。"
+      },
+      {
+        "q": "デバイスドライバは新しい周辺機器接続時に必要となる。",
+        "a": true,
+        "explain": "デバイスドライバはOSと周辺機器をつなぐソフト。新しいプリンタなどを接続する時、適切なドライバが必要です。"
+      },
+      {
+        "q": "3Dプリンタは入力と出力の両方の機能を持つ。",
+        "a": false,
+        "explain": "3Dプリンタは「出力機器」。3Dデータを受け取って立体物を作り出します。入力機能はありません(3Dスキャナは別の機器)。"
+      },
+      {
+        "q": "タッチパネルは入力と出力の両方の機能を持つ。",
+        "a": true,
+        "explain": "タッチパネルは画面表示(出力)とタッチ操作(入力)の両方を兼ねます。スマートフォンが代表例です。"
+      }
+    ],
+    "quiz4check": [
+      {
+        "q": "応用ソフトウェアの例として正しくないものは?",
+        "opts": [
+          "ワープロソフト",
+          "表計算ソフト",
+          "OS",
+          "ブラウザ"
+        ],
+        "a": 2,
+        "explain": "OS(Windowsなど)は基本ソフトウェアであり、応用ソフトウェア(アプリケーション)ではありません。アプリはOSの上で動きます。"
+      },
+      {
+        "q": "CUIの別名は?",
+        "opts": [
+          "GUI",
+          "CLI",
+          "CMI",
+          "CTI"
+        ],
+        "a": 1,
+        "explain": "CUI = Character User Interface、CLI = Command Line Interface。文字を入力して操作する環境を指す同じものです。"
+      },
+      {
+        "q": "出力機器に該当しないものは?",
+        "opts": [
+          "ディスプレイ",
+          "プリンタ",
+          "キーボード",
+          "スピーカー"
+        ],
+        "a": 2,
+        "explain": "キーボードは入力機器。文字や数字をコンピュータに「入力」する装置です。ディスプレイ・プリンタ・スピーカーは出力機器。"
+      },
+      {
+        "q": "コンピュータの五大装置に対応する機能は?",
+        "opts": [
+          "演算・制御・入力・出力・通信",
+          "演算・制御・入力・出力・記憶",
+          "演算・処理・入力・出力・記憶",
+          "演算・制御・入力・転送・記憶"
+        ],
+        "a": 1,
+        "explain": "五大装置に対応する五大機能は「演算・制御・入力・出力・記憶」。CPU(演算+制御)、メモリ(記憶)、キーボード(入力)、ディスプレイ(出力)などが該当します。"
+      }
+    ]
+  }
+];
+const PAGES = [{"title":"📄 ページ1(1〜3節)","units":[0,1,2]},{"title":"📄 ページ2(4〜6節)","units":[3,4,5]},{"title":"📄 ページ3(コンピュータの発達・構成)","units":[6,7]}];
+let currentPage = 0;
+let unitStates = {};
+let timerIntervals = {};
+
+function initUnitState(unitId) {
+  if (!unitStates[unitId]) {
+    unitStates[unitId] = {
+      mode: 'fill',
+      challenge: { active: false, answers: [], blanks: [], parts: [], selectedWord: null, startTime: null, elapsed: 0, shuffledWords: null },
+      records: [],
+      quiz4: { idx: 0, score: 0, answered: false },
+      ox: { idx: 0, score: 0, answered: false },
+      quiz4check: { idx: 0, score: 0, answered: false }
+    };
+  }
+  return unitStates[unitId];
+}
+
+function init() {
+  renderPageTabs();
+  // URLハッシュからジャンプ先を決定 (#unitN)
+  let initialPage = 0;
+  let targetUnitId = null;
+  const hash = (location.hash || '').replace('#', '');
+  if (hash) {
+    for (let p = 0; p < PAGES.length; p++) {
+      const found = PAGES[p].units.some(idx => ALL_UNITS[idx] && ALL_UNITS[idx].id === hash);
+      if (found) { initialPage = p; targetUnitId = hash; break; }
+    }
+  }
+  currentPage = initialPage;
+  renderPageTabs();
+  renderPage(initialPage);
+  if (targetUnitId) {
+    setTimeout(function() {
+      const card = document.getElementById('card-' + targetUnitId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        card.style.transition = 'box-shadow 0.4s';
+        const orig = card.style.boxShadow;
+        card.style.boxShadow = '0 0 0 4px #fbbf24, 0 8px 30px rgba(245,158,11,.4)';
+        setTimeout(function(){ card.style.boxShadow = orig; }, 1800);
+      }
+    }, 100);
+  }
+}
+
+window.addEventListener('hashchange', function() { init(); });
+
+
+function renderPageTabs() {
+  const container = document.getElementById('pageTabs');
+  container.innerHTML = '';
+  PAGES.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'page-tab' + (i === currentPage ? ' active' : '');
+    btn.textContent = p.title;
+    btn.onclick = () => switchPage(i);
+    container.appendChild(btn);
+  });
+}
+
+function switchPage(pageIdx) {
+  Object.keys(timerIntervals).forEach(uid => { clearInterval(timerIntervals[uid]); delete timerIntervals[uid]; });
+  currentPage = pageIdx;
+  renderPageTabs();
+  renderPage(pageIdx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderPage(pageIdx) {
+  const container = document.getElementById('unitsContainer');
+  container.innerHTML = '';
+  PAGES[pageIdx].units.forEach(unitIdx => {
+    const unit = ALL_UNITS[unitIdx];
+    initUnitState(unit.id);
+    container.appendChild(createUnitCard(unit));
+  });
+}
+
+function createUnitCard(unit) {
+  const state = unitStates[unit.id];
+  const card = document.createElement('div');
+  card.className = 'unit-card';
+  card.id = 'card-' + unit.id;
+  card.innerHTML = '<h2 class="unit-title">' + unit.title + '</h2>' +
+    '<div class="mode-tabs">' +
+    '<button class="mode-tab active" data-mode="fill" data-uid="' + unit.id + '">✏️ 穴埋め</button>' +
+    '<button class="mode-tab" data-mode="quiz4" data-uid="' + unit.id + '">🎯 4択練習</button>' +
+    '<button class="mode-tab" data-mode="ox" data-uid="' + unit.id + '">⭕❌ 〇×</button>' +
+    '<button class="mode-tab" data-mode="quiz4check" data-uid="' + unit.id + '">📝 確認4択</button>' +
+    '</div><div class="mode-content" id="content-' + unit.id + '"></div>';
+  card.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.onclick = () => {
+      const uid = tab.dataset.uid;
+      const mode = tab.dataset.mode;
+      card.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.mode = mode;
+      renderModeContent(uid);
+    };
+  });
+  setTimeout(() => renderModeContent(unit.id), 0);
+  return card;
+}
+
+function renderModeContent(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('content-' + unitId);
+  if (!container) return;
+  if (state.mode === 'fill') renderFill(unitId, container);
+  else if (state.mode === 'quiz4') renderQuiz(unitId, container, 'quiz4');
+  else if (state.mode === 'ox') renderOx(unitId, container);
+  else if (state.mode === 'quiz4check') renderQuiz(unitId, container, 'quiz4check');
+}
+
+function renderFill(unitId, container) {
+  const state = unitStates[unitId];
+  container.innerHTML =
+    '<div class="timer-box">' +
+    '<div>⏱️ <span class="timer-display" id="timer-' + unitId + '">' + formatTime(state.challenge.elapsed) + '</span></div>' +
+    '<div class="records" id="records-' + unitId + '"></div>' +
+    '<button class="btn btn-secondary" onclick="resetRecords(\'' + unitId + '\')">記録リセット</button>' +
+    '</div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="startChallenge(\'' + unitId + '\')">🚀 チャレンジ</button>' +
+    '<button class="btn btn-warning" onclick="showOhon(\'' + unitId + '\')">📖 お手本</button>' +
+    '<button class="btn btn-success" onclick="resumeChallenge(\'' + unitId + '\')">▶️ 再開</button>' +
+    '<button class="btn btn-danger" onclick="judge(\'' + unitId + '\')">✓ 判定</button>' +
+    '</div>' +
+    '<div id="message-' + unitId + '"></div>' +
+    '<div class="passage" id="passage-' + unitId + '"></div>' +
+    '<div class="word-bank">' +
+    '<div class="word-bank-title" id="wordBankTitle-' + unitId + '">【語群】チャレンジボタンを押すと表示されます</div>' +
+    '<div class="word-bank-words" id="wordBankWords-' + unitId + '"></div>' +
+    '</div>';
+  showOhon(unitId);
+  renderRecords(unitId);
+}
+
+function parseFillText(text) {
+  const blanks = [], parts = [];
+  let lastIdx = 0;
+  const regex = /\[([^\]]+)\]/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    parts.push({ type: 'text', content: text.substring(lastIdx, match.index) });
+    parts.push({ type: 'blank', idx: blanks.length });
+    blanks.push(match[1]);
+    lastIdx = match.index + match[0].length;
+  }
+  parts.push({ type: 'text', content: text.substring(lastIdx) });
+  return { parts, blanks };
+}
+
+// {漢字|ふりがな} を <ruby> に変換するヘルパー
+function applyRuby(text) {
+  return text.replace(/\{([^|}]+)\|([^}]+)\}/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+
+// テキストノードとしてrubyを含むHTMLを挿入するヘルパー
+function appendWithRuby(parent, text) {
+  const html = applyRuby(text);
+  if (html === text) {
+    parent.appendChild(document.createTextNode(text));
+  } else {
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    parent.appendChild(span);
+  }
+}
+
+function showOhon(unitId) {
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const { parts, blanks } = parseFillText(unit.fill.text);
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank correct';
+      const term = blanks[p.idx];
+      span.textContent = term;
+      // 語句解説があれば追加
+      const gloss = unit.glossary && unit.glossary[term];
+      if (gloss) {
+        span.classList.add('has-glossary');
+        const popup = document.createElement('span');
+        popup.className = 'glossary-popup';
+        let popupHTML = '';
+        if (gloss.en) popupHTML += '<div><span class="term-en">' + gloss.en + '</span>';
+        if (gloss.kana) popupHTML += ' <span class="term-kana">[' + gloss.kana + ']</span>';
+        if (gloss.en) popupHTML += '</div>';
+        popupHTML += '<div style="margin-top:4px;">' + gloss.desc + '</div>';
+        popup.innerHTML = popupHTML;
+        span.appendChild(popup);
+        span.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.glossary-popup.show').forEach(p => { if (p !== popup) p.classList.remove('show'); });
+          popup.classList.toggle('show');
+        };
+        span.onmouseenter = () => popup.classList.add('show');
+        span.onmouseleave = () => popup.classList.remove('show');
+      }
+      passage.appendChild(span);
+    }
+  });
+  document.getElementById('wordBankWords-' + unitId).innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】チャレンジボタンを押すと表示されます';
+  showMessage(unitId, 'お手本を表示中です。緑の下線が引かれた語句にマウスを乗せる(またはタップする)と詳しい説明が表示されます。', 'info');
+}
+
+function startChallenge(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const parsed = parseFillText(unit.fill.text);
+  state.challenge.active = true;
+  state.challenge.blanks = parsed.blanks;
+  state.challenge.answers = new Array(parsed.blanks.length).fill(null);
+  state.challenge.parts = parsed.parts;
+  state.challenge.selectedWord = null;
+  state.challenge.elapsed = 0;
+  state.challenge.startTime = Date.now();
+  state.challenge.shuffledWords = [...parsed.blanks].sort(() => Math.random() - 0.5);
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, '語群から語句を選び、空欄をタップして埋めてください。', 'info');
+}
+
+function renderChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  const passage = document.getElementById('passage-' + unitId);
+  if (!passage) return;
+  passage.innerHTML = '';
+  ch.parts.forEach(p => {
+    if (p.type === 'text') appendWithRuby(passage, p.content);
+    else {
+      const span = document.createElement('span');
+      span.className = 'blank';
+      const ans = ch.answers[p.idx];
+      if (ans) { span.textContent = ans; span.classList.add('filled'); }
+      else span.textContent = '?'.repeat(Math.min(ch.blanks[p.idx].length, 6));
+      span.onclick = () => fillBlank(unitId, p.idx);
+      passage.appendChild(span);
+    }
+  });
+  const usedWords = ch.answers.filter(a => a !== null);
+  const wordBankEl = document.getElementById('wordBankWords-' + unitId);
+  wordBankEl.innerHTML = '';
+  document.getElementById('wordBankTitle-' + unitId).textContent = '【語群】タップして選択してください';
+  const usedCounts = {};
+  usedWords.forEach(w => { usedCounts[w] = (usedCounts[w] || 0) + 1; });
+  const tempUsed = {};
+  ch.shuffledWords.forEach((word) => {
+    tempUsed[word] = (tempUsed[word] || 0) + 1;
+    const isUsed = tempUsed[word] <= (usedCounts[word] || 0);
+    const chip = document.createElement('span');
+    chip.className = 'word-chip' + (isUsed ? ' used' : '');
+    if (ch.selectedWord === word && !isUsed) chip.classList.add('selected');
+    chip.textContent = word;
+    chip.onclick = () => selectWord(unitId, word, chip);
+    wordBankEl.appendChild(chip);
+  });
+}
+
+function selectWord(unitId, word, chip) {
+  if (chip.classList.contains('used')) return;
+  unitStates[unitId].challenge.selectedWord = word;
+  const card = document.getElementById('card-' + unitId);
+  card.querySelectorAll('.word-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+}
+
+function fillBlank(unitId, blankIdx) {
+  const ch = unitStates[unitId].challenge;
+  if (ch.selectedWord) {
+    ch.answers[blankIdx] = ch.selectedWord;
+    ch.selectedWord = null;
+    renderChallenge(unitId);
+  } else if (ch.answers[blankIdx]) {
+    ch.answers[blankIdx] = null;
+    renderChallenge(unitId);
+  }
+}
+
+function judge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.active) { showMessage(unitId, 'まずチャレンジボタンを押してください。', 'warning'); return; }
+  if (ch.answers.includes(null)) { showMessage(unitId, 'まだ空欄があります。すべての空欄を埋めてください。', 'warning'); return; }
+  let allCorrect = true;
+  const passage = document.getElementById('passage-' + unitId);
+  const blankEls = passage.querySelectorAll('.blank');
+  ch.answers.forEach((ans, i) => {
+    const correct = ch.blanks[i];
+    const el = blankEls[i];
+    if (ans === correct) { el.classList.remove('filled', 'wrong'); el.classList.add('correct'); }
+    else { el.classList.remove('filled', 'correct'); el.classList.add('wrong'); allCorrect = false; }
+  });
+  if (allCorrect) {
+    stopTimer(unitId);
+    ch.active = false;
+    saveRecord(unitId, ch.elapsed);
+    showMessage(unitId, '🎉 合格! タイム: ' + formatTime(ch.elapsed), 'success');
+    confetti();
+  } else {
+    showMessage(unitId, 'おしい! もう一歩です。間違った語句が語群に戻ります。再挑戦してください。', 'warning');
+    setTimeout(() => {
+      ch.answers = ch.answers.map((ans, i) => ans === ch.blanks[i] ? ans : null);
+      renderChallenge(unitId);
+    }, 1500);
+  }
+}
+
+function resumeChallenge(unitId) {
+  const state = unitStates[unitId];
+  const ch = state.challenge;
+  if (!ch.blanks || ch.blanks.length === 0) { showMessage(unitId, '再開できる挑戦がありません。チャレンジボタンを押してください。', 'warning'); return; }
+  ch.active = true;
+  renderChallenge(unitId);
+  startTimer(unitId);
+  showMessage(unitId, 'やっていたところから再開します。', 'info');
+}
+
+function startTimer(unitId) {
+  stopTimer(unitId);
+  const state = unitStates[unitId];
+  state.challenge.startTime = Date.now() - state.challenge.elapsed;
+  timerIntervals[unitId] = setInterval(() => {
+    state.challenge.elapsed = Date.now() - state.challenge.startTime;
+    const el = document.getElementById('timer-' + unitId);
+    if (el) el.textContent = formatTime(state.challenge.elapsed);
+  }, 100);
+}
+
+function stopTimer(unitId) {
+  if (timerIntervals[unitId]) { clearInterval(timerIntervals[unitId]); delete timerIntervals[unitId]; }
+}
+
+function formatTime(ms) {
+  const sec = Math.floor(ms / 1000);
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+function saveRecord(unitId, time) {
+  const state = unitStates[unitId];
+  state.records.push(time);
+  state.records.sort((a, b) => a - b);
+  state.records = state.records.slice(0, 3);
+  renderRecords(unitId);
+}
+
+function renderRecords(unitId) {
+  const state = unitStates[unitId];
+  const container = document.getElementById('records-' + unitId);
+  if (!container) return;
+  container.innerHTML = '<span style="font-weight:bold;color:#92400e;">🏆ベスト3:</span>';
+  if (state.records.length === 0) {
+    container.innerHTML += '<span class="record-item">記録なし</span>';
+  } else {
+    state.records.forEach((r, i) => {
+      const span = document.createElement('span');
+      span.className = 'record-item';
+      span.textContent = (i + 1) + '位 ' + formatTime(r);
+      container.appendChild(span);
+    });
+  }
+}
+
+function resetRecords(unitId) {
+  if (!confirm('この単元の記録をリセットしますか?')) return;
+  const state = unitStates[unitId];
+  state.records = [];
+  state.challenge.elapsed = 0;
+  const el = document.getElementById('timer-' + unitId);
+  if (el) el.textContent = '00:00';
+  renderRecords(unitId);
+  showMessage(unitId, '記録をリセットしました。', 'info');
+}
+
+function showMessage(unitId, text, type) {
+  const el = document.getElementById('message-' + unitId);
+  if (!el) return;
+  el.innerHTML = '<div class="message msg-' + type + '">' + text + '</div>';
+  if (type !== 'success') {
+    setTimeout(() => {
+      const cur = el.querySelector('.msg-' + type);
+      if (cur && cur.textContent === text) el.innerHTML = '';
+    }, 4000);
+  }
+}
+
+function confetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#fbbf24'];
+  for (let i = 0; i < 80; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.5 + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+
+function renderQuiz(unitId, container, kind) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="' + kind + '-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="' + kind + '-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextQuiz(\'' + unitId + '\',\'' + kind + '\')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetQuiz(\'' + unitId + '\',\'' + kind + '\')">最初から</button>' +
+    '</div>';
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderQuizQuestion(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit[kind];
+  const qs = state[kind];
+  const c = document.getElementById(kind + '-container-' + unitId);
+  const p = document.getElementById(kind + '-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  let html = '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div><div class="quiz-options">';
+  q.opts.forEach((opt, i) => { html += '<button class="quiz-option" data-i="' + i + '">' + (i + 1) + '. ' + opt + '</button>'; });
+  html += '</div>';
+  c.innerHTML = html;
+  c.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.onclick = () => answerQuiz(unitId, kind, parseInt(btn.dataset.i));
+  });
+}
+
+function answerQuiz(unitId, kind, i) {
+  const state = unitStates[unitId];
+  const qs = state[kind];
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit[kind][qs.idx];
+  const opts = document.querySelectorAll('#' + kind + '-container-' + unitId + ' .quiz-option');
+  opts.forEach((opt, idx) => {
+    if (idx === q.a) opt.classList.add('correct');
+    if (idx === i && i !== q.a) opt.classList.add('wrong');
+    opt.disabled = true;
+  });
+  if (i === q.a) { qs.score++; confetti(); }
+  // 解説を表示
+  if (q.explain) {
+    const c = document.getElementById(kind + '-container-' + unitId);
+    const explainDiv = document.createElement('div');
+    explainDiv.className = 'quiz-explain';
+    let html = '<span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    explainDiv.innerHTML = html;
+    c.appendChild(explainDiv);
+  }
+}
+
+function nextQuiz(unitId, kind) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state[kind].answered && state[kind].idx < unit[kind].length) return;
+  state[kind].idx++;
+  state[kind].answered = false;
+  renderQuizQuestion(unitId, kind);
+}
+
+function resetQuiz(unitId, kind) {
+  unitStates[unitId][kind] = { idx: 0, score: 0, answered: false };
+  renderQuizQuestion(unitId, kind);
+}
+
+function renderOx(unitId, container) {
+  container.innerHTML =
+    '<div class="progress"><div class="progress-bar" id="ox-progress-' + unitId + '" style="width:0%">0/0</div></div>' +
+    '<div id="ox-container-' + unitId + '"></div>' +
+    '<div class="btn-group">' +
+    '<button class="btn btn-primary" onclick="nextOx(\'' + unitId + '\')">次の問題 ▶</button>' +
+    '<button class="btn btn-secondary" onclick="resetOx(\'' + unitId + '\')">最初から</button>' +
+    '</div>';
+  renderOxQuestion(unitId);
+}
+
+function renderOxQuestion(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const quizzes = unit.ox;
+  const qs = state.ox;
+  const c = document.getElementById('ox-container-' + unitId);
+  const p = document.getElementById('ox-progress-' + unitId);
+  if (!c || !p) return;
+  if (qs.idx >= quizzes.length) {
+    c.innerHTML = '<div class="message msg-success">🎉 すべて完了! 正解: ' + qs.score + '/' + quizzes.length + '</div>';
+    p.style.width = '100%';
+    p.textContent = quizzes.length + '/' + quizzes.length;
+    return;
+  }
+  const q = quizzes[qs.idx];
+  p.style.width = (qs.idx / quizzes.length * 100) + '%';
+  p.textContent = qs.idx + '/' + quizzes.length;
+  c.innerHTML =
+    '<div class="quiz-question">問' + (qs.idx + 1) + ': ' + q.q + '</div>' +
+    '<div class="ox-buttons">' +
+    '<button class="ox-btn maru" data-v="true">○</button>' +
+    '<button class="ox-btn batsu" data-v="false">×</button>' +
+    '</div>' +
+    '<div id="ox-result-' + unitId + '" style="margin-top:14px;"></div>';
+  c.querySelectorAll('.ox-btn').forEach(btn => { btn.onclick = () => answerOx(unitId, btn.dataset.v === 'true'); });
+}
+
+function answerOx(unitId, val) {
+  const state = unitStates[unitId];
+  const qs = state.ox;
+  if (qs.answered) return;
+  qs.answered = true;
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  const q = unit.ox[qs.idx];
+  const result = document.getElementById('ox-result-' + unitId);
+  let html = '';
+  if (val === q.a) {
+    qs.score++;
+    html = '<div class="message msg-success">✓ 正解! 答えは「' + (q.a ? '○' : '×') + '」です。</div>';
+    confetti();
+  } else {
+    html = '<div class="message msg-warning">✗ 不正解。正解は「' + (q.a ? '○' : '×') + '」です。</div>';
+  }
+  // 解説を表示
+  if (q.explain) {
+    html += '<div class="quiz-explain"><span class="ex-title">💡 解説</span>' + q.explain;
+    if (q.example) html += '<span class="ex-example">📝 例:' + q.example + '</span>';
+    html += '</div>';
+  }
+  result.innerHTML = html;
+}
+
+function nextOx(unitId) {
+  const state = unitStates[unitId];
+  const unit = ALL_UNITS.find(u => u.id === unitId);
+  if (!state.ox.answered && state.ox.idx < unit.ox.length) return;
+  state.ox.idx++;
+  state.ox.answered = false;
+  renderOxQuestion(unitId);
+}
+
+function resetOx(unitId) {
+  unitStates[unitId].ox = { idx: 0, score: 0, answered: false };
+  renderOxQuestion(unitId);
+}
+
+init();
+</script>
+</body>
+</html>
