@@ -1,0 +1,3374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報1 第7章 情報技術の仕組み 暗記プログラム</title>
+<style>
+:root {
+  --primary: #DC2626;       /* 赤 */
+  --primary-dark: #991B1B;  /* 濃い赤 */
+  --primary-light: #FEE2E2; /* 薄い赤 */
+  --primary-pale: #FEF2F2;
+  --accent-amber: #F59E0B;
+  --accent-amber-light: #FEF3C7;
+  --accent-pink: #EC4899;
+  --green: #10B981;
+  --red: #EF4444;
+  --text: #1F2937;
+  --bg: #F9FAFB;
+  --card-bg: #FFFFFF;
+  --border: #E5E7EB;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Yu Gothic', YuGothic, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  padding-bottom: 40px;
+}
+ruby rt { font-size: 0.55em; color: #6B7280; }
+
+/* ===== ヘッダ ===== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  padding: 12px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.header h1 { font-size: 1.2em; font-weight: 700; }
+.header h1 .sub { font-size: 0.7em; opacity: 0.9; margin-left: 8px; }
+.header-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.timer {
+  background: rgba(255,255,255,0.2);
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+.btn-home {
+  background: #fff;
+  color: var(--primary-dark);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+.btn-home:hover { background: var(--primary-pale); }
+
+/* ===== コンテナ ===== */
+.container {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+/* ===== ページタブ ===== */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.tab {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95em;
+  color: #6B7280;
+  text-align: center;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+}
+.tab:hover:not(.active) {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+/* ===== 単元カード ===== */
+.unit-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.unit-header {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.unit-no {
+  background: rgba(255,255,255,0.25);
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+.unit-title {
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.unit-body {
+  padding: 18px 20px;
+}
+
+/* ===== モード切替 ===== */
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.mode-tab {
+  padding: 8px 14px;
+  border: 2px solid var(--border);
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 700;
+  color: #6B7280;
+  transition: all 0.2s;
+}
+.mode-tab.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+}
+.mode-tab:hover:not(.active) {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+.mode-content {
+  display: none;
+}
+.mode-content.active {
+  display: block;
+}
+
+/* ===== 図解エリア ===== */
+.figure {
+  background: linear-gradient(135deg, #fafdff, #f0f9ff);
+  border: 1px dashed var(--primary-light);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 14px 0;
+  text-align: center;
+}
+.figure svg { max-width: 100%; height: auto; }
+.figure-caption {
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: #6B7280;
+  font-weight: 700;
+}
+
+/* ===== 穴埋めモード ===== */
+.fill-area {
+  background: var(--primary-pale);
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 1.0em;
+  line-height: 2.4;
+  margin: 12px 0;
+  border-left: 4px solid var(--primary);
+}
+.dz {
+  display: inline-block;
+  min-width: 80px;
+  min-height: 32px;
+  padding: 4px 10px;
+  background: #fff;
+  border: 2px dashed var(--primary);
+  border-radius: 8px;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.dz.has-word {
+  background: var(--primary);
+  color: #fff;
+  border-style: solid;
+}
+.dz.correct {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.dz.wrong {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+  animation: shake 0.4s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  margin: 12px 0;
+  min-height: 50px;
+}
+.word-chip {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #fff, var(--primary-pale));
+  border: 2px solid var(--primary);
+  border-radius: 18px;
+  cursor: grab;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-size: 0.9em;
+  user-select: none;
+  transition: transform 0.15s;
+}
+.word-chip:hover { transform: scale(1.05); }
+.word-chip.used { opacity: 0.3; pointer-events: none; }
+.word-chip.dragging { opacity: 0.5; }
+
+/* 用語解説(緑色二重下線+ポップアップ) */
+.term {
+  border-bottom: 3px double var(--green);
+  cursor: help;
+  position: relative;
+  font-weight: 700;
+  color: #047857;
+}
+.term-popup {
+  position: absolute;
+  background: rgba(17,24,39,0.97);
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.85em;
+  line-height: 1.6;
+  z-index: 1000;
+  width: 280px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: none;
+  font-weight: 400;
+}
+.term-popup.show { display: block; }
+.term-popup .en { color: #FBBF24; font-style: italic; }
+.term-popup .kana { color: #6EE7B7; }
+.term-popup .origin { color: #fff; margin-top: 6px; }
+
+/* ボタン */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary {
+  background: #fff;
+  color: var(--primary-dark);
+  border: 2px solid var(--primary);
+}
+.btn-secondary:hover { background: var(--primary-pale); }
+.btn-amber {
+  background: var(--accent-amber);
+  color: #fff;
+}
+.btn-amber:hover { background: #D97706; }
+.btn-success {
+  background: var(--green);
+  color: #fff;
+}
+.btn-success:hover { background: #059669; }
+
+/* ベスト記録 */
+.best-records {
+  background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.85em;
+}
+.best-records strong { color: #B45309; }
+
+/* 結果表示 */
+.result {
+  padding: 12px;
+  border-radius: 10px;
+  margin: 12px 0;
+  font-weight: 700;
+  text-align: center;
+  display: none;
+}
+.result.show { display: block; }
+.result.pass {
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  color: #065F46;
+  border: 2px solid var(--green);
+}
+.result.fail {
+  background: linear-gradient(135deg, #FEE2E2, #FECACA);
+  color: #991B1B;
+  border: 2px solid var(--red);
+}
+
+/* ===== 4択・〇×・確認問題 ===== */
+.q-item {
+  background: var(--primary-pale);
+  border-left: 4px solid var(--primary);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 12px 0;
+}
+.q-text {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.q-option {
+  padding: 8px 12px;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95em;
+  text-align: left;
+  transition: all 0.15s;
+}
+.q-option:hover {
+  border-color: var(--primary);
+  background: var(--primary-pale);
+}
+.q-option.correct {
+  background: #D1FAE5;
+  border-color: var(--green);
+  color: #065F46;
+}
+.q-option.wrong {
+  background: #FEE2E2;
+  border-color: var(--red);
+  color: #991B1B;
+}
+.q-option.disabled {
+  pointer-events: none;
+}
+
+.q-feedback {
+  margin-top: 10px;
+  padding: 10px;
+  background: #FEF3C7;
+  border-left: 3px solid var(--accent-amber);
+  border-radius: 6px;
+  font-size: 0.9em;
+  display: none;
+}
+.q-feedback.show { display: block; }
+.q-feedback .label {
+  font-weight: 700;
+  color: #B45309;
+  margin-right: 4px;
+}
+
+/* ox */
+.ox-options {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.ox-btn {
+  width: 70px;
+  height: 70px;
+  font-size: 2em;
+  font-weight: 700;
+  border: 3px solid var(--border);
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ox-btn:hover { border-color: var(--primary); transform: scale(1.05); }
+.ox-btn.maru { color: var(--green); }
+.ox-btn.batsu { color: var(--red); }
+.ox-btn.correct { background: #D1FAE5; border-color: var(--green); }
+.ox-btn.wrong { background: #FEE2E2; border-color: var(--red); }
+
+/* 花吹雪 */
+.confetti {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* レスポンシブ */
+@media (max-width: 640px) {
+  .header h1 { font-size: 1em; }
+  .header h1 .sub { display: block; margin-left: 0; }
+  .tab { font-size: 0.85em; min-width: 80px; padding: 8px; }
+  .unit-title { font-size: 1em; }
+  .figure svg { max-width: 100%; }
+}
+
+/* ============================================
+   プログラム×フローチャート横並びレイアウト
+   ============================================ */
+.code-flow-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+.code-flow-wrap > .code-block {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+.code-flow-wrap > .flowchart-block {
+  flex: 0 1 320px;
+  min-width: 240px;
+  max-width: 380px;
+}
+@media (max-width: 700px) {
+  .code-flow-wrap { flex-direction: column; }
+  .code-flow-wrap > .flowchart-block { max-width: 100%; align-self: center; }
+}
+
+.code-block {
+  background: #1F2937;
+  color: #F9FAFB;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: 'Consolas','Courier New',monospace;
+  font-size: 0.92em;
+  line-height: 1.7;
+  overflow-x: auto;
+  border: 1px solid #374151;
+}
+.code-block .ln {
+  display: inline-block;
+  width: 32px;
+  color: #9CA3AF;
+  user-select: none;
+  margin-right: 4px;
+}
+.code-block .kw { color: #C4B5FD; font-weight: 600; }
+.code-block .str { color: #FCD34D; }
+.code-block .num { color: #93C5FD; }
+.code-block .cmt { color: #6B7280; font-style: italic; }
+.code-block .var { color: #FBBF24; }
+.code-block .indent { display: inline-block; width: 14px; }
+.code-block .blank { color: #6B7280; }
+
+.flowchart-block {
+  background: #FAFAFA;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+}
+.flowchart-block svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.flowchart-caption {
+  text-align: center;
+  font-size: 0.78em;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* フローチャート図記号一覧表 */
+.flowchart-symbols {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+  margin: 12px 0;
+}
+.flowchart-symbols th, .flowchart-symbols td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+}
+.flowchart-symbols th {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+.flowchart-symbols .sym-cell {
+  text-align: center;
+  background: #FAFAFA;
+  width: 80px;
+}
+.flowchart-symbols .sym-cell svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* 実行結果表示 */
+.exec-result {
+  background: #1F2937;
+  color: #A7F3D0;
+  border-left: 4px solid #10B981;
+  padding: 8px 12px;
+  font-family: 'Consolas',monospace;
+  border-radius: 0 6px 6px 0;
+  margin: 8px 0;
+  font-size: 0.9em;
+}
+.exec-result::before {
+  content: '▶ 実行結果: ';
+  color: #FCD34D;
+  font-weight: 600;
+}
+
+/* 確認/4択/〇× 問題のコードブロック */
+.q-code-block {
+  background: #1F2937;
+  color: #F9FAFB;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: 'Consolas','Courier New','BIZ UDGothic',monospace;
+  font-size: 0.92em;
+  line-height: 1.7;
+  margin: 10px 0;
+  border: 1px solid #374151;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+.q-code-block .ln {
+  display: inline-block;
+  width: 32px;
+  color: #9CA3AF;
+  user-select: none;
+  margin-right: 4px;
+}
+.q-code-block .kw { color: #C4B5FD; font-weight: 600; }
+.q-code-block .str { color: #FCD34D; }
+.q-code-block .num { color: #93C5FD; }
+.q-code-block .var { color: #FBBF24; }
+.q-code-block .cmt { color: #6B7280; font-style: italic; }
+.q-code-block .indent { display: inline-block; width: 18px; }
+
+/* フローチャート図ボタン */
+.q-flowchart-toggle {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.92em;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 4px 0 10px;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3);
+}
+.q-flowchart-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+.q-flowchart-toggle.open {
+  background: linear-gradient(135deg, #6B7280, #4B5563);
+}
+.q-flowchart-content {
+  background: #FAFAFA;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 0 0 12px;
+  text-align: center;
+}
+.q-flowchart-content svg {
+  max-width: 100%;
+  height: auto;
+}
+.q-flowchart-content .flowchart-caption {
+  text-align: center;
+  font-size: 0.78em;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ===== チャレンジモード ===== */
+.challenge-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.challenge-instruction {
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-pale));
+  padding: 12px 16px;
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.challenge-item {
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.3s;
+}
+
+.challenge-question {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.challenge-dropzone {
+  min-height: 50px;
+  border: 3px dashed var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.3s;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+.challenge-dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: scale(1.02);
+}
+
+.challenge-dropzone.filled {
+  border-style: solid;
+  border-color: var(--primary);
+  background: #fff;
+  color: var(--primary-dark);
+}
+
+.challenge-dropzone.correct {
+  border-color: var(--green);
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.challenge-dropzone.wrong {
+  border-color: var(--red);
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.challenge-placeholder {
+  color: #9CA3AF;
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.challenge-feedback {
+  margin-top: 8px;
+  font-size: 0.9em;
+  font-weight: 700;
+  min-height: 20px;
+}
+
+.challenge-feedback.correct {
+  color: var(--green);
+}
+
+.challenge-feedback.wrong {
+  color: var(--red);
+}
+
+.challenge-bank-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 24px 0 12px;
+  text-align: center;
+}
+
+.challenge-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  padding: 16px;
+  background: var(--primary-pale);
+  border-radius: 12px;
+  min-height: 80px;
+  margin-bottom: 20px;
+}
+
+.challenge-chip {
+  display: inline-block;
+  padding: 8px 14px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s;
+  font-size: 0.95em;
+}
+
+.challenge-chip:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.challenge-chip.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.challenge-check-btn {
+  display: block;
+  margin: 20px auto;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.challenge-check-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+}
+
+.challenge-result {
+  margin-top: 20px;
+  text-align: center;
+  display: none;
+}
+
+.all-correct {
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #065F46;
+  border: 3px solid var(--green);
+  animation: bounce 0.6s;
+}
+
+.partial-correct {
+  background: var(--primary-light);
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--primary-dark);
+  border: 2px solid var(--primary);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 768px) {
+  .challenge-chip {
+    font-size: 0.85em;
+    padding: 6px 10px;
+  }
+  
+  .challenge-dropzone {
+    min-height: 40px;
+    font-size: 0.95em;
+  }
+}
+
+
+/* ===== 重要語句ポップアップ ===== */
+.term {
+  color: var(--primary);
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+  border-bottom: 2px dotted var(--primary);
+  transition: all 0.2s;
+}
+
+.term:hover {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary-dark);
+}
+
+.term-popup {
+  position: fixed;
+  background: #fff;
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.25);
+  z-index: 10000;
+  max-width: 400px;
+  display: none;
+  animation: fadeInPopup 0.2s;
+}
+
+.term-popup.show {
+  display: block;
+}
+
+@keyframes fadeInPopup {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.term-popup-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 8px;
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 6px;
+}
+
+.term-popup-en {
+  font-size: 0.9em;
+  color: #6B7280;
+  font-family: 'Consolas', monospace;
+  margin-bottom: 4px;
+}
+
+.term-popup-kana {
+  font-size: 0.85em;
+  color: #9CA3AF;
+  margin-bottom: 10px;
+}
+
+.term-popup-origin {
+  font-size: 0.9em;
+  color: var(--text);
+  line-height: 1.6;
+  background: var(--primary-pale);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+}
+
+
+/* ===== インタラクティブ表 ===== */
+.interactive-table-container {
+  margin: 20px 0;
+}
+
+.interactive-table-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.btn-toggle-table-challenge,
+.btn-check-table {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95em;
+}
+
+.btn-toggle-table-challenge:hover,
+.btn-check-table:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.table-dropzone {
+  position: relative;
+  min-height: 50px;
+}
+
+.table-drop-area {
+  min-height: 44px;
+  border: 2px dashed var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  transition: all 0.3s;
+  background: var(--bg);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.table-drop-area.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: scale(1.05);
+}
+
+.table-drop-area.filled {
+  border-style: solid;
+  border-color: var(--primary);
+  background: #fff;
+}
+
+.table-drop-area.correct {
+  border-color: var(--green);
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.table-drop-area.wrong {
+  border-color: var(--red);
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.table-placeholder {
+  color: #9CA3AF;
+  font-size: 0.85em;
+}
+
+.table-word-bank {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--primary-pale);
+  border-radius: 12px;
+}
+
+.table-bank-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.table-bank-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  min-height: 50px;
+}
+
+.table-chip {
+  display: inline-block;
+  padding: 8px 14px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s;
+  font-size: 0.9em;
+}
+
+.table-chip:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.table-chip.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.table-result {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.table-result.all-correct {
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  color: #065F46;
+  border: 3px solid var(--green);
+}
+
+.table-result.partial {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 2px solid var(--primary);
+}
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <h1>🌐 情報1 第7章 情報技術の仕組み<span class="sub">暗記プログラム</span></h1>
+    <div class="header-controls">
+      <div class="timer" id="timer">⏱️ 00:00</div>
+      <button class="btn-home" onclick="window.location.href='johoindex.html'">🏠 単元表</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ページタブ -->
+<div class="tabs" id="pageTabs">
+  <button class="tab active" data-page="1">📄 1ページ目(単元1〜3)</button>
+</div>
+
+<!-- 単元コンテナ -->
+<div id="unitsContainer"></div>
+
+</div>
+
+<!-- 用語ポップアップ -->
+<div class="term-popup" id="termPopup"></div>
+
+<script>
+
+// =================================================================
+// 単元データ(units配列)
+// =================================================================
+const units = [
+  {
+    "id": "u1",
+    "page": 1,
+    "title": "1. コンピュータの仕組み",
+    "body": "\n<p>スマートフォンやパソコンの中身は、どうなっているのでしょうか?今回は、コンピュータが動く<b>基本的な仕組み</b>を、絵で見ながら学んでいきます。</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🖥️ コンピュータの5大装置</h4>\n\n<p>どんなコンピュータも、<b>5つの基本的な役割</b>を持つ装置の組み合わせでできています。これを<span class=\"term\" data-term=\"5大装置\">5大装置</span>といいます。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 660 400\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arDat\" markerWidth=\"10\" markerHeight=\"10\" refX=\"9\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 10 3, 0 6\" fill=\"#10B981\"/>\n    </marker>\n    <marker id=\"arMem\" markerWidth=\"10\" markerHeight=\"10\" refX=\"9\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 10 3, 0 6\" fill=\"#F59E0B\"/>\n    </marker>\n  </defs>\n\n  <!-- ===== CPU 枠(中央上) ===== -->\n  <rect x=\"220\" y=\"20\" width=\"220\" height=\"140\" fill=\"none\" stroke=\"#DC2626\" stroke-width=\"2\" stroke-dasharray=\"6,4\" rx=\"6\"/>\n  <text x=\"330\" y=\"14\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">CPU(中央処理装置)</text>\n\n  <!-- 制御装置 -->\n  <g transform=\"translate(240, 35)\">\n    <rect x=\"0\" y=\"0\" width=\"180\" height=\"48\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"90\" y=\"22\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#991B1B\">制御装置</text>\n    <text x=\"90\" y=\"40\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">司令塔:他の装置に指示</text>\n  </g>\n\n  <!-- 演算装置 -->\n  <g transform=\"translate(240, 96)\">\n    <rect x=\"0\" y=\"0\" width=\"180\" height=\"48\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"90\" y=\"22\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#991B1B\">演算装置</text>\n    <text x=\"90\" y=\"40\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">計算を行う</text>\n  </g>\n\n  <!-- ===== 主記憶装置(中央) ===== -->\n  <g transform=\"translate(250, 200)\">\n    <rect x=\"0\" y=\"0\" width=\"160\" height=\"60\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"80\" y=\"22\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#92400E\">主記憶装置</text>\n    <text x=\"80\" y=\"40\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">メモリ・一時保管</text>\n    <text x=\"80\" y=\"54\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">(RAM)</text>\n  </g>\n\n  <!-- ===== 補助記憶装置(右) ===== -->\n  <g transform=\"translate(470, 200)\">\n    <rect x=\"0\" y=\"0\" width=\"160\" height=\"60\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"80\" y=\"22\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#92400E\">補助記憶装置</text>\n    <text x=\"80\" y=\"40\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">長期保管</text>\n    <text x=\"80\" y=\"54\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">(SSD・HDD・USB)</text>\n  </g>\n\n  <!-- ===== 入力装置(左) ===== -->\n  <g transform=\"translate(30, 200)\">\n    <rect x=\"0\" y=\"0\" width=\"160\" height=\"60\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"80\" y=\"22\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#065F46\">入力装置</text>\n    <text x=\"80\" y=\"40\" text-anchor=\"middle\" font-size=\"10\" fill=\"#065F46\">キーボード・マウス等</text>\n    <text x=\"80\" y=\"54\" text-anchor=\"middle\" font-size=\"10\" fill=\"#065F46\">(IN)</text>\n  </g>\n\n  <!-- ===== 出力装置(下中央) ===== -->\n  <g transform=\"translate(250, 290)\">\n    <rect x=\"0\" y=\"0\" width=\"160\" height=\"60\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"80\" y=\"22\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#065F46\">出力装置</text>\n    <text x=\"80\" y=\"40\" text-anchor=\"middle\" font-size=\"10\" fill=\"#065F46\">モニタ・スピーカ等</text>\n    <text x=\"80\" y=\"54\" text-anchor=\"middle\" font-size=\"10\" fill=\"#065F46\">(OUT)</text>\n  </g>\n\n  <!-- ===== シンプルな矢印群 ===== -->\n  <!-- 入力 → 主記憶(緑データ流) -->\n  <line x1=\"190\" y1=\"230\" x2=\"250\" y2=\"230\" stroke=\"#10B981\" stroke-width=\"3\" marker-end=\"url(#arDat)\"/>\n\n  <!-- 主記憶 ↔ CPU演算(縦の双方向) -->\n  <line x1=\"320\" y1=\"200\" x2=\"320\" y2=\"148\" stroke=\"#10B981\" stroke-width=\"3\" marker-end=\"url(#arDat)\"/>\n  <line x1=\"340\" y1=\"148\" x2=\"340\" y2=\"200\" stroke=\"#10B981\" stroke-width=\"3\" marker-end=\"url(#arDat)\"/>\n\n  <!-- 主記憶 ↔ 補助記憶(橙の双方向) -->\n  <line x1=\"410\" y1=\"225\" x2=\"470\" y2=\"225\" stroke=\"#F59E0B\" stroke-width=\"2.5\" marker-end=\"url(#arMem)\"/>\n  <line x1=\"470\" y1=\"240\" x2=\"410\" y2=\"240\" stroke=\"#F59E0B\" stroke-width=\"2.5\" marker-end=\"url(#arMem)\"/>\n\n  <!-- 主記憶 → 出力(縦下) -->\n  <line x1=\"330\" y1=\"260\" x2=\"330\" y2=\"290\" stroke=\"#10B981\" stroke-width=\"3\" marker-end=\"url(#arDat)\"/>\n\n  <!-- 凡例 -->\n  <g transform=\"translate(40, 385)\">\n    <line x1=\"0\" y1=\"0\" x2=\"22\" y2=\"0\" stroke=\"#10B981\" stroke-width=\"3\"/>\n    <text x=\"28\" y=\"4\" font-size=\"11\" fill=\"#065F46\">緑:データの流れ</text>\n    <line x1=\"180\" y1=\"0\" x2=\"202\" y2=\"0\" stroke=\"#F59E0B\" stroke-width=\"2.5\"/>\n    <text x=\"208\" y=\"4\" font-size=\"11\" fill=\"#92400E\">橙:主記憶 ↔ 補助記憶</text>\n    <text x=\"380\" y=\"4\" font-size=\"11\" fill=\"#991B1B\">※赤点線の制御指示は省略</text>\n  </g>\n</svg>\n<div class=\"figure-caption\">図1:コンピュータの5大装置。データは「入力 → 主記憶 → 演算 → 主記憶 → 出力」の流れで処理される</div>\n</div>\n</div>\n</div>\n\n<p>5つの装置の役割を整理しましょう:</p>\n\n<div class=\"figure\" style=\"text-align:left; padding:14px 18px;\">\n<table style=\"width:100%; border-collapse:collapse; font-size:0.95em;\">\n  <thead><tr style=\"background:var(--primary); color:#fff;\">\n    <th style=\"padding:8px; border:1px solid var(--primary-dark); width:25%;\">装置の名前</th>\n    <th style=\"padding:8px; border:1px solid var(--primary-dark);\">役割</th>\n    <th style=\"padding:8px; border:1px solid var(--primary-dark);\">身近な例</th>\n  </tr></thead>\n  <tbody>\n  <tr><td style=\"padding:6px; border:1px solid var(--border); font-weight:bold; color:#991B1B;\">① 制御装置</td><td style=\"padding:6px; border:1px solid var(--border);\">プログラムの命令を読み取り、他の装置に指示を出す<b>司令塔</b></td><td style=\"padding:6px; border:1px solid var(--border);\">CPUの一部</td></tr>\n  <tr style=\"background:#FEF2F2;\"><td style=\"padding:6px; border:1px solid var(--border); font-weight:bold; color:#991B1B;\">② 演算装置</td><td style=\"padding:6px; border:1px solid var(--border);\">計算や比較などの<b>処理</b>を行う</td><td style=\"padding:6px; border:1px solid var(--border);\">CPUの一部</td></tr>\n  <tr><td style=\"padding:6px; border:1px solid var(--border); font-weight:bold; color:#92400E;\">③ 主記憶装置</td><td style=\"padding:6px; border:1px solid var(--border);\">プログラムや作業中のデータを<b>一時的</b>に保管する</td><td style=\"padding:6px; border:1px solid var(--border);\"><b>メモリ</b>(<span class=\"term\" data-term=\"RAM\">RAM</span>)</td></tr>\n  <tr style=\"background:#FEF2F2;\"><td style=\"padding:6px; border:1px solid var(--border); font-weight:bold; color:#92400E;\">④ 補助記憶装置</td><td style=\"padding:6px; border:1px solid var(--border);\">データを<b>長期間</b>保管する。電源を切っても消えない</td><td style=\"padding:6px; border:1px solid var(--border);\">HDD、<span class=\"term\" data-term=\"SSD\">SSD</span>、<span class=\"term\" data-term=\"USB\">USB</span>メモリ</td></tr>\n  <tr><td style=\"padding:6px; border:1px solid var(--border); font-weight:bold; color:#065F46;\">⑤ 入力装置</td><td style=\"padding:6px; border:1px solid var(--border);\">人がコンピュータに<b>情報を入れる</b>装置</td><td style=\"padding:6px; border:1px solid var(--border);\">キーボード、マウス、マイク</td></tr>\n  <tr style=\"background:#FEF2F2;\"><td style=\"padding:6px; border:1px solid var(--border); font-weight:bold; color:#065F46;\">⑥ 出力装置</td><td style=\"padding:6px; border:1px solid var(--border);\">コンピュータから<b>情報を出す</b>装置</td><td style=\"padding:6px; border:1px solid var(--border);\">モニタ、プリンタ、スピーカ</td></tr>\n  </tbody>\n</table>\n<div class=\"figure-caption\">表1:5大装置(実は「制御」と「演算」が<span class=\"term\" data-term=\"CPU\">CPU</span>の中で一体なので、5つに数えます)</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🧠 CPU = コンピュータの「脳みそ」</h4>\n\n<p>CPU(中央処理装置)は、<b>制御装置と演算装置を1つにまとめたもの</b>で、コンピュータの<b>脳みそ</b>にあたります。プログラムの命令を1つずつ読み取り、計算したり、他の装置に指示を出したりします。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 580 200\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- CPU本体 -->\n  <g transform=\"translate(40, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"180\" height=\"140\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"3\" rx=\"10\"/>\n    <text x=\"90\" y=\"30\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"700\" fill=\"#991B1B\">CPU</text>\n    <text x=\"90\" y=\"48\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(Central Processing Unit)</text>\n    <line x1=\"20\" y1=\"60\" x2=\"160\" y2=\"60\" stroke=\"#991B1B\" stroke-width=\"1\"/>\n    <text x=\"90\" y=\"82\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">制御装置</text>\n    <text x=\"90\" y=\"110\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">+</text>\n    <text x=\"90\" y=\"130\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">演算装置</text>\n  </g>\n\n  <!-- 性能を決めるもの -->\n  <g transform=\"translate(260, 30)\">\n    <text x=\"0\" y=\"14\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">📊 CPUの性能を決めるもの</text>\n    <g transform=\"translate(0, 28)\">\n      <rect x=\"0\" y=\"0\" width=\"280\" height=\"44\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"6\"/>\n      <text x=\"10\" y=\"20\" font-size=\"12\" font-weight=\"700\" fill=\"#92400E\">① クロック周波数(GHz)</text>\n      <text x=\"10\" y=\"36\" font-size=\"11\" fill=\"#92400E\">1秒間に何回処理できるか(数値が大きいほど速い)</text>\n    </g>\n    <g transform=\"translate(0, 80)\">\n      <rect x=\"0\" y=\"0\" width=\"280\" height=\"44\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"6\"/>\n      <text x=\"10\" y=\"20\" font-size=\"12\" font-weight=\"700\" fill=\"#92400E\">② コア数</text>\n      <text x=\"10\" y=\"36\" font-size=\"11\" fill=\"#92400E\">脳みその数。多いほど同時に処理できる</text>\n    </g>\n  </g>\n</svg>\n<div class=\"figure-caption\">図2:CPUは制御装置と演算装置からなる。性能はクロック周波数とコア数で決まる</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">💾 主記憶 vs 補助記憶 ─ メモリの違い</h4>\n\n<p>記憶装置には2種類あります。<b>違いをはっきり覚えましょう</b>。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 580 240\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- 主記憶 -->\n  <g transform=\"translate(20, 20)\">\n    <rect x=\"0\" y=\"0\" width=\"260\" height=\"200\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2.5\" rx=\"8\"/>\n    <text x=\"130\" y=\"26\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#92400E\">主記憶装置(メモリ)</text>\n    <text x=\"130\" y=\"46\" text-anchor=\"middle\" font-size=\"11\" fill=\"#92400E\">作業机のような場所</text>\n    <line x1=\"20\" y1=\"60\" x2=\"240\" y2=\"60\" stroke=\"#F59E0B\" stroke-width=\"1\"/>\n    <text x=\"20\" y=\"80\" font-size=\"12\" font-weight=\"700\" fill=\"#92400E\">🏃 速さ:速い</text>\n    <text x=\"20\" y=\"100\" font-size=\"12\" font-weight=\"700\" fill=\"#92400E\">📏 容量:小さい(GB単位)</text>\n    <text x=\"20\" y=\"120\" font-size=\"12\" font-weight=\"700\" fill=\"#92400E\">⚡ 電源切ると:消える</text>\n    <text x=\"20\" y=\"140\" font-size=\"12\" font-weight=\"700\" fill=\"#92400E\">💡 例:RAM(DDR4等)</text>\n    <text x=\"130\" y=\"180\" text-anchor=\"middle\" font-size=\"11\" fill=\"#92400E\" font-style=\"italic\">作業中の道具を置く「机の上」</text>\n  </g>\n  <!-- 補助記憶 -->\n  <g transform=\"translate(300, 20)\">\n    <rect x=\"0\" y=\"0\" width=\"260\" height=\"200\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2.5\" rx=\"8\"/>\n    <text x=\"130\" y=\"26\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" fill=\"#065F46\">補助記憶装置</text>\n    <text x=\"130\" y=\"46\" text-anchor=\"middle\" font-size=\"11\" fill=\"#065F46\">本棚のような場所</text>\n    <line x1=\"20\" y1=\"60\" x2=\"240\" y2=\"60\" stroke=\"#10B981\" stroke-width=\"1\"/>\n    <text x=\"20\" y=\"80\" font-size=\"12\" font-weight=\"700\" fill=\"#065F46\">🐢 速さ:遅い</text>\n    <text x=\"20\" y=\"100\" font-size=\"12\" font-weight=\"700\" fill=\"#065F46\">📏 容量:大きい(TB単位)</text>\n    <text x=\"20\" y=\"120\" font-size=\"12\" font-weight=\"700\" fill=\"#065F46\">🔋 電源切っても:残る</text>\n    <text x=\"20\" y=\"140\" font-size=\"12\" font-weight=\"700\" fill=\"#065F46\">💡 例:SSD・HDD・USB</text>\n    <text x=\"130\" y=\"180\" text-anchor=\"middle\" font-size=\"11\" fill=\"#065F46\" font-style=\"italic\">ファイルや写真をしまう「本棚」</text>\n  </g>\n</svg>\n<div class=\"figure-caption\">図3:主記憶=机の上(速いが揮発)、補助記憶=本棚(遅いが残る)</div>\n</div>\n\n<p style=\"background:var(--primary-pale); padding:10px 14px; border-left:4px solid var(--primary); border-radius:6px; margin:10px 0;\">📌 <b>暗記のコツ</b>:作業中の「<b>主</b>」役のデータを置くのが<b>主記憶</b>。<b>補助</b>でしまっておくのが<b>補助記憶</b>。「主記憶=メモリ」「補助記憶=ストレージ(SSD・<span class=\"term\" data-term=\"HDD\">HDD</span>)」と覚えるのも便利。</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🔄 コンピュータの動く仕組み(命令の流れ)</h4>\n\n<p>プログラムが実行される流れは次の4ステップで、<b>無限にくり返されます</b>。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 240\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arCom2\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 6 3, 0 6\" fill=\"#DC2626\"/>\n    </marker>\n  </defs>\n  <!-- ステップ1 -->\n  <g transform=\"translate(20, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"8\"/>\n    <text x=\"60\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">① 命令を</text>\n    <text x=\"60\" y=\"40\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">読み込む</text>\n    <text x=\"60\" y=\"62\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">主記憶→CPU</text>\n    <text x=\"60\" y=\"76\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(フェッチ)</text>\n  </g>\n  <line x1=\"140\" y1=\"70\" x2=\"170\" y2=\"70\" stroke=\"#DC2626\" stroke-width=\"2.5\" marker-end=\"url(#arCom2)\"/>\n  <!-- ステップ2 -->\n  <g transform=\"translate(170, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"8\"/>\n    <text x=\"60\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">② 命令を</text>\n    <text x=\"60\" y=\"40\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">解読する</text>\n    <text x=\"60\" y=\"62\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">制御装置</text>\n    <text x=\"60\" y=\"76\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(デコード)</text>\n  </g>\n  <line x1=\"290\" y1=\"70\" x2=\"320\" y2=\"70\" stroke=\"#DC2626\" stroke-width=\"2.5\" marker-end=\"url(#arCom2)\"/>\n  <!-- ステップ3 -->\n  <g transform=\"translate(320, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"8\"/>\n    <text x=\"60\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">③ 命令を</text>\n    <text x=\"60\" y=\"40\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">実行する</text>\n    <text x=\"60\" y=\"62\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">演算装置</text>\n    <text x=\"60\" y=\"76\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(実行)</text>\n  </g>\n  <line x1=\"440\" y1=\"70\" x2=\"470\" y2=\"70\" stroke=\"#DC2626\" stroke-width=\"2.5\" marker-end=\"url(#arCom2)\"/>\n  <!-- ステップ4 -->\n  <g transform=\"translate(470, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"8\"/>\n    <text x=\"60\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">④ 結果を</text>\n    <text x=\"60\" y=\"40\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">書き出す</text>\n    <text x=\"60\" y=\"62\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">主記憶に保存</text>\n    <text x=\"60\" y=\"76\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(ライトバック)</text>\n  </g>\n  <!-- ぐるっと矢印で①に戻る -->\n  <path d=\"M 530 110 L 530 160 L 80 160 L 80 110\" fill=\"none\" stroke=\"#DC2626\" stroke-width=\"2.5\" stroke-dasharray=\"6,4\" marker-end=\"url(#arCom2)\"/>\n  <text x=\"305\" y=\"180\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">↑ ①〜④を無限にくり返す(これが「処理」)</text>\n</svg>\n<div class=\"figure-caption\">図4:CPUは「読み込む→解読→実行→書き出す」をくり返している</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🖱️ 入力装置と出力装置の例</h4>\n\n<div class=\"figure\" style=\"text-align:left; padding:14px 18px;\">\n<table style=\"width:100%; border-collapse:collapse; font-size:0.95em;\">\n  <thead><tr style=\"background:var(--primary); color:#fff;\">\n    <th style=\"padding:8px; border:1px solid var(--primary-dark); width:50%;\">入力装置(IN)</th>\n    <th style=\"padding:8px; border:1px solid var(--primary-dark);\">出力装置(OUT)</th>\n  </tr></thead>\n  <tbody>\n  <tr><td style=\"padding:6px; border:1px solid var(--border);\">⌨️ キーボード(文字入力)</td><td style=\"padding:6px; border:1px solid var(--border);\">🖥️ ディスプレイ・モニタ</td></tr>\n  <tr style=\"background:#FEF2F2;\"><td style=\"padding:6px; border:1px solid var(--border);\">🖱️ マウス・タッチパッド</td><td style=\"padding:6px; border:1px solid var(--border);\">🖨️ プリンタ</td></tr>\n  <tr><td style=\"padding:6px; border:1px solid var(--border);\">🎤 マイク(音声入力)</td><td style=\"padding:6px; border:1px solid var(--border);\">🔊 スピーカ・イヤホン</td></tr>\n  <tr style=\"background:#FEF2F2;\"><td style=\"padding:6px; border:1px solid var(--border);\">📷 カメラ・スキャナ</td><td style=\"padding:6px; border:1px solid var(--border);\">📽️ プロジェクタ</td></tr>\n  <tr><td style=\"padding:6px; border:1px solid var(--border);\">📱 タッチパネル <b>※入力と出力を兼ねる</b></td><td style=\"padding:6px; border:1px solid var(--border);\">📱 タッチパネル(同じ装置)</td></tr>\n  </tbody>\n</table>\n<div class=\"figure-caption\">表2:身近な入力・出力装置。タッチパネルのように両方兼ねるものもある</div>\n</div>\n\n<p>これでコンピュータの基本構造はバッチリです。次は「インターネットの仕組み」で、コンピュータ<b>同士</b>がどうつながっているのかを見ていきましょう!</p>\n",
+    "terms": {
+      "5大装置": {
+        "en": "five major units",
+        "kana": "ファイブ・メジャー・ユニッツ",
+        "origin": "コンピュータの基本構成を5つの装置で表現したもの。制御・演算・主記憶・補助記憶・入出力装置の5つ。"
+      },
+      "CPU": {
+        "en": "Central Processing Unit",
+        "kana": "セントラル・プロセッシング・ユニット / シーピーユー",
+        "origin": "Central(中央の)+ Processing(処理する)+ Unit(装置)。コンピュータの中心となる「脳みそ」。制御装置と演算装置を1つにまとめたもの。"
+      },
+      "メモリ": {
+        "en": "memory",
+        "kana": "メモリ",
+        "origin": "memory(記憶)から。「主記憶装置」のこと。RAMとも呼ばれる。電源を切ると内容が消える(揮発性)。"
+      },
+      "RAM": {
+        "en": "Random Access Memory",
+        "kana": "ランダム・アクセス・メモリ / ラム",
+        "origin": "Random(任意の)+ Access(アクセス)+ Memory(記憶)。どこにでもすぐアクセスできる記憶装置=主記憶装置のこと。電源を切るとデータが消える(揮発性)。"
+      },
+      "HDD": {
+        "en": "Hard Disk Drive",
+        "kana": "ハード・ディスク・ドライブ",
+        "origin": "Hard(硬い)+ Disk(円盤)+ Drive(駆動装置)。磁性体を塗った金属の円盤を回転させて読み書きする補助記憶装置。容量が大きいが、SSDより遅い。"
+      },
+      "SSD": {
+        "en": "Solid State Drive",
+        "kana": "ソリッド・ステート・ドライブ",
+        "origin": "Solid(固体の)+ State(状態)+ Drive(駆動装置)。可動部品なし(=固体)の半導体メモリを使う補助記憶装置。HDDより高速で衝撃に強い。"
+      },
+      "USB": {
+        "en": "Universal Serial Bus",
+        "kana": "ユニバーサル・シリアル・バス",
+        "origin": "Universal(汎用の)+ Serial(連続した)+ Bus(伝送路)。さまざまな機器をパソコンに接続するための共通規格。USBメモリは補助記憶装置の一種。"
+      },
+      "GPU": {
+        "en": "Graphics Processing Unit",
+        "kana": "グラフィックス・プロセッシング・ユニット / ジーピーユー",
+        "origin": "Graphics(画像)+ Processing(処理)+ Unit(装置)。画像処理に特化した装置。最近はAIの計算にも使われる。"
+      },
+      "GHz": {
+        "en": "GigaHertz",
+        "kana": "ギガヘルツ",
+        "origin": "Giga(10億倍)+ Hertz(ヘルツ、1秒あたりの回数)。クロック周波数の単位で、1秒間に10億回の処理ができるかを示す。"
+      },
+      "GB": {
+        "en": "GigaByte",
+        "kana": "ギガバイト",
+        "origin": "Giga(10億倍)+ Byte(バイト)。データ量の単位で、1GB = 約10億バイト = 約100万KB。"
+      },
+      "TB": {
+        "en": "TeraByte",
+        "kana": "テラバイト",
+        "origin": "Tera(1兆倍)+ Byte(バイト)。1TB = 1000GB。最近の補助記憶装置はTB単位の容量がふつう。"
+      },
+      "DDR": {
+        "en": "Double Data Rate",
+        "kana": "ダブル・データ・レート",
+        "origin": "Double(2倍の)+ Data(データ)+ Rate(速度)。RAMの規格で、1クロックで2回のデータ転送ができることから。DDR4、DDR5など世代が進むほど高速。"
+      }
+    },
+    "fill": {
+      "text": "コンピュータの基本構造を表す5つの装置を【1】といいます。制御装置と演算装置を1つにまとめたものを【2】(中央処理装置)といいます。作業中のデータを一時的に保管するのは【3】(=メモリ)で、電源を切ると内容が【4】。一方、データを長期的に保管するのは【5】で、HDDやSSDがこれにあたります。CPUの性能を決める要素には、1秒間の処理回数を表す【6】と、同時に処理できる脳みその数を表す【7】があります。キーボードやマウスは【8】装置、モニタやプリンタは出力装置です。",
+      "answers": [
+        "5大装置",
+        "CPU",
+        "主記憶装置",
+        "消える",
+        "補助記憶装置",
+        "クロック周波数",
+        "コア数",
+        "入力"
+      ],
+      "bank": [
+        "5大装置",
+        "CPU",
+        "主記憶装置",
+        "消える",
+        "補助記憶装置",
+        "クロック周波数",
+        "コア数",
+        "入力",
+        "残る",
+        "出力",
+        "GPU",
+        "ビット数"
+      ]
+    },
+    "choice4": [
+      {
+        "q": "CPU(中央処理装置)の役割として最も適切なものはどれですか?",
+        "options": [
+          "データを長期的に保管する",
+          "プログラムの命令を読み取り、計算と指示を行う",
+          "画面に映像を表示する",
+          "電源を供給する"
+        ],
+        "answer": 1,
+        "exp": "CPUは制御装置と演算装置を兼ねる「脳みそ」。命令を読み取り、計算したり他の装置に指示を出します。",
+        "ex": "CPU = Central Processing Unit(中央処理装置)の略。コンピュータの中心です。"
+      },
+      {
+        "q": "主記憶装置(メモリ)の特徴として正しいものはどれですか?",
+        "options": [
+          "容量が大きく、電源を切ってもデータが残る",
+          "速度が速いが、電源を切るとデータが消える",
+          "印刷するための装置である",
+          "ネット通信を担当する装置である"
+        ],
+        "answer": 1,
+        "exp": "主記憶装置(=メモリ・RAM)は<b>速いが揮発性</b>。電源を切ると内容が消えます。",
+        "ex": "対して補助記憶装置(SSD・HDD)は遅いがデータが残ります。「机の上」と「本棚」のたとえで覚えましょう。"
+      },
+      {
+        "q": "次のうち、補助記憶装置に該当するものはどれですか?",
+        "options": [
+          "RAM(メモリ)",
+          "SSD",
+          "CPU",
+          "モニタ"
+        ],
+        "answer": 1,
+        "exp": "SSDは補助記憶装置です。HDDやUSBメモリも同じ仲間。電源を切ってもデータが残ります。",
+        "ex": "RAMは主記憶、CPUは中央処理装置、モニタは出力装置。区別を覚えましょう。"
+      },
+      {
+        "q": "次のうち、入力装置と出力装置の<b>両方の役割</b>を持つものはどれですか?",
+        "options": [
+          "キーボード",
+          "プリンタ",
+          "タッチパネル",
+          "マイク"
+        ],
+        "answer": 2,
+        "exp": "スマホやタブレットの<b>タッチパネル</b>は、指で触れる(入力)+画面を表示する(出力)の両方を兼ねます。",
+        "ex": "他に複合機(プリンタ+スキャナ)もありますが、設問では単体の装置として最も該当するのはタッチパネル。"
+      },
+      {
+        "q": "CPUの性能を表すクロック周波数の単位として最も一般的なものはどれですか?",
+        "options": [
+          "GB(ギガバイト)",
+          "GHz(ギガヘルツ)",
+          "MB(メガバイト)",
+          "Mbps(メガビーピーエス)"
+        ],
+        "answer": 1,
+        "exp": "GHz(ギガヘルツ)はクロック周波数の単位で、1秒間に何十億回処理できるかを表します。",
+        "ex": "GBは容量、Mbpsは通信速度。混同しないよう注意。3.5GHzなら1秒間に35億回の処理。"
+      },
+      {
+        "q": "コンピュータの命令実行の流れとして、最も適切な順序はどれですか?",
+        "options": [
+          "実行 → 解読 → 読み込み → 書き出し",
+          "読み込み → 解読 → 実行 → 書き出し",
+          "書き出し → 実行 → 解読 → 読み込み",
+          "解読 → 読み込み → 書き出し → 実行"
+        ],
+        "answer": 1,
+        "exp": "①命令を読み込む(フェッチ)→ ②命令を解読(デコード)→ ③実行 → ④結果を書き出す(ライトバック)。これを永遠にくり返します。",
+        "ex": "この流れを<b>命令サイクル</b>といいます。CPUが1秒間に何回このサイクルを回せるかが「クロック周波数」。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "CPUは制御装置と演算装置を1つにまとめたものである。",
+        "answer": true,
+        "exp": "正しい。CPUは「中央処理装置」で、制御装置と演算装置の2つの役割を持ちます。"
+      },
+      {
+        "q": "主記憶装置(メモリ)は、電源を切ってもデータが残る。",
+        "answer": false,
+        "exp": "誤り。主記憶装置は<b>揮発性</b>で、電源を切ると内容が消えます。データを残したいなら補助記憶装置に保存。"
+      },
+      {
+        "q": "HDDやSSDは補助記憶装置に分類される。",
+        "answer": true,
+        "exp": "正しい。HDD・SSD・USBメモリなどは補助記憶装置で、電源を切ってもデータが残ります。"
+      },
+      {
+        "q": "クロック周波数の数値が大きいほど、CPUは速く処理できる。",
+        "answer": true,
+        "exp": "正しい。クロック周波数(GHz)は1秒間に何回処理できるかを示すので、大きいほど高速です。"
+      },
+      {
+        "q": "スピーカやプリンタは、入力装置に分類される。",
+        "answer": false,
+        "exp": "誤り。スピーカ・プリンタは<b>出力装置</b>です。情報をコンピュータから「外に出す」ものは出力装置。"
+      },
+      {
+        "q": "コア数が多いCPUは、複数の処理を同時に行いやすい。",
+        "answer": true,
+        "exp": "正しい。コアは「脳みそ」のようなもので、複数あれば同時に複数の処理ができます。「4コア」なら4つの脳みそ。"
+      }
+    ],
+    "confirm": [
+      {
+        "q": "次のうち、CPUの一部とされる装置の組み合わせとして正しいものはどれですか?",
+        "options": [
+          "制御装置 + 演算装置",
+          "主記憶装置 + 補助記憶装置",
+          "入力装置 + 出力装置",
+          "制御装置 + 主記憶装置"
+        ],
+        "answer": 0,
+        "exp": "CPUは「制御装置」と「演算装置」を1つにまとめたものです。司令塔と計算機が一体になった、コンピュータの脳みそ。",
+        "ex": "5大装置のうち、CPUに含まれるのは制御と演算の2つ。記憶装置や入出力装置は別の役割です。"
+      },
+      {
+        "q": "主記憶装置と補助記憶装置の違いとして正しいものはどれですか?",
+        "options": [
+          "主記憶のほうが速度は遅いが容量は大きい",
+          "主記憶のほうが速度は速いが容量は小さく、電源を切ると消える",
+          "両方とも電源を切ると内容が消える",
+          "両方とも電源を切ってもデータが残る"
+        ],
+        "answer": 1,
+        "exp": "主記憶=速い・小さい・揮発(消える)。補助記憶=遅い・大きい・不揮発(残る)。「机の上」と「本棚」のたとえ。",
+        "ex": "メモリ(主記憶)を増やすとパソコンが快適に動きます。SSD(補助記憶)を増やすとたくさんファイルが置けます。"
+      },
+      {
+        "q": "コンピュータがプログラムを実行するときの基本的な流れとして、最も適切なものはどれですか?",
+        "options": [
+          "命令を実行 → 解読 → 読み込み → 書き出し",
+          "命令を読み込み → 解読 → 実行 → 書き出し(これをくり返す)",
+          "命令を書き出し → 実行 → 解読 → 読み込み",
+          "プログラムは一度に全部実行される"
+        ],
+        "answer": 1,
+        "exp": "①読み込み(フェッチ)→ ②解読(デコード)→ ③実行 → ④書き出し(ライトバック)を永遠にくり返します。これが命令サイクル。",
+        "ex": "1秒間に何回この4ステップを回せるかが、CPUの「クロック周波数」(GHz)です。"
+      },
+      {
+        "q": "次の説明文の空欄に入る装置の組み合わせとして正しいものはどれですか?<br><br>「キーボードで入力された文字は【ア】を経由して【イ】に一時保管され、CPUが処理して結果を【ウ】に表示する」",
+        "options": [
+          "ア:出力装置 イ:主記憶装置 ウ:入力装置",
+          "ア:入力装置 イ:主記憶装置 ウ:出力装置",
+          "ア:入力装置 イ:補助記憶装置 ウ:出力装置",
+          "ア:CPU イ:出力装置 ウ:主記憶装置"
+        ],
+        "answer": 1,
+        "exp": "キーボード=入力装置、メモリ=主記憶装置、モニタ=出力装置。データの流れは「入力→主記憶→CPU処理→出力」。",
+        "ex": "図1で見たデータの流れと一致します。補助記憶は長期保管なので、文字入力の一時保管には主記憶を使います。"
+      },
+      {
+        "q": "次のうち、コンピュータの記憶装置に関する説明として<b>誤っているもの</b>はどれですか?",
+        "options": [
+          "メモリ(RAM)は主記憶装置で、電源を切るとデータが消える",
+          "SSDはHDDよりも高速で、可動部品がない",
+          "ROMは読み書きが自由にできる記憶装置である",
+          "USBメモリは補助記憶装置の一種である"
+        ],
+        "answer": 2,
+        "exp": "誤りは「ROMは読み書きが自由」の部分。ROMは「Read Only Memory(読み込み専用)」で、原則として<b>書き換えできない</b>記憶装置です。",
+        "ex": "ROMはコンピュータの起動プログラムなど、書き換えられたくない大切なデータの保存に使われます。"
+      },
+      {
+        "q": "クロック周波数 3.0 GHz のCPUは、1秒間に約何回の処理を行えますか?",
+        "options": [
+          "3千回",
+          "3百万回",
+          "30億回",
+          "3兆回"
+        ],
+        "answer": 2,
+        "exp": "Giga(G)は10億倍を表します。3.0 GHz = 3.0 × 10億 = 30億Hz。1秒間に30億回の処理ができます。",
+        "ex": "GHz、MB、GBなどの「G」(ギガ)は10億倍を意味する単位接頭辞です。"
+      },
+      {
+        "q": "次のうち、入力装置・出力装置・補助記憶装置の組み合わせとして正しいものはどれですか?",
+        "options": [
+          "入力:プリンタ / 出力:キーボード / 補助記憶:SSD",
+          "入力:マイク / 出力:モニタ / 補助記憶:HDD",
+          "入力:スピーカ / 出力:USBメモリ / 補助記憶:マウス",
+          "入力:HDD / 出力:マウス / 補助記憶:スピーカ"
+        ],
+        "answer": 1,
+        "exp": "入力=情報を「入れる」(マイク・キーボード・マウス)、出力=情報を「出す」(モニタ・スピーカ・プリンタ)、補助記憶=データを保存(HDD・SSD・USB)。",
+        "ex": "「IN→処理→OUT」の流れで、それぞれの装置の役割を覚えましょう。"
+      }
+    ],
+    "practice": [],
+    "exercise": [],
+    "challenge": [
+      {
+        "q": "コンピュータの基本構成を表す5つの装置を何といいますか?",
+        "a": "5大装置"
+      },
+      {
+        "q": "制御装置と演算装置を1つにまとめた、コンピュータの「脳みそ」にあたる装置は?",
+        "a": "CPU"
+      },
+      {
+        "q": "作業中のデータを一時的に保管する記憶装置は?(RAMとも呼ばれる)",
+        "a": "主記憶装置"
+      },
+      {
+        "q": "主記憶装置は、電源を切るとデータがどうなりますか?",
+        "a": "消える"
+      },
+      {
+        "q": "データを長期的に保管する記憶装置は?(HDDやSSDなど)",
+        "a": "補助記憶装置"
+      },
+      {
+        "q": "CPUの性能を決める要素の1つで、1秒間の処理回数を表すものは?",
+        "a": "クロック周波数"
+      },
+      {
+        "q": "HDDの後継として普及した、可動部品のない高速な補助記憶装置は?",
+        "a": "SSD"
+      },
+      {
+        "q": "キーボードやマウスは、コンピュータのどの装置に分類されますか?",
+        "a": "入力装置"
+      },
+      {
+        "q": "モニタやプリンタは、コンピュータのどの装置に分類されますか?",
+        "a": "出力装置"
+      },
+      {
+        "q": "主記憶装置の別名で、Random Access Memoryの略は?",
+        "a": "RAM"
+      }
+    ],
+    "challengeBank": [
+      "5大装置",
+      "CPU",
+      "主記憶装置",
+      "消える",
+      "補助記憶装置",
+      "クロック周波数",
+      "SSD",
+      "入力装置",
+      "出力装置",
+      "RAM",
+      "GPU",
+      "HDD",
+      "USB",
+      "GHz",
+      "GB",
+      "TB",
+      "残る",
+      "キャッシュ",
+      "ビット数"
+    ]
+  },
+  {
+    "id": "u2",
+    "page": 1,
+    "title": "2. インターネットの仕組み",
+    "body": "\n<p>インターネットを使うとき、私たちは「<code>www.google.com</code>」のような<b>アドレス</b>を打つだけで、世界中の情報が画面に表示されます。この裏では、どんなことが起こっているのでしょうか?今回は、絵で見ながら一緒に追っていきましょう。</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🌐 インターネットとは「世界中をつなぐ道路網」</h4>\n\n<p><span class=\"term\" data-term=\"インターネット\">インターネット</span>とは、世界中のコンピュータが<b>互いに通信できるように張り巡らされたネットワーク</b>です。たとえるなら、世界中の街をつなぐ<b>道路網</b>のようなものです。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 280\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arNet1\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 6 3, 0 6\" fill=\"#991B1B\"/>\n    </marker>\n  </defs>\n\n  <!-- 雲(インターネット) -->\n  <ellipse cx=\"300\" cy=\"140\" rx=\"170\" ry=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2.5\"/>\n  <text x=\"300\" y=\"100\" text-anchor=\"middle\" font-size=\"20\" font-weight=\"700\" fill=\"#991B1B\">インターネット</text>\n  <text x=\"300\" y=\"125\" text-anchor=\"middle\" font-size=\"11\" fill=\"#991B1B\">世界中のコンピュータをつなぐ</text>\n  <text x=\"300\" y=\"142\" text-anchor=\"middle\" font-size=\"11\" fill=\"#991B1B\">巨大なネットワーク</text>\n  <text x=\"300\" y=\"170\" text-anchor=\"middle\" font-size=\"36\" fill=\"#DC2626\" opacity=\"0.6\">🌐</text>\n\n  <!-- ユーザのPC -->\n  <g transform=\"translate(20, 200)\">\n    <rect x=\"0\" y=\"0\" width=\"100\" height=\"60\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"50\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">あなたのPC</text>\n    <text x=\"50\" y=\"40\" text-anchor=\"middle\" font-size=\"22\" fill=\"#065F46\">💻</text>\n  </g>\n  <line x1=\"120\" y1=\"220\" x2=\"180\" y2=\"180\" stroke=\"#991B1B\" stroke-width=\"2\" stroke-dasharray=\"4,3\" marker-end=\"url(#arNet1)\"/>\n\n  <!-- スマホ -->\n  <g transform=\"translate(20, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"80\" height=\"60\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"40\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">スマホ</text>\n    <text x=\"40\" y=\"42\" text-anchor=\"middle\" font-size=\"22\" fill=\"#065F46\">📱</text>\n  </g>\n  <line x1=\"100\" y1=\"60\" x2=\"170\" y2=\"100\" stroke=\"#991B1B\" stroke-width=\"2\" stroke-dasharray=\"4,3\" marker-end=\"url(#arNet1)\"/>\n\n  <!-- サーバー(右上) -->\n  <g transform=\"translate(490, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"90\" height=\"70\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"45\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">Webサーバ</text>\n    <text x=\"45\" y=\"42\" text-anchor=\"middle\" font-size=\"22\" fill=\"#92400E\">🖥️</text>\n    <text x=\"45\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#92400E\">(Google等)</text>\n  </g>\n  <line x1=\"490\" y1=\"80\" x2=\"430\" y2=\"110\" stroke=\"#991B1B\" stroke-width=\"2\" stroke-dasharray=\"4,3\" marker-end=\"url(#arNet1)\"/>\n\n  <!-- サーバー(右下) -->\n  <g transform=\"translate(490, 200)\">\n    <rect x=\"0\" y=\"0\" width=\"90\" height=\"60\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"45\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">DNSサーバ</text>\n    <text x=\"45\" y=\"42\" text-anchor=\"middle\" font-size=\"22\" fill=\"#92400E\">📞</text>\n  </g>\n  <line x1=\"490\" y1=\"220\" x2=\"430\" y2=\"180\" stroke=\"#991B1B\" stroke-width=\"2\" stroke-dasharray=\"4,3\" marker-end=\"url(#arNet1)\"/>\n</svg>\n<div class=\"figure-caption\">図1:インターネットを介して、スマホ・PCが世界中のサーバとつながる</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🔢 IPアドレス ─ ネット上の「住所」</h4>\n\n<p>インターネット上の各コンピュータには、<b>世界に1つだけの番号</b>が割り当てられています。これを<span class=\"term\" data-term=\"IPアドレス\">IPアドレス</span>といいます。郵便で言えば「住所」、電話で言えば「電話番号」のようなものです。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 180\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- IPアドレスの例 -->\n  <rect x=\"30\" y=\"40\" width=\"540\" height=\"100\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2.5\" rx=\"10\"/>\n\n  <text x=\"300\" y=\"30\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#92400E\">IPアドレスの例(IPv4)</text>\n\n  <text x=\"300\" y=\"75\" text-anchor=\"middle\" font-size=\"32\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#991B1B\">192.168.1.1</text>\n\n  <text x=\"300\" y=\"105\" text-anchor=\"middle\" font-size=\"11\" fill=\"#92400E\">0〜255 の数値を「.」(ドット)で区切った4つの組み合わせ</text>\n  <text x=\"300\" y=\"124\" text-anchor=\"middle\" font-size=\"11\" fill=\"#92400E\">→ 約 43 億通りの組み合わせ(2³² ≒ 4.3 × 10⁹)</text>\n</svg>\n<div class=\"figure-caption\">図2:<span class=\"term\" data-term=\"IPv4\">IPv4</span>形式のIPアドレス。世界中で重複しないよう管理されている</div>\n</div>\n\n<p style=\"background:var(--primary-pale); padding:10px 14px; border-left:4px solid var(--primary); border-radius:6px; margin:10px 0;\">📌 <b>IPv4とIPv6</b><br>\n昔から使われている IPv4(32ビット)は約43億通り。スマホの普及で足りなくなったため、<b>IPv6</b>(128ビット)という新しい形式も登場。<span class=\"term\" data-term=\"IPv6\">IPv6</span>なら 3.4 × 10³⁸ 通り(地球の砂粒よりはるかに多い数!)</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🌐 URLとドメイン名 ─ 人にやさしい「住所」</h4>\n\n<p>IPアドレスは数字の羅列でわかりにくいので、人が読みやすい<b>名前</b>がつけられています。<code>www.google.com</code> のような形を<span class=\"term\" data-term=\"URL\">URL</span>(または<span class=\"term\" data-term=\"ドメイン名\">ドメイン名</span>)といいます。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 200\" xmlns=\"http://www.w3.org/2000/svg\">\n  <!-- URLを分解した図 -->\n  <text x=\"300\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">URLの構造</text>\n\n  <g transform=\"translate(30, 50)\">\n    <!-- https:// -->\n    <rect x=\"0\" y=\"0\" width=\"100\" height=\"40\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"50\" y=\"20\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#991B1B\">https://</text>\n    <text x=\"50\" y=\"34\" text-anchor=\"middle\" font-size=\"9\" fill=\"#991B1B\">通信方法</text>\n\n    <!-- www. -->\n    <rect x=\"110\" y=\"0\" width=\"60\" height=\"40\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"140\" y=\"20\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#92400E\">www.</text>\n    <text x=\"140\" y=\"34\" text-anchor=\"middle\" font-size=\"9\" fill=\"#92400E\">サーバ名</text>\n\n    <!-- google. -->\n    <rect x=\"180\" y=\"0\" width=\"90\" height=\"40\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"225\" y=\"20\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#065F46\">google.</text>\n    <text x=\"225\" y=\"34\" text-anchor=\"middle\" font-size=\"9\" fill=\"#065F46\">組織名</text>\n\n    <!-- com -->\n    <rect x=\"280\" y=\"0\" width=\"60\" height=\"40\" fill=\"#DBEAFE\" stroke=\"#3B82F6\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"310\" y=\"20\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#1E40AF\">com</text>\n    <text x=\"310\" y=\"34\" text-anchor=\"middle\" font-size=\"9\" fill=\"#1E40AF\">トップレベル</text>\n\n    <!-- /search -->\n    <rect x=\"350\" y=\"0\" width=\"100\" height=\"40\" fill=\"#F5F3FF\" stroke=\"#7C3AED\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"400\" y=\"20\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#5B21B6\">/search</text>\n    <text x=\"400\" y=\"34\" text-anchor=\"middle\" font-size=\"9\" fill=\"#5B21B6\">ページ・場所</text>\n  </g>\n\n  <!-- 解説 -->\n  <text x=\"300\" y=\"120\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">https://www.google.com/search ← 全体で「URL」</text>\n\n  <g transform=\"translate(30, 140)\">\n    <text x=\"0\" y=\"0\" font-size=\"11\" fill=\"#374151\">・<b>https</b>:通信のプロトコル(暗号化された通信を表す)</text>\n    <text x=\"0\" y=\"18\" font-size=\"11\" fill=\"#374151\">・<b>www.google.com</b>:<b>ドメイン名</b>(=サーバの場所を表す名前)</text>\n    <text x=\"0\" y=\"36\" font-size=\"11\" fill=\"#374151\">・<b>com</b>:トップレベルドメイン(.com / .jp / .net / .org / .edu …)</text>\n    <text x=\"0\" y=\"54\" font-size=\"11\" fill=\"#374151\">・<b>/search</b>:そのサーバの中での具体的な場所(=ページ)</text>\n  </g>\n</svg>\n<div class=\"figure-caption\">図3:URLの構造。「ドメイン名」=サーバの場所を示す名前</div>\n</div>\n\n<p style=\"background:#FEF3C7; padding:10px 14px; border-left:4px solid #F59E0B; border-radius:6px; margin:10px 0;\">💡 <b>「www.」って何?</b><br>\nwww は <b>W</b>orld <b>W</b>ide <b>W</b>eb の略で、Webサーバ(ホームページのサーバ)を表す目印。今は省略してもアクセスできるサイトが増えました(例:google.com でもアクセスできる)。<br>\n.com、.jp、.org のような最後の部分を<b>トップレベルドメイン</b>といいます:<br>\n・.com:商業組織(commercial)・.jp:日本(Japan)・.net:ネットワーク・.org:非営利組織・.edu:教育機関(教育機関は米国)・.go.jp:日本の政府機関</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">📞 DNS ─ 名前↔IPアドレス を変換する電話帳</h4>\n\n<p>人が打つのは<code>www.google.com</code>(名前)ですが、コンピュータはIPアドレス(数字)でしか通信できません。そこで、<b>名前をIPアドレスに変換するサーバ</b>が必要になります。これが <span class=\"term\" data-term=\"DNS\">DNS</span>(ディーエヌエス / Domain Name System)です。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 290\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arDNS\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\">\n      <polygon points=\"0 0, 7 4, 0 8\" fill=\"#DC2626\"/>\n    </marker>\n    <marker id=\"arDNS2\" markerWidth=\"8\" markerHeight=\"8\" refX=\"7\" refY=\"4\" orient=\"auto\">\n      <polygon points=\"0 0, 7 4, 0 8\" fill=\"#10B981\"/>\n    </marker>\n  </defs>\n\n  <!-- ユーザ(左) -->\n  <g transform=\"translate(20, 110)\">\n    <rect x=\"0\" y=\"0\" width=\"100\" height=\"60\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"50\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">あなた</text>\n    <text x=\"50\" y=\"42\" text-anchor=\"middle\" font-size=\"22\" fill=\"#065F46\">💻</text>\n  </g>\n\n  <!-- DNSサーバ(上) -->\n  <g transform=\"translate(250, 20)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"70\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"60\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#92400E\">DNSサーバ</text>\n    <text x=\"60\" y=\"42\" text-anchor=\"middle\" font-size=\"22\" fill=\"#92400E\">📞</text>\n    <text x=\"60\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#92400E\">名前→IPの電話帳</text>\n  </g>\n\n  <!-- Webサーバ(右) -->\n  <g transform=\"translate(480, 110)\">\n    <rect x=\"0\" y=\"0\" width=\"100\" height=\"60\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"50\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#991B1B\">Webサーバ</text>\n    <text x=\"50\" y=\"42\" text-anchor=\"middle\" font-size=\"22\" fill=\"#991B1B\">🖥️</text>\n  </g>\n\n  <!-- ①問い合わせ -->\n  <line x1=\"80\" y1=\"110\" x2=\"80\" y2=\"70\" stroke=\"#DC2626\" stroke-width=\"3\"/><line x1=\"80\" y1=\"70\" x2=\"250\" y2=\"70\" stroke=\"#DC2626\" stroke-width=\"3\"/><line x1=\"250\" y1=\"70\" x2=\"250\" y2=\"50\" stroke=\"#DC2626\" stroke-width=\"3\" marker-end=\"url(#arDNS)\"/>\n  <text x=\"165\" y=\"62\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#DC2626\">①「www.google.comのIPは?」</text>\n\n  <!-- ②返事 -->\n  <line x1=\"320\" y1=\"90\" x2=\"320\" y2=\"100\" stroke=\"#10B981\" stroke-width=\"3\"/><line x1=\"320\" y1=\"100\" x2=\"80\" y2=\"100\" stroke=\"#10B981\" stroke-width=\"3\"/><line x1=\"80\" y1=\"100\" x2=\"80\" y2=\"110\" stroke=\"#10B981\" stroke-width=\"3\" marker-end=\"url(#arDNS2)\"/>\n  <text x=\"200\" y=\"94\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#10B981\">②「142.250.x.x です」</text>\n\n  <!-- ③接続 -->\n  <line x1=\"120\" y1=\"140\" x2=\"480\" y2=\"140\" stroke=\"#DC2626\" stroke-width=\"3\" marker-end=\"url(#arDNS)\"/>\n  <text x=\"300\" y=\"132\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#DC2626\">③そのIPアドレスにアクセス</text>\n\n  <!-- ④データ -->\n  <line x1=\"480\" y1=\"165\" x2=\"120\" y2=\"165\" stroke=\"#10B981\" stroke-width=\"3\" marker-end=\"url(#arDNS2)\"/>\n  <text x=\"300\" y=\"183\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#10B981\">④Webページのデータが返ってくる</text>\n\n  <!-- ⑤表示 -->\n  <g transform=\"translate(30, 210)\">\n    <rect x=\"0\" y=\"0\" width=\"540\" height=\"60\" fill=\"#FEF2F2\" stroke=\"#DC2626\" stroke-width=\"1.5\" stroke-dasharray=\"4,3\" rx=\"6\"/>\n    <text x=\"270\" y=\"22\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">⑤ブラウザがデータを解釈して、画面にWebページを表示</text>\n    <text x=\"270\" y=\"42\" text-anchor=\"middle\" font-size=\"11\" fill=\"#991B1B\">こうしてあなたは「Googleの検索画面」を見ることができる</text>\n  </g>\n</svg>\n<div class=\"figure-caption\">図4:URLを入力すると、DNSが裏で名前→IPの変換をしている</div>\n</div>\n\n<p style=\"background:var(--primary-pale); padding:10px 14px; border-left:4px solid var(--primary); border-radius:6px; margin:10px 0;\">📌 <b>DNSの役割を一言で</b>:「<code>www.google.com</code> の<b>本当の住所</b>(IPアドレス)を教えてくれる<b>電話帳サーバ</b>」<br>\nこれがないと、Webサイトを見るたびに「<code>142.250.74.78</code>」のような数字を覚えて打ち込まないといけません。</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">📦 パケット通信 ─ データを小分けにして送る</h4>\n\n<p>インターネット上では、データを<b>小さく分割して送る</b>方式が使われています。これを<span class=\"term\" data-term=\"パケット\">パケット</span>通信といいます。小包(parcel)のように、データを小さな「箱」にして送るイメージです。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 240\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arPkt\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 6 3, 0 6\" fill=\"#991B1B\"/>\n    </marker>\n  </defs>\n\n  <!-- 元のデータ -->\n  <g transform=\"translate(20, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"60\" y=\"22\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">元のデータ</text>\n    <text x=\"60\" y=\"50\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#991B1B\">📄 大きい画像</text>\n    <text x=\"60\" y=\"68\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(例:3MB)</text>\n  </g>\n\n  <text x=\"160\" y=\"76\" font-size=\"20\" fill=\"#991B1B\">→</text>\n  <text x=\"170\" y=\"56\" font-size=\"11\" fill=\"#991B1B\" font-weight=\"700\">分割</text>\n\n  <!-- パケット群 -->\n  <g transform=\"translate(200, 20)\">\n    <rect x=\"0\" y=\"0\" width=\"40\" height=\"30\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"20\" y=\"20\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">①</text>\n\n    <rect x=\"48\" y=\"0\" width=\"40\" height=\"30\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"68\" y=\"20\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">②</text>\n\n    <rect x=\"96\" y=\"0\" width=\"40\" height=\"30\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"116\" y=\"20\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">③</text>\n\n    <rect x=\"0\" y=\"36\" width=\"40\" height=\"30\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"20\" y=\"56\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">④</text>\n\n    <rect x=\"48\" y=\"36\" width=\"40\" height=\"30\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"68\" y=\"56\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">⑤</text>\n\n    <rect x=\"96\" y=\"36\" width=\"40\" height=\"30\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"116\" y=\"56\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">⑥</text>\n\n    <text x=\"68\" y=\"100\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#92400E\">パケットに分割</text>\n  </g>\n\n  <!-- 矢印で多経路 -->\n  <text x=\"370\" y=\"76\" font-size=\"20\" fill=\"#991B1B\">→</text>\n  <text x=\"375\" y=\"56\" font-size=\"11\" fill=\"#991B1B\" font-weight=\"700\">バラバラに送信</text>\n\n  <!-- ネット(雲) -->\n  <g transform=\"translate(410, 30)\">\n    <ellipse cx=\"80\" cy=\"40\" rx=\"80\" ry=\"35\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"1.5\"/>\n    <text x=\"80\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#991B1B\">インターネット</text>\n    <text x=\"80\" y=\"50\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">(別々の経路を通る)</text>\n  </g>\n\n  <!-- 到着後の組み立て -->\n  <g transform=\"translate(190, 130)\">\n    <text x=\"0\" y=\"0\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">📥 到着後、受信側で組み立てて元に戻す</text>\n\n    <rect x=\"0\" y=\"14\" width=\"40\" height=\"30\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"20\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">①</text>\n    <rect x=\"48\" y=\"14\" width=\"40\" height=\"30\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"68\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">②</text>\n    <rect x=\"96\" y=\"14\" width=\"40\" height=\"30\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"116\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">③</text>\n    <rect x=\"144\" y=\"14\" width=\"40\" height=\"30\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"164\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">④</text>\n    <rect x=\"192\" y=\"14\" width=\"40\" height=\"30\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"212\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">⑤</text>\n    <rect x=\"240\" y=\"14\" width=\"40\" height=\"30\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"1.5\" rx=\"3\"/>\n    <text x=\"260\" y=\"34\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">⑥</text>\n\n    <text x=\"290\" y=\"34\" font-size=\"20\" fill=\"#065F46\">→</text>\n\n    <rect x=\"320\" y=\"0\" width=\"100\" height=\"50\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"370\" y=\"22\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">📄 元のデータ</text>\n    <text x=\"370\" y=\"38\" text-anchor=\"middle\" font-size=\"10\" fill=\"#065F46\">(完成!)</text>\n  </g>\n\n  <text x=\"300\" y=\"220\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\" font-style=\"italic\">パケットには「宛先」「順番」「データ本体」などの情報がつき、別々の経路でも正しく組み立てられる</text>\n</svg>\n<div class=\"figure-caption\">図5:パケット通信。データを小分けにして送り、相手側で組み立てる</div>\n</div>\n\n<p style=\"background:#FEF3C7; padding:10px 14px; border-left:4px solid #F59E0B; border-radius:6px; margin:10px 0;\">💡 <b>なぜ小分けにするの?</b><br>\n① 1か所が混雑しても、ほかの経路で送れる(渋滞回避)<br>\n② 一部が壊れても、その部分だけ送り直せばよい(効率的)<br>\n③ たくさんの人が同時に通信できる(回線を時間で共有)</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🚦 ルータ ─ パケットを正しく案内する「交差点の警官」</h4>\n\n<p><span class=\"term\" data-term=\"ルータ\">ルータ</span>は、インターネット上の<b>交差点</b>のような装置で、パケットを正しい宛先に案内する役割をします。家庭にも小さなルータ(Wi-Fiルータ)があり、家の中の機器をインターネットにつないでくれます。</p>\n\n<p>インターネット全体は、こうした<b>ルータの集合体</b>です。世界中のルータが協力して、パケットを目的地まで届けてくれているのです。</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🌐 Webページを表示するまでの全体の流れ</h4>\n\n<p>最後に、もう一度全体の流れを整理しましょう。<code>www.example.com</code> をブラウザで開いたとき、こんなことが起こっています:</p>\n\n<div class=\"figure\" style=\"background:linear-gradient(135deg, #FEE2E2, #FEF2F2); padding:18px 22px; border-radius:12px;\">\n<ol style=\"margin:0 0 0 20px; line-height:2; color:#991B1B;\">\n<li>あなたがブラウザに <code>www.example.com</code> と入力</li>\n<li>ブラウザがDNSサーバに「<code>www.example.com</code> のIPは?」と問い合わせ</li>\n<li>DNSサーバが「IPアドレスは○○.○○.○○.○○ です」と返す</li>\n<li>ブラウザがそのIPアドレスのWebサーバに「ページください」と要求(リクエスト)</li>\n<li>パケット通信で、データが小分けにされてルータを経由しながら届く</li>\n<li>Webサーバがデータを返す(レスポンス)</li>\n<li>ブラウザが受け取ったデータを解釈して、画面にページを表示</li>\n</ol>\n</div>\n\n<p>これがインターネットの基本的な仕組みです。次は、メールがどうやって届くかを見ていきましょう!</p>\n",
+    "terms": {
+      "インターネット": {
+        "en": "Internet",
+        "kana": "インターネット",
+        "origin": "inter(間)+ net(網)で「ネットワーク同士をつないだもの」。世界中のネットワークを相互接続した巨大なネットワーク。"
+      },
+      "IPアドレス": {
+        "en": "IP Address",
+        "kana": "アイピー・アドレス",
+        "origin": "IP = Internet Protocol(インターネット通信規約)。コンピュータの「住所」にあたる番号。"
+      },
+      "URL": {
+        "en": "Uniform Resource Locator",
+        "kana": "ユー・アール・エル",
+        "origin": "Uniform(統一された)+ Resource(資源)+ Locator(位置を示すもの)。インターネット上の場所を表す統一形式。"
+      },
+      "ドメイン名": {
+        "en": "Domain Name",
+        "kana": "ドメイン・ネーム",
+        "origin": "Domain(領域・範囲)+ Name(名前)。「google.com」のように、Webサーバの場所を人が読める形で表したもの。"
+      },
+      "DNS": {
+        "en": "Domain Name System",
+        "kana": "ディー・エヌ・エス / ドメイン・ネーム・システム",
+        "origin": "Domain(領域)+ Name(名前)+ System(仕組み)。「名前」と「IPアドレス」の対応を管理する仕組み。電話帳のようなもの。"
+      },
+      "パケット": {
+        "en": "packet",
+        "kana": "パケット",
+        "origin": "packet(小包)から。データを小さく分けた「箱」のひとつひとつ。"
+      },
+      "ルータ": {
+        "en": "router",
+        "kana": "ルータ",
+        "origin": "route(経路)+ -er(〜するもの)で「経路を決めるもの」。パケットの行き先を判断して正しく案内する装置。"
+      },
+      "IPv4": {
+        "en": "Internet Protocol version 4",
+        "kana": "アイピー・ブイ・フォー",
+        "origin": "Internet Protocol(インターネット規約)の第4版。32ビットでアドレスを表すので、約43億通りが扱える。今までの主流。"
+      },
+      "IPv6": {
+        "en": "Internet Protocol version 6",
+        "kana": "アイピー・ブイ・シックス",
+        "origin": "Internet Protocol の第6版。128ビットでアドレスを表すので、約3.4×10³⁸通りという膨大なアドレスが扱える。IPv4のアドレス枯渇問題を解決する新規格。"
+      },
+      "HTTP": {
+        "en": "HyperText Transfer Protocol",
+        "kana": "エイチ・ティー・ティー・ピー",
+        "origin": "HyperText(ハイパーテキスト=リンクで結ばれた文書)+ Transfer(転送)+ Protocol(規約)。Webページのデータをやり取りするときの通信規約。"
+      },
+      "HTTPS": {
+        "en": "HyperText Transfer Protocol Secure",
+        "kana": "エイチ・ティー・ティー・ピー・エス",
+        "origin": "HTTPに「Secure(安全な)」を加えたもの。通信を暗号化することで、盗聴や改ざんを防ぐ。URLが「https://」で始まるサイトはこの方式。"
+      },
+      "HTML": {
+        "en": "HyperText Markup Language",
+        "kana": "エイチ・ティー・エム・エル",
+        "origin": "HyperText(ハイパーテキスト)+ Markup(目印を付ける)+ Language(言語)。Webページの中身を記述するための言語。"
+      },
+      "WWW": {
+        "en": "World Wide Web",
+        "kana": "ワールド・ワイド・ウェブ",
+        "origin": "World(世界)+ Wide(広い)+ Web(クモの巣)。世界中に張りめぐらされたWebページのネットワーク。「www」は単に目印として使われる。"
+      }
+    },
+    "fill": {
+      "text": "世界中のコンピュータをつなぐ巨大なネットワークを【1】といいます。インターネット上の各コンピュータには世界に1つだけの番号、【2】が割り当てられています。人が読みやすいよう「www.google.com」のような名前=【3】も使われ、これとIPアドレスを変換するサーバを【4】サーバといいます。「.com」や「.jp」のような最後の部分を【5】といいます。インターネットではデータを小さく分割した【6】に分けて送ります。データの経路を判断する装置を【7】といいます。",
+      "answers": [
+        "インターネット",
+        "IPアドレス",
+        "ドメイン名",
+        "DNS",
+        "トップレベルドメイン",
+        "パケット",
+        "ルータ"
+      ],
+      "bank": [
+        "インターネット",
+        "IPアドレス",
+        "ドメイン名",
+        "DNS",
+        "トップレベルドメイン",
+        "パケット",
+        "ルータ",
+        "URL",
+        "HTML",
+        "サーバ",
+        "ブラウザ",
+        "プロトコル"
+      ]
+    },
+    "choice4": [
+      {
+        "q": "次のうち、IPアドレスの説明として正しいものはどれですか?",
+        "options": [
+          "Webページの内容を表す文字列",
+          "インターネット上の各コンピュータに割り当てられる、世界で1つだけの番号",
+          "通信の暗号化に使われる秘密の番号",
+          "電子メールを送るためのアドレス"
+        ],
+        "answer": 1,
+        "exp": "IPアドレスは「ネット上の住所」。世界中のコンピュータに重複しないよう割り当てられています。",
+        "ex": "IPv4形式なら「192.168.1.1」のように、0〜255の数字を「.」で4つつないだ形。"
+      },
+      {
+        "q": "DNS(Domain Name System)の役割として最も適切なものはどれですか?",
+        "options": [
+          "Webページの内容を翻訳する",
+          "「www.google.com」のような名前をIPアドレスに変換する",
+          "通信を暗号化する",
+          "ファイルを圧縮する"
+        ],
+        "answer": 1,
+        "exp": "DNSは「ドメイン名」と「IPアドレス」の対応を管理する仕組み。電話帳のように、名前から番号(IPアドレス)を引いてくれます。",
+        "ex": "DNSがなかったら、Webサイトを見るたびにIPアドレスの数字を覚えないといけません。"
+      },
+      {
+        "q": "URL「https://www.example.co.jp/index.html」の中で「ドメイン名」にあたる部分はどこですか?",
+        "options": [
+          "https",
+          "www.example.co.jp",
+          "co.jp",
+          "/index.html"
+        ],
+        "answer": 1,
+        "exp": "ドメイン名はサーバの場所を示す名前で、「www.example.co.jp」がそれにあたります。",
+        "ex": "「https」は通信方式、「/index.html」はそのサーバ内のページの場所。"
+      },
+      {
+        "q": "次のうち、トップレベルドメインの例として正しいものはどれですか?",
+        "options": [
+          "www",
+          "google",
+          ".jp",
+          "https"
+        ],
+        "answer": 2,
+        "exp": "トップレベルドメインは「.com」「.jp」「.net」など、ドメイン名の最後の部分のことです。",
+        "ex": ".jp は日本、.com は商業組織、.org は非営利組織、.edu は米国の教育機関を表します。"
+      },
+      {
+        "q": "パケット通信の説明として正しいものはどれですか?",
+        "options": [
+          "データを暗号化して送る方式",
+          "データを小さく分割して送り、受信側で組み立てる方式",
+          "1つの長いデータをそのまま送る方式",
+          "通信速度を測る方式"
+        ],
+        "answer": 1,
+        "exp": "パケット通信は、データを小さな「パケット」に分割して送り、受信側で組み立てる方式。インターネットの基本的な通信方式。",
+        "ex": "1か所が混雑しても別経路で送れたり、一部が壊れても再送できたりするメリットがあります。"
+      },
+      {
+        "q": "「www.」が表すものとして正しいものはどれですか?",
+        "options": [
+          "通信を暗号化する方式",
+          "World Wide Webの略で、Webサーバを表す目印",
+          "電子メール用のサーバ",
+          "ファイル転送用のサーバ"
+        ],
+        "answer": 1,
+        "exp": "www は World Wide Web の略で、Webサーバ(ホームページのサーバ)を表す目印です。",
+        "ex": "今は省略してもアクセスできるサイトが増えました(例:google.com でアクセス可能)。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "IPアドレスは、世界中のコンピュータに重複しないよう管理されている。",
+        "answer": true,
+        "exp": "正しい。郵便の住所と同じように、インターネット上で同じIPアドレスは(原則として)存在しません。"
+      },
+      {
+        "q": "DNSサーバは、Webページの内容を表示する役割を持つ。",
+        "answer": false,
+        "exp": "誤り。DNSサーバは「ドメイン名→IPアドレス」の変換を行う役割。Webページの内容を表示するのは<b>ブラウザ</b>です。"
+      },
+      {
+        "q": "「.jp」は日本を表すトップレベルドメインである。",
+        "answer": true,
+        "exp": "正しい。各国にそれぞれのトップレベルドメインがあり、日本は「.jp」、米国の教育機関は「.edu」、中国は「.cn」など。"
+      },
+      {
+        "q": "パケット通信では、データを必ず1つの大きな塊にしてから送る。",
+        "answer": false,
+        "exp": "誤り。パケット通信では、データを<b>小さく分割</b>して送ります。1つの塊で送るのとは逆の発想です。"
+      },
+      {
+        "q": "ルータは、パケットを正しい宛先へ案内する役割をする装置である。",
+        "answer": true,
+        "exp": "正しい。ルータはインターネット上の「交差点の警官」。家庭にあるWi-Fiルータも同じ仕組みです。"
+      },
+      {
+        "q": "IPv6はIPv4よりも、扱えるアドレスの数が大幅に多い。",
+        "answer": true,
+        "exp": "正しい。IPv4は約43億通り(2³²)、IPv6は約3.4×10³⁸通り(2¹²⁸)で、桁違いに多いアドレスを扱えます。"
+      }
+    ],
+    "confirm": [
+      {
+        "q": "あなたがブラウザに「<code>www.example.jp</code>」と入力したとき、最初に行われる処理として正しいものはどれですか?",
+        "options": [
+          "Webサーバから直接ページのデータが届く",
+          "DNSサーバに「www.example.jp のIPアドレスは?」と問い合わせる",
+          "ルータがページを表示する",
+          "ブラウザがHTMLを自動で生成する"
+        ],
+        "answer": 1,
+        "exp": "ブラウザは、まず<b>DNSサーバ</b>に名前(ドメイン名)を渡して、それに対応する<b>IPアドレス</b>を教えてもらいます。コンピュータはIPアドレスがないと通信できないからです。",
+        "ex": "DNSは「電話帳サーバ」のような役割。名前から番号(IPアドレス)を引いてくれます。"
+      },
+      {
+        "q": "URL「<code>https://www.kounin.go.jp/info/exam.html</code>」の中で、「トップレベルドメイン」はどれですか?",
+        "options": [
+          "https",
+          "www",
+          "go.jp",
+          "/info/exam.html"
+        ],
+        "answer": 2,
+        "exp": "トップレベルドメインは「.com」「.jp」「.go.jp」などのドメイン名の最後の部分。ここでは「go.jp」(日本の政府機関)が該当します。",
+        "ex": "なお厳密には「.jp」がトップレベルドメイン、「go.jp」は「.jp」の下のセカンドレベル「go」を含めた表記。日本の政府機関を表します。"
+      },
+      {
+        "q": "インターネットでデータがパケットに分割されて送られる理由として、最も適切でないものはどれですか?",
+        "options": [
+          "回線が混雑しても、別の経路で送れる",
+          "一部が壊れても、その部分だけ送り直せばよい",
+          "多くの人が同時に通信できる",
+          "送るデータの量を増やせる"
+        ],
+        "answer": 3,
+        "exp": "誤りは「データの量を増やせる」。パケット分割は<b>効率的に送る</b>ための工夫であって、データ量が増えるわけではありません。",
+        "ex": "「渋滞回避」「再送可能」「同時利用」がパケット通信の3大メリット。"
+      },
+      {
+        "q": "Webページを表示するまでの流れとして、正しい順序はどれですか?",
+        "options": [
+          "URL入力 → Webサーバから応答 → 画面表示 → DNS問い合わせ",
+          "URL入力 → DNS問い合わせでIP取得 → Webサーバに要求 → データ受信 → 画面表示",
+          "DNS問い合わせ → URL入力 → Webサーバから応答 → 画面表示",
+          "URL入力 → 画面表示 → Webサーバから応答 → DNS問い合わせ"
+        ],
+        "answer": 1,
+        "exp": "① URL入力 → ② DNSでIPアドレスに変換 → ③ Webサーバに要求(リクエスト)→ ④ データが返ってくる → ⑤ ブラウザが画面に表示。",
+        "ex": "図4の流れと一致します。DNSの問い合わせ→IP取得→通信開始、の順序が重要です。"
+      },
+      {
+        "q": "「<code>https://www.kounin.go.jp/exam/info.html</code>」というURLについて、各部分の説明として<b>誤っているもの</b>はどれですか?",
+        "options": [
+          "https は通信方式(暗号化通信)を表す",
+          "www.kounin.go.jp はドメイン名で、サーバの場所を示す",
+          ".go.jp は日本の政府機関を表すトップレベルドメイン",
+          "/exam/info.html はDNSサーバに登録されている名前である"
+        ],
+        "answer": 3,
+        "exp": "誤りは「/exam/info.html はDNSサーバに登録されている」。これは<b>サーバ内のページの場所(パス)</b>であり、DNSとは無関係です。DNSが扱うのはドメイン名(www.kounin.go.jp)とIPアドレスの対応。",
+        "ex": "URL全体の構造:「通信方式://ドメイン名/パス」と覚えましょう。"
+      },
+      {
+        "q": "あなたが「<code>www.example.com</code>」をブラウザに入力したとき、起こることの順序として正しいものはどれですか?",
+        "options": [
+          "①Webサーバにデータ要求 → ②DNSでIPアドレス取得 → ③ページ表示",
+          "①DNSでIPアドレス取得 → ②Webサーバにデータ要求 → ③ページ表示",
+          "①ページ表示 → ②DNSでIPアドレス取得 → ③Webサーバにデータ要求",
+          "①Webサーバにデータ要求 → ②ページ表示 → ③DNSでIPアドレス取得"
+        ],
+        "answer": 1,
+        "exp": "ブラウザはまず<b>DNS</b>で「www.example.com → IPアドレス」の変換を行い、その後Webサーバにアクセスしてデータを受け取り、最後に画面に表示します。",
+        "ex": "コンピュータはIPアドレスがないと通信できないため、DNSで名前→数字に変換するのが第一歩。"
+      },
+      {
+        "q": "次のうち、パケット通信のメリットとして<b>当てはまらないもの</b>はどれですか?",
+        "options": [
+          "1か所が混雑しても別の経路で送れる",
+          "一部のパケットが壊れても再送できる",
+          "多くの人が回線を同時利用できる",
+          "1秒間に送れるデータ量が無限になる"
+        ],
+        "answer": 3,
+        "exp": "誤りは「データ量が無限になる」。パケット通信は<b>効率的に送る</b>仕組みであり、回線の物理的な速度を超えるわけではありません。",
+        "ex": "パケット通信のメリット3つ:渋滞回避・再送可能・同時利用。「量が増える」ではないことに注意。"
+      }
+    ],
+    "practice": [],
+    "exercise": [],
+    "challenge": [
+      {
+        "q": "世界中のコンピュータを相互に接続する巨大なネットワークを何といいますか?",
+        "a": "インターネット"
+      },
+      {
+        "q": "ネット上のコンピュータを識別する番号で、「192.168.1.1」のような形をしているものは?",
+        "a": "IPアドレス"
+      },
+      {
+        "q": "「www.google.com」のような、人が読みやすい形のアドレスは?",
+        "a": "URL"
+      },
+      {
+        "q": "ドメイン名をIPアドレスに変換する、電話帳のような役割をするシステムは?",
+        "a": "DNS"
+      },
+      {
+        "q": "データを小さく分割して送る通信方式で、小包のような役割をするものは?",
+        "a": "パケット"
+      },
+      {
+        "q": "パケットを正しい宛先に案内する、交差点の警官のような装置は?",
+        "a": "ルータ"
+      },
+      {
+        "q": "従来のIPv4に代わる、128ビットの新しいIPアドレス形式は?",
+        "a": "IPv6"
+      },
+      {
+        "q": "Webページを暗号化して安全に送受信するプロトコルで、HTTPにSecureを加えたものは?",
+        "a": "HTTPS"
+      },
+      {
+        "q": "「www.」の「WWW」は何の略ですか?",
+        "a": "World Wide Web"
+      },
+      {
+        "q": "Webページを記述するための言語で、HyperText Markup Languageの略は?",
+        "a": "HTML"
+      }
+    ],
+    "challengeBank": [
+      "インターネット",
+      "IPアドレス",
+      "URL",
+      "DNS",
+      "パケット",
+      "ルータ",
+      "IPv6",
+      "HTTPS",
+      "World Wide Web",
+      "HTML",
+      "IPv4",
+      "HTTP",
+      "プロトコル",
+      "LAN",
+      "WAN",
+      "ブラウザ",
+      "サーバ",
+      "クライアント"
+    ]
+  },
+  {
+    "id": "u3",
+    "page": 1,
+    "title": "3. メールの仕組み(POP・SMTP・IMAP)",
+    "body": "\n<p>毎日使っているメール(LINEではなくEメール)も、裏では複雑な仕組みが動いています。郵便と比べながら、メールがどう届くのかを絵で見ていきましょう。</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">📧 メールアドレスの構造</h4>\n\n<p>メールアドレスは「<b>ユーザ名 @ ドメイン名</b>」の形をしています。「@」を「アットマーク」と読み、英語では「at」つまり「〜にある」の意味です。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 180\" xmlns=\"http://www.w3.org/2000/svg\">\n  <text x=\"300\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">メールアドレスの構造</text>\n\n  <!-- メールアドレス全体 -->\n  <g transform=\"translate(60, 50)\">\n    <!-- ユーザ名 -->\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"50\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"60\" y=\"24\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#065F46\">tanaka</text>\n    <text x=\"60\" y=\"42\" text-anchor=\"middle\" font-size=\"10\" fill=\"#065F46\">ユーザ名</text>\n\n    <!-- @ -->\n    <rect x=\"125\" y=\"0\" width=\"40\" height=\"50\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"145\" y=\"28\" text-anchor=\"middle\" font-size=\"24\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#92400E\">@</text>\n    <text x=\"145\" y=\"44\" text-anchor=\"middle\" font-size=\"9\" fill=\"#92400E\">アット</text>\n\n    <!-- ドメイン名 -->\n    <rect x=\"170\" y=\"0\" width=\"240\" height=\"50\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"4\"/>\n    <text x=\"290\" y=\"24\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"700\" font-family=\"Consolas, monospace\" fill=\"#991B1B\">example.co.jp</text>\n    <text x=\"290\" y=\"42\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">ドメイン名(=メールサーバの場所)</text>\n  </g>\n\n  <!-- 解説 -->\n  <text x=\"300\" y=\"135\" text-anchor=\"middle\" font-size=\"12\" fill=\"#374151\">\n    <tspan font-weight=\"700\">「tanaka@example.co.jp」</tspan>= 「<tspan font-weight=\"700\">example.co.jpという会社の</tspan> tanakaさん」\n  </text>\n  <text x=\"300\" y=\"155\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\" font-style=\"italic\">@(at)が「〜の中の」を表す目印</text>\n</svg>\n<div class=\"figure-caption\">図1:メールアドレス=「会社名(ドメイン名)の中の」+「個人名(ユーザ名)」</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">📨 メールの流れ ── 郵便にたとえると</h4>\n\n<p>メールは<b>郵便とそっくりな仕組み</b>です。手紙を出すと郵便局を経由して相手のポストに届くように、メールも<b>メールサーバ</b>を経由して相手の<b>メールボックス</b>に届きます。</p>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 360\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arMail\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 6 3, 0 6\" fill=\"#991B1B\"/>\n    </marker>\n  </defs>\n\n  <!-- 送信者(左) -->\n  <g transform=\"translate(20, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"60\" y=\"24\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#065F46\">送信者</text>\n    <text x=\"60\" y=\"44\" text-anchor=\"middle\" font-size=\"22\" fill=\"#065F46\">📱</text>\n    <text x=\"60\" y=\"68\" text-anchor=\"middle\" font-size=\"11\" fill=\"#065F46\">tanakaさん</text>\n  </g>\n\n  <!-- 送信側メールサーバ -->\n  <g transform=\"translate(180, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"140\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"70\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">送信用</text>\n    <text x=\"70\" y=\"40\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">メールサーバ</text>\n    <text x=\"70\" y=\"60\" text-anchor=\"middle\" font-size=\"22\" fill=\"#991B1B\">📮</text>\n    <text x=\"70\" y=\"78\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">SMTP</text>\n  </g>\n\n  <!-- 受信側メールサーバ -->\n  <g transform=\"translate(360, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"140\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2.5\" rx=\"6\"/>\n    <text x=\"70\" y=\"22\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">受信用</text>\n    <text x=\"70\" y=\"40\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#991B1B\">メールサーバ</text>\n    <text x=\"70\" y=\"60\" text-anchor=\"middle\" font-size=\"22\" fill=\"#991B1B\">📭</text>\n    <text x=\"70\" y=\"78\" text-anchor=\"middle\" font-size=\"10\" fill=\"#991B1B\">POP/IMAP</text>\n  </g>\n\n  <!-- 受信者 -->\n  <g transform=\"translate(540, 30)\">\n    <rect x=\"0\" y=\"0\" width=\"40\" height=\"80\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"20\" y=\"24\" text-anchor=\"middle\" font-size=\"9\" font-weight=\"700\" fill=\"#065F46\">受信者</text>\n    <text x=\"20\" y=\"48\" text-anchor=\"middle\" font-size=\"18\" fill=\"#065F46\">💻</text>\n    <text x=\"20\" y=\"68\" text-anchor=\"middle\" font-size=\"8\" fill=\"#065F46\">satoさん</text>\n  </g>\n\n  <!-- 矢印 -->\n  <line x1=\"140\" y1=\"70\" x2=\"180\" y2=\"70\" stroke=\"#991B1B\" stroke-width=\"2.5\" marker-end=\"url(#arMail)\"/>\n  <text x=\"160\" y=\"60\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#991B1B\">①送信</text>\n\n  <line x1=\"320\" y1=\"70\" x2=\"360\" y2=\"70\" stroke=\"#991B1B\" stroke-width=\"2.5\" marker-end=\"url(#arMail)\"/>\n  <text x=\"340\" y=\"60\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#991B1B\">②転送(SMTP)</text>\n\n  <line x1=\"500\" y1=\"70\" x2=\"540\" y2=\"70\" stroke=\"#991B1B\" stroke-width=\"2.5\" marker-end=\"url(#arMail)\"/>\n  <text x=\"520\" y=\"60\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#991B1B\">③受信</text>\n\n  <!-- 郵便のたとえ(下) -->\n  <line x1=\"30\" y1=\"140\" x2=\"570\" y2=\"140\" stroke=\"#9CA3AF\" stroke-width=\"1\" stroke-dasharray=\"3,2\"/>\n  <text x=\"300\" y=\"160\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#374151\">🏤 郵便にたとえると…</text>\n\n  <g transform=\"translate(20, 180)\">\n    <rect x=\"0\" y=\"0\" width=\"120\" height=\"80\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"60\" y=\"24\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#92400E\">差出人</text>\n    <text x=\"60\" y=\"48\" text-anchor=\"middle\" font-size=\"22\" fill=\"#92400E\">✉️</text>\n    <text x=\"60\" y=\"68\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">手紙を書く</text>\n  </g>\n\n  <g transform=\"translate(180, 180)\">\n    <rect x=\"0\" y=\"0\" width=\"140\" height=\"80\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"70\" y=\"24\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#92400E\">町の郵便局</text>\n    <text x=\"70\" y=\"48\" text-anchor=\"middle\" font-size=\"22\" fill=\"#92400E\">🏤</text>\n    <text x=\"70\" y=\"68\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">仕分け・転送</text>\n  </g>\n\n  <g transform=\"translate(360, 180)\">\n    <rect x=\"0\" y=\"0\" width=\"140\" height=\"80\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"70\" y=\"24\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"700\" fill=\"#92400E\">相手地区の郵便局</text>\n    <text x=\"70\" y=\"48\" text-anchor=\"middle\" font-size=\"22\" fill=\"#92400E\">🏤</text>\n    <text x=\"70\" y=\"68\" text-anchor=\"middle\" font-size=\"10\" fill=\"#92400E\">配達準備</text>\n  </g>\n\n  <g transform=\"translate(540, 180)\">\n    <rect x=\"0\" y=\"0\" width=\"40\" height=\"80\" fill=\"#FEF3C7\" stroke=\"#F59E0B\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"20\" y=\"24\" text-anchor=\"middle\" font-size=\"9\" font-weight=\"700\" fill=\"#92400E\">ポスト</text>\n    <text x=\"20\" y=\"48\" text-anchor=\"middle\" font-size=\"18\" fill=\"#92400E\">📪</text>\n    <text x=\"20\" y=\"68\" text-anchor=\"middle\" font-size=\"8\" fill=\"#92400E\">取り出し</text>\n  </g>\n\n  <line x1=\"140\" y1=\"220\" x2=\"180\" y2=\"220\" stroke=\"#92400E\" stroke-width=\"2\" marker-end=\"url(#arMail)\"/>\n  <line x1=\"320\" y1=\"220\" x2=\"360\" y2=\"220\" stroke=\"#92400E\" stroke-width=\"2\" marker-end=\"url(#arMail)\"/>\n  <line x1=\"500\" y1=\"220\" x2=\"540\" y2=\"220\" stroke=\"#92400E\" stroke-width=\"2\" marker-end=\"url(#arMail)\"/>\n\n  <text x=\"300\" y=\"285\" text-anchor=\"middle\" font-size=\"11\" fill=\"#374151\" font-style=\"italic\">👆 同じ仕組み:手紙=メール、郵便局=メールサーバ、ポスト=メールボックス</text>\n</svg>\n<div class=\"figure-caption\">図2:メールの流れと郵便の流れはそっくり。仕組みは同じ</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">📋 メール関連の3つの重要な規約(プロトコル)</h4>\n\n<p>メールの送受信には<b>3つの重要なルール</b>(<span class=\"term\" data-term=\"プロトコル\">プロトコル</span>)があります。「送る」と「受け取る」で別のプロトコルが使われるのがポイントです。</p>\n\n<div class=\"figure\" style=\"text-align:left; padding:14px 18px;\">\n<table style=\"width:100%; border-collapse:collapse; font-size:0.95em;\">\n  <thead><tr style=\"background:var(--primary); color:#fff;\">\n    <th style=\"padding:8px; border:1px solid var(--primary-dark); width:15%;\">略語</th>\n    <th style=\"padding:8px; border:1px solid var(--primary-dark);\">正式名称</th>\n    <th style=\"padding:8px; border:1px solid var(--primary-dark);\">役割</th>\n    <th style=\"padding:8px; border:1px solid var(--primary-dark);\">郵便にたとえると</th>\n  </tr></thead>\n  <tbody>\n  <tr><td style=\"padding:8px; border:1px solid var(--border); text-align:center; font-weight:bold; color:var(--primary); font-family:monospace; font-size:1.1em;\">SMTP</td><td style=\"padding:6px; border:1px solid var(--border); font-size:.9em;\"><b>S</b>imple <b>M</b>ail <b>T</b>ransfer <b>P</b>rotocol<br>(シンプル・メール・転送・規約)</td><td style=\"padding:6px; border:1px solid var(--border);\">メールを<b>送信</b>する規約。サーバ間でメールを転送するときも使う</td><td style=\"padding:6px; border:1px solid var(--border);\">📮 郵便ポストに<b>投函</b>するルール</td></tr>\n  <tr style=\"background:#FEF2F2;\"><td style=\"padding:8px; border:1px solid var(--border); text-align:center; font-weight:bold; color:var(--primary); font-family:monospace; font-size:1.1em;\">POP</td><td style=\"padding:6px; border:1px solid var(--border); font-size:.9em;\"><b>P</b>ost <b>O</b>ffice <b>P</b>rotocol<br>(郵便局・規約)</td><td style=\"padding:6px; border:1px solid var(--border);\">メールを<b>受信</b>する規約。サーバからPC/スマホに<b>ダウンロード</b>する</td><td style=\"padding:6px; border:1px solid var(--border);\">📪 ポストから手紙を<b>家に持って帰る</b>イメージ</td></tr>\n  <tr><td style=\"padding:8px; border:1px solid var(--border); text-align:center; font-weight:bold; color:var(--primary); font-family:monospace; font-size:1.1em;\">IMAP</td><td style=\"padding:6px; border:1px solid var(--border); font-size:.9em;\"><b>I</b>nternet <b>M</b>essage <b>A</b>ccess <b>P</b>rotocol<br>(インターネット・メッセージ・アクセス・規約)</td><td style=\"padding:6px; border:1px solid var(--border);\">メールを<b>受信</b>する規約(改良版)。サーバ上で管理し、複数端末で<b>同期</b>できる</td><td style=\"padding:6px; border:1px solid var(--border);\">📭 郵便局に手紙を<b>預けたまま</b>必要なものだけ読みに行く</td></tr>\n  </tbody>\n</table>\n<div class=\"figure-caption\">表1:メールの3大プロトコル。SMTPは送信、POPとIMAPは受信</div>\n</div>\n\n<p style=\"background:var(--primary-pale); padding:10px 14px; border-left:4px solid var(--primary); border-radius:6px; margin:10px 0;\">📌 <b>暗記のコツ</b><br>\n<b>SMTP</b> = <b>送る</b>(Send)+ Mail のイメージ<br>\n<b>POP</b> = <b>Post(郵便)</b> から取り出すイメージ → ローカルに持ち帰る<br>\n<b>IMAP</b> = サーバに置いたまま<b>アクセス</b>するだけ → 複数端末で同期</p>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">📊 POPとIMAPの違い ── 図でわかる</h4>\n\n<div class=\"figure\">\n<svg viewBox=\"0 0 600 280\" xmlns=\"http://www.w3.org/2000/svg\">\n  <defs>\n    <marker id=\"arPI\" markerWidth=\"10\" markerHeight=\"10\" refX=\"5\" refY=\"3\" orient=\"auto\">\n      <polygon points=\"0 0, 6 3, 0 6\" fill=\"#991B1B\"/>\n    </marker>\n  </defs>\n\n  <!-- POP側 -->\n  <g transform=\"translate(10, 20)\">\n    <text x=\"140\" y=\"14\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#991B1B\">POP方式(ダウンロード)</text>\n\n    <!-- メールサーバ -->\n    <rect x=\"0\" y=\"30\" width=\"100\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"50\" y=\"52\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#991B1B\">メールサーバ</text>\n    <text x=\"50\" y=\"80\" text-anchor=\"middle\" font-size=\"22\" fill=\"#991B1B\">📭</text>\n    <text x=\"50\" y=\"100\" text-anchor=\"middle\" font-size=\"9\" fill=\"#991B1B\">受信後は空</text>\n\n    <!-- PC -->\n    <rect x=\"180\" y=\"30\" width=\"100\" height=\"80\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"230\" y=\"52\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#065F46\">あなたのPC</text>\n    <text x=\"230\" y=\"80\" text-anchor=\"middle\" font-size=\"22\" fill=\"#065F46\">💻</text>\n    <text x=\"230\" y=\"100\" text-anchor=\"middle\" font-size=\"9\" fill=\"#065F46\">メールあり</text>\n\n    <!-- 矢印 -->\n    <line x1=\"100\" y1=\"70\" x2=\"180\" y2=\"70\" stroke=\"#991B1B\" stroke-width=\"2.5\" marker-end=\"url(#arPI)\"/>\n    <text x=\"140\" y=\"60\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#991B1B\">ダウンロード</text>\n\n    <text x=\"140\" y=\"135\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">📥 メールを<b>PCに持ってくる</b></text>\n    <text x=\"140\" y=\"152\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">スマホで同じメールを見ようとしても</text>\n    <text x=\"140\" y=\"168\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">サーバから消えているのでアクセス不可</text>\n  </g>\n\n  <!-- 区切り線 -->\n  <line x1=\"300\" y1=\"20\" x2=\"300\" y2=\"270\" stroke=\"#9CA3AF\" stroke-width=\"1\" stroke-dasharray=\"3,2\"/>\n\n  <!-- IMAP側 -->\n  <g transform=\"translate(310, 20)\">\n    <text x=\"140\" y=\"14\" text-anchor=\"middle\" font-size=\"14\" font-weight=\"700\" fill=\"#991B1B\">IMAP方式(同期)</text>\n\n    <!-- メールサーバ -->\n    <rect x=\"0\" y=\"30\" width=\"100\" height=\"80\" fill=\"#FEE2E2\" stroke=\"#DC2626\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"50\" y=\"52\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"700\" fill=\"#991B1B\">メールサーバ</text>\n    <text x=\"50\" y=\"80\" text-anchor=\"middle\" font-size=\"22\" fill=\"#991B1B\">📬</text>\n    <text x=\"50\" y=\"100\" text-anchor=\"middle\" font-size=\"9\" fill=\"#991B1B\">メール保管</text>\n\n    <!-- PC -->\n    <rect x=\"180\" y=\"10\" width=\"80\" height=\"50\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"220\" y=\"28\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#065F46\">PC</text>\n    <text x=\"220\" y=\"48\" text-anchor=\"middle\" font-size=\"18\" fill=\"#065F46\">💻</text>\n\n    <!-- スマホ -->\n    <rect x=\"180\" y=\"65\" width=\"80\" height=\"50\" fill=\"#D1FAE5\" stroke=\"#10B981\" stroke-width=\"2\" rx=\"6\"/>\n    <text x=\"220\" y=\"83\" text-anchor=\"middle\" font-size=\"10\" font-weight=\"700\" fill=\"#065F46\">スマホ</text>\n    <text x=\"220\" y=\"103\" text-anchor=\"middle\" font-size=\"18\" fill=\"#065F46\">📱</text>\n\n    <!-- 矢印(双方向) -->\n    <line x1=\"100\" y1=\"50\" x2=\"180\" y2=\"35\" stroke=\"#991B1B\" stroke-width=\"2\" marker-end=\"url(#arPI)\"/>\n    <line x1=\"180\" y1=\"40\" x2=\"100\" y2=\"58\" stroke=\"#10B981\" stroke-width=\"2\" marker-end=\"url(#arPI)\"/>\n    <line x1=\"100\" y1=\"80\" x2=\"180\" y2=\"80\" stroke=\"#991B1B\" stroke-width=\"2\" marker-end=\"url(#arPI)\"/>\n    <line x1=\"180\" y1=\"90\" x2=\"100\" y2=\"100\" stroke=\"#10B981\" stroke-width=\"2\" marker-end=\"url(#arPI)\"/>\n\n    <text x=\"140\" y=\"135\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">🔄 メールは<b>サーバに置いたまま</b></text>\n    <text x=\"140\" y=\"152\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">PCでもスマホでも同じ状態を共有</text>\n    <text x=\"140\" y=\"168\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">→ 既読・未読も同期される</text>\n  </g>\n\n  <text x=\"300\" y=\"230\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"700\" fill=\"#991B1B\">どちらを使うべき?</text>\n  <text x=\"300\" y=\"250\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">📱 複数の端末(PC・スマホ・タブレット)で見るなら → IMAP</text>\n  <text x=\"300\" y=\"266\" text-anchor=\"middle\" font-size=\"10\" fill=\"#374151\">💻 1つの端末だけ・容量を節約したいなら → POP</text>\n</svg>\n<div class=\"figure-caption\">図3:POPはダウンロード型、IMAPは同期型。複数端末ならIMAPが便利</div>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">🔄 メールが届くまでの全体の流れ(詳しく)</h4>\n\n<p>これまでの内容を整理して、メールが届くまでの<b>全体の流れ</b>を見てみましょう。</p>\n\n<div class=\"figure\" style=\"background:linear-gradient(135deg, #FEE2E2, #FEF2F2); padding:18px 22px; border-radius:12px;\">\n<p style=\"font-weight:700; color:#991B1B; margin-bottom:8px;\">📨 メール送受信の流れ(田中さん → 佐藤さん)</p>\n<ol style=\"margin:0 0 0 20px; line-height:2; color:#991B1B;\">\n<li>田中さんがメールアプリで「<code>sato@xxx.co.jp</code>」宛にメールを書いて送信</li>\n<li>田中さんの<b>送信用メールサーバ</b>へ <span style=\"background:#FEF3C7; padding:2px 6px; border-radius:3px; font-weight:700;\">SMTP</span> で送られる</li>\n<li>送信用サーバが宛先のドメイン「<code>xxx.co.jp</code>」のメールサーバを<b>DNS</b>で調べる</li>\n<li>佐藤さんの<b>受信用メールサーバ</b>へ <span style=\"background:#FEF3C7; padding:2px 6px; border-radius:3px; font-weight:700;\">SMTP</span> で転送される</li>\n<li>佐藤さんのメールボックス(サーバ上)にメールが保管される</li>\n<li>佐藤さんがメールアプリでチェックすると、 <span style=\"background:#FEF3C7; padding:2px 6px; border-radius:3px; font-weight:700;\">POP</span> または <span style=\"background:#FEF3C7; padding:2px 6px; border-radius:3px; font-weight:700;\">IMAP</span> でメールが届く</li>\n</ol>\n<p style=\"margin-top:10px; color:#991B1B; font-style:italic;\">送信は SMTP、受信は POP/IMAP。覚えやすいですね!</p>\n</div>\n\n<h4 style=\"color:var(--primary-dark); margin-top:18px;\">⚠️ メールで気をつけること</h4>\n\n<div class=\"figure\" style=\"background:#FEF3C7; padding:14px 18px; border-left:4px solid #F59E0B; border-radius:6px;\">\n<p style=\"font-weight:700; color:#92400E; margin-bottom:6px;\">📌 メールの注意点</p>\n<ul style=\"margin:0 0 0 22px; line-height:1.9; color:#92400E;\">\n<li><b>送信先(To、<span class=\"term\" data-term=\"Cc\">Cc</span>、<span class=\"term\" data-term=\"Bcc\">Bcc</span>)を間違えない</b>:特にBccは「他の人に見えない」宛先。Toにすると全員にメールアドレスが見えてしまう</li>\n<li><b>添付ファイルにウィルスが入っていることがある</b>:知らない人からのファイルは開かない</li>\n<li><b>フィッシング詐欺に注意</b>:本物そっくりの偽メールでパスワードを盗もうとするもの。URLを確認する習慣を</li>\n<li><b><span class=\"term\" data-term=\"HTML\">HTML</span>メールにはリンクが仕込まれていることも</b>:怪しいメールはテキストモードで開く</li>\n</ul>\n</div>\n\n<p>これで第7章「情報技術の仕組み」は終了です。コンピュータの中身 → インターネット → メールの3つの仕組みを学びました。これでネット社会の<b>裏側</b>がしっかり見えるようになったはずです!🎉</p>\n",
+    "terms": {
+      "プロトコル": {
+        "en": "protocol",
+        "kana": "プロトコル",
+        "origin": "protocol(議定書・取り決め)から。コンピュータ同士が通信するときの「約束ごと・ルール」。"
+      },
+      "SMTP": {
+        "en": "Simple Mail Transfer Protocol",
+        "kana": "エス・エム・ティー・ピー",
+        "origin": "Simple(単純な)+ Mail(メール)+ Transfer(転送)+ Protocol(規約)。メールを「送信」するときに使う規約。"
+      },
+      "POP": {
+        "en": "Post Office Protocol",
+        "kana": "ポップ",
+        "origin": "Post Office(郵便局)+ Protocol(規約)。メールを「受信」するときに使う規約のひとつ。サーバから自分のPCにダウンロードする方式。"
+      },
+      "IMAP": {
+        "en": "Internet Message Access Protocol",
+        "kana": "アイマップ",
+        "origin": "Internet(インターネット)+ Message(メッセージ)+ Access(アクセス)+ Protocol(規約)。メールを「受信」する規約。サーバ上で管理し、複数端末で同期できる。"
+      },
+      "Cc": {
+        "en": "Carbon Copy",
+        "kana": "カーボン・コピー / シーシー",
+        "origin": "Carbon(炭素紙)+ Copy(複写)。昔、複写紙を使って同じ書類を作っていたことから。メールでは「主な宛先(To)」以外に、参考として情報共有する人を指定する。Ccに入れた人のアドレスは全員に見える。"
+      },
+      "Bcc": {
+        "en": "Blind Carbon Copy",
+        "kana": "ブラインド・カーボン・コピー / ビーシーシー",
+        "origin": "Blind(見えない)+ Carbon Copy。他の受信者には見えないように複写する仕組み。多人数に一斉メールを送る際、互いのアドレスを隠したいときに使う。"
+      },
+      "HTML": {
+        "en": "HyperText Markup Language",
+        "kana": "エイチ・ティー・エム・エル",
+        "origin": "HyperText(ハイパーテキスト)+ Markup(目印を付ける)+ Language(言語)。Webページの中身を記述するための言語。"
+      }
+    },
+    "fill": {
+      "text": "メールアドレスは「ユーザ名【1】ドメイン名」の形をしており、@の前がユーザ名、後ろが【2】の場所を表します。メールを送るときに使うプロトコルが【3】、受信するときに使うのが【4】や【5】です。【4】はメールをPCにダウンロードする方式で、【5】はサーバ上に置いたまま管理する方式です。複数の端末で同じ状態のメールを見たい場合は【6】の方が便利です。コンピュータ同士の通信のルールを総じて【7】といいます。",
+      "answers": [
+        "@",
+        "メールサーバ",
+        "SMTP",
+        "POP",
+        "IMAP",
+        "IMAP",
+        "プロトコル"
+      ],
+      "bank": [
+        "@",
+        "メールサーバ",
+        "SMTP",
+        "POP",
+        "IMAP",
+        "プロトコル",
+        "DNS",
+        "Webサーバ",
+        "ドメイン",
+        "アドレス"
+      ]
+    },
+    "choice4": [
+      {
+        "q": "メールアドレス「<code>yamada@example.co.jp</code>」の「example.co.jp」の部分は何を表していますか?",
+        "options": [
+          "メールの本文の内容",
+          "メールが届くサーバの場所(ドメイン名)",
+          "ユーザの名前",
+          "通信方式"
+        ],
+        "answer": 1,
+        "exp": "@の後ろの部分が「ドメイン名」で、メールサーバの場所を示します。@の前は個人のユーザ名。",
+        "ex": "「会社や組織名 → @ → 個人名」の順で覚えるとわかりやすい。Webアドレスのドメインと同じ仕組みです。"
+      },
+      {
+        "q": "メールを<b>送信</b>するときに使われるプロトコルとして正しいものはどれですか?",
+        "options": [
+          "POP",
+          "IMAP",
+          "SMTP",
+          "HTTP"
+        ],
+        "answer": 2,
+        "exp": "メール送信は SMTP(Simple Mail Transfer Protocol)。「Mail」と「Send(送る)」のイメージで覚えましょう。",
+        "ex": "サーバ同士の転送にもSMTPが使われます。受信はPOPかIMAP。"
+      },
+      {
+        "q": "POPとIMAPの違いとして正しいものはどれですか?",
+        "options": [
+          "POPは送信用、IMAPは受信用",
+          "POPはメールをPCに持ってくる、IMAPはサーバに置いたまま管理する",
+          "POPはWebメール用、IMAPはアプリ用",
+          "両方とも同じ意味"
+        ],
+        "answer": 1,
+        "exp": "POPは「ダウンロード型」(メールをPCに持ってくる)、IMAPは「同期型」(サーバ上で管理)。複数端末で見るなら IMAP が便利。",
+        "ex": "どちらも「受信」用のプロトコル。送信は両方ともSMTPです。"
+      },
+      {
+        "q": "次のうち、コンピュータ間で通信するときの「約束ごと」を表す言葉として正しいものはどれですか?",
+        "options": [
+          "プロトコル",
+          "ドメイン",
+          "ブラウザ",
+          "アプリケーション"
+        ],
+        "answer": 0,
+        "exp": "プロトコルは「通信の約束ごと・ルール」のこと。SMTP、POP、IMAP、HTTPなどがプロトコルにあたります。",
+        "ex": "外交での「議定書」も英語ではprotocol。お互いの間で守る決まりごと、というニュアンスです。"
+      },
+      {
+        "q": "メールが田中さん → 佐藤さん に届くまでの流れとして、最も適切な順序はどれですか?",
+        "options": [
+          "送信メールサーバ → 田中さんのPC → 受信メールサーバ → 佐藤さんのPC",
+          "田中さんのPC → 送信メールサーバ → 受信メールサーバ → 佐藤さんのPC",
+          "田中さんのPC → 受信メールサーバ → 送信メールサーバ → 佐藤さんのPC",
+          "田中さんのPC → 佐藤さんのPC(直接)"
+        ],
+        "answer": 1,
+        "exp": "メールは「自分のPC → 送信サーバ → 受信サーバ → 相手のPC」の順で流れます。郵便と同じ仕組み。",
+        "ex": "サーバを経由するので、相手のPCの電源がオフでもメールは届きます(=サーバが預かってくれる)。"
+      },
+      {
+        "q": "複数の端末(PC・スマホ・タブレット)で同じメールを見て、既読・未読も共通にしたい場合、最も適したプロトコルはどれですか?",
+        "options": [
+          "SMTP",
+          "POP",
+          "IMAP",
+          "HTTP"
+        ],
+        "answer": 2,
+        "exp": "IMAPはサーバ上でメールを管理するので、どの端末からアクセスしても同じ状態が見られます。既読・未読の状態も同期される。",
+        "ex": "Gmailなど現代のWebメールはほぼIMAPベース。POPは古いPCで「容量を節約したい」場合に使われていました。"
+      }
+    ],
+    "ox": [
+      {
+        "q": "「@(アットマーク)」は、メールアドレスでユーザ名とドメイン名を区切る記号である。",
+        "answer": true,
+        "exp": "正しい。@の前がユーザ名(個人の識別)、@の後ろがドメイン名(メールサーバの場所)。"
+      },
+      {
+        "q": "SMTPはメールを「受信」するときに使うプロトコルである。",
+        "answer": false,
+        "exp": "誤り。SMTPはメールを<b>送信</b>するときに使うプロトコル(Send Mail Transfer Protocol)。受信はPOPかIMAP。"
+      },
+      {
+        "q": "POPでメールを受信すると、メールはサーバから消えてPCにダウンロードされる(設定によって残すこともできる)。",
+        "answer": true,
+        "exp": "正しい。POPは原則ダウンロード型で、サーバから自分のPCにメールを取り込みます。「サーバにコピーを残す」設定にすれば残せます。"
+      },
+      {
+        "q": "IMAPを使うと、メールはサーバに置いたまま管理され、複数の端末で同じ状態を共有できる。",
+        "answer": true,
+        "exp": "正しい。IMAPは「同期型」で、サーバが本拠地。どの端末からアクセスしても同じメール・同じ既読状態が見られます。"
+      },
+      {
+        "q": "メールの送信先(To)を間違えても、すぐに取り消すことができる。",
+        "answer": false,
+        "exp": "誤り。メールは送信した瞬間にサーバへ転送されるので、原則として<b>取り消せません</b>。送信前の宛先確認が重要。"
+      },
+      {
+        "q": "コンピュータ間の通信のルールを「プロトコル」という。",
+        "answer": true,
+        "exp": "正しい。SMTP、POP、IMAP、HTTP、DNS など、すべて「プロトコル」(通信規約)です。"
+      }
+    ],
+    "confirm": [
+      {
+        "q": "メールアドレス「<code>info@kounin.go.jp</code>」を分解したとき、各部分の意味として正しい組み合わせはどれですか?",
+        "options": [
+          "info=ユーザ名、@=区切り記号、kounin.go.jp=ドメイン名",
+          "info=ドメイン名、@=区切り記号、kounin.go.jp=ユーザ名",
+          "info@kounin=ユーザ名、go.jp=ドメイン名",
+          "info=メールサーバ、kounin.go.jp=個人名"
+        ],
+        "answer": 0,
+        "exp": "@の前がユーザ名(=個人や部署を識別)、@が区切り記号、@の後ろがドメイン名(=メールサーバの場所)。",
+        "ex": "「kounin.go.jp」は高卒認定試験(の架空例)の政府ドメイン。.go.jp は日本の政府機関を表します。"
+      },
+      {
+        "q": "「メールを送信するとき」と「メールを受信するとき」に使われるプロトコルの組み合わせとして正しいものはどれですか?",
+        "options": [
+          "送信:POP / 受信:SMTP",
+          "送信:SMTP / 受信:POP または IMAP",
+          "送信:HTTP / 受信:SMTP",
+          "送信:DNS / 受信:POP"
+        ],
+        "answer": 1,
+        "exp": "送信は <b>SMTP</b>(必ずこれ)、受信は <b>POP または IMAP</b> のどちらか。3つを「送信1つ、受信2つ」と覚えましょう。",
+        "ex": "Webサイト閲覧はHTTP、ドメイン名の解決はDNS。プロトコルは用途ごとに違うものを使います。"
+      },
+      {
+        "q": "POPで受信したメールが、別の端末(スマホなど)からは見られない理由として正しいものはどれですか?",
+        "options": [
+          "スマホはメールに対応していないから",
+          "POPはメールをPCにダウンロードして、サーバから消してしまうから",
+          "POPは送信用のプロトコルだから",
+          "スマホはインターネットに繋がっていないから"
+        ],
+        "answer": 1,
+        "exp": "POPは原則「ダウンロード型」。受信したメールがサーバから消えるため、他の端末からは見られなくなります。",
+        "ex": "解決策はIMAPに切り替えること。サーバ上で管理されるので、どこからでも同じ状態でアクセスできます。"
+      },
+      {
+        "q": "あなたがメールを送ったとき、メールが相手に届くまでの正しい流れはどれですか?",
+        "options": [
+          "あなたのPC → 受信サーバ → 送信サーバ → 相手のPC",
+          "あなたのPC → 送信サーバ(SMTP)→ 受信サーバ(SMTP)→ 相手がPOPまたはIMAPで取り出す",
+          "あなたのPC → 相手のPC(直接)",
+          "あなたのPC → DNS → 相手のPC"
+        ],
+        "answer": 1,
+        "exp": "「自分のPC → 送信サーバ → 受信サーバ → 相手のPC」の流れ。送信サーバ間はSMTPで転送、最後の受信は相手がPOPかIMAPで取り出します。",
+        "ex": "サーバを経由するため、相手のPCの電源がオフでもメールは届きます。サーバが預かってくれる仕組みです。"
+      },
+      {
+        "q": "メールアドレス「<code>info@example.co.jp</code>」のうち、<b>ドメイン名</b>はどれですか?",
+        "options": [
+          "info",
+          "@",
+          "example.co.jp",
+          "info@example.co.jp"
+        ],
+        "answer": 2,
+        "exp": "@の後ろの「example.co.jp」がドメイン名で、メールサーバの場所を示します。@の前(info)はユーザ名。",
+        "ex": "メールアドレスは「ユーザ名@ドメイン名」の構造。Webアドレスと同じ仕組みです。"
+      },
+      {
+        "q": "次のうち、メールに関するプロトコルとそれぞれの役割の組み合わせとして<b>正しいもの</b>はどれですか?",
+        "options": [
+          "SMTP:受信 / POP:送信 / IMAP:暗号化",
+          "SMTP:送信 / POP:受信(ダウンロード型) / IMAP:受信(同期型)",
+          "SMTP:暗号化 / POP:送信 / IMAP:受信",
+          "SMTP:受信 / POP:暗号化 / IMAP:送信"
+        ],
+        "answer": 1,
+        "exp": "SMTP=送信、POP=受信(ダウンロード型)、IMAP=受信(同期型)。「送る1つ・受け取る2つ」と覚えるとシンプル。",
+        "ex": "Gmailなど現代のWebメールはIMAPベース。複数の端末でメールを見る時代に合わせた進化です。"
+      },
+      {
+        "q": "「PCで読んだメールがスマホでも未読として表示されない」現象が起こる<b>主な原因</b>として最も適切なものはどれですか?",
+        "options": [
+          "メールアドレスが間違っている",
+          "POP方式で受信しており、メールがPCに取り込まれてサーバから消えたため",
+          "IMAP方式で受信しているため",
+          "ウィルスに感染している"
+        ],
+        "answer": 1,
+        "exp": "POPは「ダウンロード型」で、PCがメールを受信するとサーバから消えてしまいます(初期設定の場合)。スマホでアクセスしても、サーバにメールがないので未読扱いになりません。",
+        "ex": "複数端末で同じメールを管理したい場合はIMAPを使うか、POPでも「サーバにコピーを残す」設定にする必要があります。"
+      }
+    ],
+    "practice": [],
+    "exercise": [],
+    "challenge": [
+      {
+        "q": "メールを送信するときに使う、Simple Mail Transfer Protocolの略は?",
+        "a": "SMTP"
+      },
+      {
+        "q": "メールを受信する際、サーバからダウンロードする方式のプロトコルは?",
+        "a": "POP"
+      },
+      {
+        "q": "メールをサーバに置いたまま、複数端末で同期できる受信方式のプロトコルは?",
+        "a": "IMAP"
+      },
+      {
+        "q": "メールアドレスの「@」より前の部分を何といいますか?",
+        "a": "ユーザ名"
+      },
+      {
+        "q": "メールアドレスの「@」より後ろの部分を何といいますか?",
+        "a": "ドメイン名"
+      },
+      {
+        "q": "通信のルールや規約を、カタカナで何といいますか?",
+        "a": "プロトコル"
+      },
+      {
+        "q": "メールの宛先で、送信先に表示されるが、他の受信者にも見える欄は?",
+        "a": "Cc"
+      },
+      {
+        "q": "メールの宛先で、他の受信者には見えない秘密の送信先欄は?",
+        "a": "Bcc"
+      },
+      {
+        "q": "POPとIMAPのうち、複数の端末でメールを同期できるのはどちらですか?",
+        "a": "IMAP"
+      },
+      {
+        "q": "メールを送る際、送信用のメールサーバに使われるプロトコルは?",
+        "a": "SMTP"
+      }
+    ],
+    "challengeBank": [
+      "SMTP",
+      "POP",
+      "IMAP",
+      "ユーザ名",
+      "ドメイン名",
+      "プロトコル",
+      "Cc",
+      "Bcc",
+      "IMAP",
+      "SMTP",
+      "HTTP",
+      "添付ファイル",
+      "迷惑メール",
+      "暗号化",
+      "署名",
+      "転送"
+    ]
+  }
+];
+
+// =================================================================
+// 状態管理
+// =================================================================
+const state = {
+  currentPage: 1,
+  fillSelectedChip: {},  // unitId -> chip element
+  startTime: Date.now()
+};
+
+// =================================================================
+// ふりがな変換 {漢字|よみ} -> <ruby>漢字<rt>よみ</rt></ruby>
+// =================================================================
+function convertFurigana(text) {
+  if (!text) return '';
+  return text.replace(/\{([^|}]+)\|([^}]+)\}/g, '<ruby>$1<rt>$2</rt></ruby>');
+}
+
+// =================================================================
+// 用語解説の埋め込み(本文中の<span class="term">に既に書かれている前提でhandled by clickイベント)
+// =================================================================
+function bindTermPopups(scope, terms) {
+  if (!terms) return;
+  scope.querySelectorAll('.term').forEach(el => {
+    const key = el.getAttribute('data-term');
+    if (!key || !terms[key]) return;
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showTermPopup(el, terms[key]);
+    });
+    el.addEventListener('mouseenter', (e) => {
+      showTermPopup(el, terms[key]);
+    });
+    el.addEventListener('mouseleave', (e) => {
+      const popup = document.getElementById('termPopup');
+      // モバイルではタップ専用にしたいので、ホバー離脱では消さない選択もある
+      // ここでは離脱で消す
+      popup.classList.remove('show');
+    });
+  });
+}
+
+function showTermPopup(el, term) {
+  const popup = document.getElementById('termPopup');
+  popup.innerHTML = `
+    <div><strong>${escapeHtml(el.textContent)}</strong></div>
+    <div class="en">英語:${escapeHtml(term.en || '')}</div>
+    <div class="kana">カタカナ:${escapeHtml(term.kana || '')}</div>
+    <div class="origin">由来:${escapeHtml(term.origin || '')}</div>
+  `;
+  const rect = el.getBoundingClientRect();
+  popup.style.left = (window.scrollX + rect.left) + 'px';
+  popup.style.top = (window.scrollY + rect.bottom + 6) + 'px';
+  // 画面右にはみ出すなら調整
+  popup.classList.add('show');
+  const popupRect = popup.getBoundingClientRect();
+  if (popupRect.right > window.innerWidth - 10) {
+    popup.style.left = (window.scrollX + window.innerWidth - popupRect.width - 10) + 'px';
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.term') && !e.target.closest('.term-popup')) {
+    document.getElementById('termPopup').classList.remove('show');
+  }
+});
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// <br>のみ許容するエスケープ(選択肢内で改行を表現したいとき用)
+function escapeHtmlAllowBr(s) {
+  return escapeHtml(s).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+}
+
+// =================================================================
+// 単元カードのレンダリング
+// =================================================================
+function renderUnits() {
+  const container = document.getElementById('unitsContainer');
+  container.innerHTML = '';
+
+  units.filter(u => u.page === state.currentPage).forEach(unit => {
+    const card = document.createElement('div');
+    card.className = 'unit-card';
+    card.id = unit.id;
+    card.innerHTML = `
+      <div class="unit-header">
+        <div class="unit-no">単元${unit.id.replace('u','')}</div>
+        <div class="unit-title">${escapeHtml(unit.title.replace(/^\d+\.\s*/, ''))}</div>
+      </div>
+      <div class="unit-body">
+        <div class="unit-explain">${convertFurigana(unit.body)}</div>
+
+        <div class="mode-tabs" data-unit="${unit.id}">
+          <button class="mode-tab active" data-mode="fill">✏️ 穴埋め</button>
+          <button class="mode-tab" data-mode="choice4">🎯 4択</button>
+          <button class="mode-tab" data-mode="ox">⭕❌ 〇×</button>
+          <button class="mode-tab" data-mode="confirm">📝 確認</button>
+          <button class="mode-tab" data-mode="challenge">🏆 チャレンジ</button>
+          ${(unit.practice && unit.practice.length) ? `<button class="mode-tab" data-mode="practice">📚 練習</button>` : ''}
+          ${(unit.exercise && unit.exercise.length) ? `<button class="mode-tab" data-mode="exercise">💪 演習</button>` : ''}
+        </div>
+
+        <div class="mode-content active" data-mode="fill" data-unit="${unit.id}">
+          ${renderFill(unit)}
+        </div>
+        <div class="mode-content" data-mode="choice4" data-unit="${unit.id}">
+          ${renderChoice4(unit)}
+        </div>
+        <div class="mode-content" data-mode="ox" data-unit="${unit.id}">
+          ${renderOx(unit)}
+        </div>
+        <div class="mode-content" data-mode="confirm" data-unit="${unit.id}">
+          ${renderConfirm(unit)}
+        </div>
+        ${(unit.practice && unit.practice.length) ? `
+        <div class="mode-content" data-mode="practice" data-unit="${unit.id}">
+          ${renderPracticeOrExercise(unit, 'practice')}
+        </div>` : ''}
+        ${(unit.exercise && unit.exercise.length) ? `
+        <div class="mode-content" data-mode="exercise" data-unit="${unit.id}">
+          ${renderPracticeOrExercise(unit, 'exercise')}
+        </div>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+
+    // 用語ポップアップを本文に紐付け
+    bindTermPopups(card.querySelector('.unit-explain'), unit.terms);
+
+    // 穴埋めのドラッグ&ドロップ初期化
+    initFill(card, unit);
+    // 初期表示は「お手本」状態(語句が入った状態で読めるように)
+    fillInitialAnswers(card, unit);
+    // 4択イベント
+    initChoice(card, unit, 'choice4');
+    // 〇×
+    initOx(card, unit);
+    // 確認
+    initChoice(card, unit, 'confirm');
+    // 練習
+    if (unit.practice && unit.practice.length) initPracticeOrExercise(card, unit, 'practice');
+    // 演習
+    if (unit.exercise && unit.exercise.length) initPracticeOrExercise(card, unit, 'exercise');
+    // モードタブ切替
+    initModeTabs(card);
+    // ベスト記録表示
+    updateBestRecords(unit.id);
+  });
+}
+
+// =================================================================
+// 穴埋め:本文の【1】【2】... をドロップ枠に変換
+// =================================================================
+function renderFill(unit) {
+  const fill = unit.fill;
+  // 【n】を <span class="dz" data-idx="n-1"></span> に置換
+  let text = escapeHtml(fill.text);
+  text = text.replace(/【(\d+)】/g, (_, n) => {
+    const idx = parseInt(n) - 1;
+    return `<span class="dz" data-idx="${idx}" data-unit="${unit.id}"></span>`;
+  });
+  // 改行 -> <br>
+  text = text.replace(/\n/g, '<br>');
+
+  // 語句バンク
+  const bankHtml = fill.bank.map((w, i) =>
+    `<span class="word-chip" draggable="true" data-word="${escapeHtml(w)}" data-bank-idx="${i}">${escapeHtml(w)}</span>`
+  ).join('');
+
+  return `
+    <div class="fill-hint" id="fill-hint-${unit.id}" style="font-size:0.85em; color:#6B7280; margin-bottom:6px;">📖 お手本表示中です。「自分で挑戦」を押すと、語句を外して練習できます。</div>
+    <div class="fill-area" data-unit="${unit.id}">${text}</div>
+    <div class="word-bank" data-unit="${unit.id}">${bankHtml}</div>
+    <div class="best-records" id="best-${unit.id}"></div>
+    <div class="btn-row">
+      <button class="btn btn-amber" onclick="resetFill('${unit.id}')">🎯 自分で挑戦</button>
+      <button class="btn btn-primary" onclick="checkFill('${unit.id}')">✅ 答え合わせ</button>
+      <button class="btn btn-secondary" onclick="showFillAnswer('${unit.id}')">💡 お手本に戻す</button>
+    </div>
+    <div class="result" id="result-${unit.id}"></div>
+  `;
+}
+
+function initFill(card, unit) {
+  const fillArea = card.querySelector(`.fill-area[data-unit="${unit.id}"]`);
+  const bank = card.querySelector(`.word-bank[data-unit="${unit.id}"]`);
+
+  // チップ:ドラッグ + クリックで「選択」モード(モバイル対応)
+  bank.querySelectorAll('.word-chip').forEach(chip => {
+    chip.addEventListener('dragstart', (e) => {
+      if (chip.classList.contains('used')) { e.preventDefault(); return; }
+      chip.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', chip.dataset.word);
+      e.dataTransfer.setData('bank-idx', chip.dataset.bankIdx);
+    });
+    chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
+    chip.addEventListener('click', () => {
+      if (chip.classList.contains('used')) return;
+      // 選択をトグル
+      bank.querySelectorAll('.word-chip.selected').forEach(c => {
+        if (c !== chip) c.classList.remove('selected');
+        c.style.boxShadow = '';
+      });
+      const isSel = chip.classList.toggle('selected');
+      chip.style.boxShadow = isSel ? '0 0 0 3px var(--accent-amber)' : '';
+      state.fillSelectedChip[unit.id] = isSel ? chip : null;
+    });
+  });
+
+  // ドロップゾーン
+  fillArea.querySelectorAll('.dz').forEach(dz => {
+    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.style.background = 'var(--primary-light)'; });
+    dz.addEventListener('dragleave', () => { dz.style.background = ''; });
+    dz.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dz.style.background = '';
+      const word = e.dataTransfer.getData('text/plain');
+      const bankIdx = e.dataTransfer.getData('bank-idx');
+      placeWordInDz(unit.id, dz, word, bankIdx);
+    });
+    // クリックで「選択中」のチップを配置(モバイル)
+    dz.addEventListener('click', () => {
+      const sel = state.fillSelectedChip[unit.id];
+      if (sel && !sel.classList.contains('used')) {
+        placeWordInDz(unit.id, dz, sel.dataset.word, sel.dataset.bankIdx);
+        sel.classList.remove('selected');
+        sel.style.boxShadow = '';
+        state.fillSelectedChip[unit.id] = null;
+      } else if (dz.classList.contains('has-word')) {
+        // 既に置いてある場合、もう一度クリックすると外す
+        returnDz(unit.id, dz);
+      }
+    });
+  });
+}
+
+function placeWordInDz(unitId, dz, word, bankIdx) {
+  // 既にdzに置いていた場合は元のチップを戻す
+  if (dz.dataset.bankIdx !== undefined && dz.dataset.bankIdx !== '') {
+    returnDz(unitId, dz);
+  }
+  dz.textContent = word;
+  dz.classList.add('has-word');
+  dz.classList.remove('correct', 'wrong');
+  dz.dataset.bankIdx = bankIdx;
+  // チップを使用済みに
+  const card = document.getElementById(unitId);
+  const chip = card.querySelector(`.word-chip[data-bank-idx="${bankIdx}"]`);
+  if (chip) chip.classList.add('used');
+}
+
+function returnDz(unitId, dz) {
+  const card = document.getElementById(unitId);
+  const oldIdx = dz.dataset.bankIdx;
+  if (oldIdx !== undefined && oldIdx !== '') {
+    const chip = card.querySelector(`.word-chip[data-bank-idx="${oldIdx}"]`);
+    if (chip) chip.classList.remove('used');
+  }
+  dz.textContent = '';
+  dz.classList.remove('has-word', 'correct', 'wrong');
+  dz.dataset.bankIdx = '';
+}
+
+function checkFill(unitId) {
+  const unit = units.find(u => u.id === unitId);
+  const card = document.getElementById(unitId);
+  const dzs = card.querySelectorAll('.fill-area .dz');
+  const answers = unit.fill.answers;
+  let correct = 0;
+  let total = answers.length;
+  dzs.forEach((dz, i) => {
+    if (dz.textContent === answers[i]) {
+      dz.classList.add('correct');
+      dz.classList.remove('wrong');
+      correct++;
+    } else if (dz.textContent !== '') {
+      dz.classList.add('wrong');
+      dz.classList.remove('correct');
+    }
+  });
+  const result = card.querySelector(`#result-${unitId}`);
+  const elapsed = getUnitTime(unitId);
+  const allCorrect = (correct === total);
+  if (allCorrect) {
+    result.className = 'result show pass';
+    result.innerHTML = `🎉 全問正解!(${correct}/${total}) <br>かかった時間:${formatTime(elapsed)}`;
+    saveBestRecord(unitId, elapsed);
+    confettiBurst();
+    updateBestRecords(unitId);
+  } else {
+    result.className = 'result show fail';
+    result.innerHTML = `${correct}/${total} 正解。間違えた箇所を見直してみましょう。`;
+  }
+}
+
+function showFillAnswer(unitId) {
+  const unit = units.find(u => u.id === unitId);
+  const card = document.getElementById(unitId);
+  const dzs = card.querySelectorAll('.fill-area .dz');
+  // 既存配置を全部リセット
+  dzs.forEach(dz => returnDz(unitId, dz));
+  // 答えを順に置く
+  dzs.forEach((dz, i) => {
+    dz.textContent = unit.fill.answers[i];
+    dz.classList.add('has-word');
+    dz.classList.add('correct');
+  });
+  // バンクのチップを使用済みに(対応する単語を)
+  unit.fill.answers.forEach(ans => {
+    const chip = Array.from(card.querySelectorAll('.word-chip')).find(c =>
+      c.dataset.word === ans && !c.classList.contains('used'));
+    if (chip) chip.classList.add('used');
+  });
+  const result = card.querySelector(`#result-${unitId}`);
+  result.className = 'result show pass';
+  result.innerHTML = `💡 お手本を表示しました。じっくり読んでから、「🎯 自分で挑戦」を押して練習してみましょう。`;
+  // ヒントメッセージを「お手本表示中」に
+  const hint = document.getElementById(`fill-hint-${unitId}`);
+  if (hint) hint.innerHTML = '📖 お手本表示中です。「🎯 自分で挑戦」を押すと、語句を外して練習できます。';
+}
+
+// 初期表示用:お手本を静かに表示(メッセージなし、結果欄に表示しない)
+function fillInitialAnswers(card, unit) {
+  const dzs = card.querySelectorAll('.fill-area .dz');
+  dzs.forEach((dz, i) => {
+    const ans = unit.fill.answers[i];
+    if (ans === undefined) return;
+    dz.textContent = ans;
+    dz.classList.add('has-word');
+    // 初期表示は「正解色」ではなく「埋まっている色」にしておく(お手本らしく)
+  });
+  // 対応するチップを使用済みに
+  unit.fill.answers.forEach(ans => {
+    const chip = Array.from(card.querySelectorAll('.word-chip')).find(c =>
+      c.dataset.word === ans && !c.classList.contains('used'));
+    if (chip) chip.classList.add('used');
+  });
+}
+
+function resetFill(unitId) {
+  const card = document.getElementById(unitId);
+  card.querySelectorAll('.fill-area .dz').forEach(dz => returnDz(unitId, dz));
+  card.querySelectorAll('.word-chip').forEach(c => {
+    c.classList.remove('used', 'selected');
+    c.style.boxShadow = '';
+  });
+  const result = card.querySelector(`#result-${unitId}`);
+  result.classList.remove('show', 'pass', 'fail');
+  // ヒントメッセージを「挑戦中」に切り替え
+  const hint = document.getElementById(`fill-hint-${unitId}`);
+  if (hint) hint.innerHTML = '🎯 挑戦中です。語句バンクから語句をドラッグ(またはタップして枠をクリック)で配置しましょう。';
+  // 単元タイマー再スタート
+  state.unitStartTime = state.unitStartTime || {};
+  state.unitStartTime[unitId] = Date.now();
+}
+
+// =================================================================
+// 単元ごとのタイマー(穴埋め用)
+// =================================================================
+function getUnitTime(unitId) {
+  state.unitStartTime = state.unitStartTime || {};
+  if (!state.unitStartTime[unitId]) state.unitStartTime[unitId] = Date.now();
+  return Math.floor((Date.now() - state.unitStartTime[unitId]) / 1000);
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// =================================================================
+// ベスト記録(localStorage)
+// =================================================================
+function saveBestRecord(unitId, sec) {
+  const key = `joho4_best_${unitId}`;
+  let arr = JSON.parse(localStorage.getItem(key) || '[]');
+  arr.push({ sec, date: new Date().toISOString().slice(0,10) });
+  arr.sort((a, b) => a.sec - b.sec);
+  arr = arr.slice(0, 3);
+  localStorage.setItem(key, JSON.stringify(arr));
+}
+
+function updateBestRecords(unitId) {
+  const key = `joho4_best_${unitId}`;
+  const arr = JSON.parse(localStorage.getItem(key) || '[]');
+  const el = document.getElementById(`best-${unitId}`);
+  if (!el) return;
+  if (arr.length === 0) {
+    el.innerHTML = `<strong>🏆 ベスト3</strong>:まだ記録がありません。穴埋めを全問正解してみましょう。`;
+  } else {
+    const list = arr.map((r, i) => `${['🥇','🥈','🥉'][i]} ${formatTime(r.sec)}`).join(' / ');
+    el.innerHTML = `<strong>🏆 ベスト3</strong>:${list}`;
+  }
+}
+
+// =================================================================
+// 4択 / 確認モード(共通)
+// =================================================================
+function renderChoice4(unit) {
+  return unit.choice4.map((q, qi) => renderChoiceQ(unit.id, 'choice4', q, qi)).join('');
+}
+
+function renderConfirm(unit) {
+  return unit.confirm.map((q, qi) => renderChoiceQ(unit.id, 'confirm', q, qi)).join('');
+}
+
+function renderChoiceQ(unitId, mode, q, qi) {
+  const opts = q.options.map((opt, oi) =>
+    `<button class="q-option" data-unit="${unitId}" data-mode="${mode}" data-qi="${qi}" data-oi="${oi}">${escapeHtmlAllowBr(opt)}</button>`
+  ).join('');
+  // q.q: 問題文(プレーンテキスト) — escapeHtmlだが <br> を含む既存問題に配慮:そのまま出す
+  // ただし code/flowchartがある場合はQに含めない
+  const qText = (q.q || '').replace(/<br\s*\/?>/g, '<br>');  // <br>をそのまま
+  // codeフィールド:DNCL風プログラム(縦1列で表示)
+  const codeBlock = q.code ? `
+    <div class="q-code-block">${q.code.split('\n').map(line => {
+      // 既にHTMLタグ(<span>)が含まれている場合はそのまま、プレーンテキストならエスケープ
+      if (line.includes('<span')) return line;
+      return escapeHtml(line);
+    }).join('<br>')}</div>
+  ` : '';
+  // flowchartフィールド:フローチャートSVG(ボタンで開閉)
+  const flowchartBtn = q.flowchart ? `
+    <button class="q-flowchart-toggle" type="button" data-target="fc-${unitId}-${mode}-${qi}">📊 フローチャート図を見る ▼</button>
+    <div class="q-flowchart-content" id="fc-${unitId}-${mode}-${qi}" style="display:none;">${q.flowchart}</div>
+  ` : '';
+  return `
+    <div class="q-item" data-unit="${unitId}" data-mode="${mode}" data-qi="${qi}">
+      <div class="q-text">問${qi + 1}:${qText}</div>
+      ${codeBlock}
+      ${flowchartBtn}
+      <div class="q-options">${opts}</div>
+      <div class="q-feedback">
+        <div><span class="label">💡 解説</span>${escapeHtml(q.exp || '')}</div>
+        ${q.ex ? `<div style="margin-top:6px;"><span class="label">📝 例</span>${escapeHtml(q.ex)}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function initChoice(card, unit, mode) {
+  const items = card.querySelectorAll(`.q-item[data-mode="${mode}"]`);
+  items.forEach(item => {
+    const qi = parseInt(item.dataset.qi);
+    const q = unit[mode][qi];
+    // フローチャート図ボタンの開閉
+    const fcBtn = item.querySelector('.q-flowchart-toggle');
+    if (fcBtn) {
+      fcBtn.addEventListener('click', () => {
+        const target = document.getElementById(fcBtn.dataset.target);
+        if (target.style.display === 'none') {
+          target.style.display = 'block';
+          fcBtn.innerHTML = '📊 フローチャート図を閉じる ▲';
+          fcBtn.classList.add('open');
+        } else {
+          target.style.display = 'none';
+          fcBtn.innerHTML = '📊 フローチャート図を見る ▼';
+          fcBtn.classList.remove('open');
+        }
+      });
+    }
+    item.querySelectorAll('.q-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const oi = parseInt(opt.dataset.oi);
+        // 全ボタン無効化
+        item.querySelectorAll('.q-option').forEach(o => o.classList.add('disabled'));
+        // 正解強調
+        item.querySelectorAll('.q-option').forEach((o, idx) => {
+          if (idx === q.answer) o.classList.add('correct');
+        });
+        // 不正解
+        if (oi !== q.answer) opt.classList.add('wrong');
+        // 解説表示
+        item.querySelector('.q-feedback').classList.add('show');
+        // 全問正解チェック
+        setTimeout(() => checkAllCorrect(card, unit, mode), 300);
+      });
+    });
+  });
+}
+
+// =================================================================
+// 〇×モード
+// =================================================================
+function renderOx(unit) {
+  return unit.ox.map((q, qi) => {
+    const codeBlock = q.code ? `<div class="q-code-block">${q.code.split('\n').map(l => l.includes('<span') ? l : escapeHtml(l)).join('<br>')}</div>` : '';
+    const fcBtn = q.flowchart ? `<button class="q-flowchart-toggle" type="button" data-target="fc-${unit.id}-ox-${qi}">📊 フローチャート図を見る ▼</button><div class="q-flowchart-content" id="fc-${unit.id}-ox-${qi}" style="display:none;">${q.flowchart}</div>` : '';
+    return `
+    <div class="q-item" data-unit="${unit.id}" data-mode="ox" data-qi="${qi}">
+      <div class="q-text">問${qi + 1}:${q.q}</div>
+      ${codeBlock}
+      ${fcBtn}
+      <div class="ox-options">
+        <button class="ox-btn maru" data-unit="${unit.id}" data-qi="${qi}" data-ans="true">○</button>
+        <button class="ox-btn batsu" data-unit="${unit.id}" data-qi="${qi}" data-ans="false">×</button>
+      </div>
+      <div class="q-feedback">
+        <div><span class="label">💡 解説</span>${escapeHtml(q.exp || '')}</div>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+
+// =================================================================
+// チャレンジモード (ドラッグ&ドロップ語句バンク)
+// =================================================================
+function initChallenge(card, unit) {
+  const list = unit.challenge || [];
+  const bank = unit.challengeBank || [];
+  if (!list.length) return;
+  
+  let html = '<div class="challenge-container">';
+  html += '<div class="challenge-instruction">💡 下の語句バンクから正しい答えをドラッグ&ドロップしてください。</div>';
+  
+  // 問題一覧
+  list.forEach((item, qi) => {
+    html += `
+    <div class="challenge-item" data-qi="${qi}">
+      <div class="challenge-question">${qi + 1}. ${item.q}</div>
+      <div class="challenge-dropzone" data-qi="${qi}" data-answer="${item.a}">
+        <span class="challenge-placeholder">ここに答えをドロップ</span>
+      </div>
+      <div class="challenge-feedback" data-qi="${qi}"></div>
+    </div>`;
+  });
+  
+  // 語句バンク
+  html += '<div class="challenge-bank-title">📚 語句バンク</div>';
+  html += '<div class="challenge-bank">';
+  
+  // シャッフル
+  const shuffled = [...bank].sort(() => Math.random() - 0.5);
+  shuffled.forEach((word, wi) => {
+    html += `<div class="challenge-chip" draggable="true" data-word="${word}">${word}</div>`;
+  });
+  
+  html += '</div>';
+  html += '<button class="challenge-check-btn" type="button">🎯 答え合わせ</button>';
+  html += '<div class="challenge-result"></div>';
+  html += '</div>';
+  
+  const container = card.querySelector('.mode-content[data-mode="challenge"]');
+  container.innerHTML = html;
+  
+  // ドラッグ&ドロップイベント
+  const chips = container.querySelectorAll('.challenge-chip');
+  const dropzones = container.querySelectorAll('.challenge-dropzone');
+  
+  chips.forEach(chip => {
+    chip.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', chip.dataset.word);
+      chip.classList.add('dragging');
+    });
+    chip.addEventListener('dragend', () => {
+      chip.classList.remove('dragging');
+    });
+  });
+  
+  dropzones.forEach(zone => {
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('dragover');
+    });
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      
+      const word = e.dataTransfer.getData('text/plain');
+      zone.textContent = word;
+      zone.dataset.userAnswer = word;
+      zone.classList.add('filled');
+      
+      // フィードバックをクリア
+      const qi = zone.dataset.qi;
+      const feedback = container.querySelector(`.challenge-feedback[data-qi="${qi}"]`);
+      feedback.textContent = '';
+      feedback.className = 'challenge-feedback';
+    });
+  });
+  
+  // 答え合わせボタン
+  container.querySelector('.challenge-check-btn').addEventListener('click', () => {
+    let correct = 0;
+    let total = list.length;
+    
+    dropzones.forEach((zone, qi) => {
+      const userAnswer = zone.dataset.userAnswer || '';
+      const correctAnswer = zone.dataset.answer;
+      const feedback = container.querySelector(`.challenge-feedback[data-qi="${qi}"]`);
+      
+      if (userAnswer === correctAnswer) {
+        zone.classList.add('correct');
+        zone.classList.remove('wrong');
+        feedback.textContent = '✅ 正解!';
+        feedback.className = 'challenge-feedback correct';
+        correct++;
+      } else if (userAnswer) {
+        zone.classList.add('wrong');
+        zone.classList.remove('correct');
+        feedback.textContent = `❌ 不正解。正解は「${correctAnswer}」です。`;
+        feedback.className = 'challenge-feedback wrong';
+      } else {
+        feedback.textContent = '⚠️ 未回答です。';
+        feedback.className = 'challenge-feedback';
+      }
+    });
+    
+    // 結果表示
+    const result = container.querySelector('.challenge-result');
+    const score = Math.round((correct / total) * 100);
+    
+    if (correct === total) {
+      result.innerHTML = `<div class="all-correct">🎉 全問正解! おめでとうございます! (${correct}/${total})</div>`;
+      confettiBurst();
+    } else {
+      result.innerHTML = `<div class="partial-correct">📊 正解数: ${correct}/${total} (${score}点)</div>`;
+    }
+    
+    result.style.display = 'block';
+  });
+}
+
+function initOx(card, unit) {
+  card.querySelectorAll('.q-item[data-mode="ox"]').forEach(item => {
+    const qi = parseInt(item.dataset.qi);
+    const q = unit.ox[qi];
+    // フローチャート図ボタンの開閉
+    const fcBtn = item.querySelector('.q-flowchart-toggle');
+    if (fcBtn) {
+      fcBtn.addEventListener('click', () => {
+        const target = document.getElementById(fcBtn.dataset.target);
+        if (target.style.display === 'none') {
+          target.style.display = 'block';
+          fcBtn.innerHTML = '📊 フローチャート図を閉じる ▲';
+          fcBtn.classList.add('open');
+        } else {
+          target.style.display = 'none';
+          fcBtn.innerHTML = '📊 フローチャート図を見る ▼';
+          fcBtn.classList.remove('open');
+        }
+      });
+    }
+    item.querySelectorAll('.ox-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ans = btn.dataset.ans === 'true';
+        item.querySelectorAll('.ox-btn').forEach(b => b.disabled = true);
+        const correctBtn = item.querySelector(`.ox-btn[data-ans="${q.answer}"]`);
+        correctBtn.classList.add('correct');
+        if (ans !== q.answer) btn.classList.add('wrong');
+        item.querySelector('.q-feedback').classList.add('show');
+        // 全問正解チェック
+        setTimeout(() => checkAllCorrect(card, unit, 'ox'), 300);
+      });
+    });
+  });
+}
+
+// =================================================================
+// 全問正解チェック(各モード共通)
+// =================================================================
+function checkAllCorrect(card, unit, mode) {
+  // ぜんぶの問題が解答済みかつ正解か?
+  const items = card.querySelectorAll(`.q-item[data-mode="${mode}"]`);
+  if (!items.length) return false;
+  let answered = 0;
+  let correct = 0;
+  items.forEach((item, qi) => {
+    const q = unit[mode][qi];
+    if (mode === 'ox') {
+      // 〇×は disabled になっていたら回答済み
+      const btns = item.querySelectorAll('.ox-btn');
+      const isDisabled = btns[0].disabled;
+      if (isDisabled) {
+        answered++;
+        // 正解: wrongクラスがついたボタンが無いこと(=ユーザーは正解した)
+        const userWrong = item.querySelector('.ox-btn.wrong');
+        if (!userWrong) correct++;
+      }
+    } else {
+      // 4択系
+      const opts = item.querySelectorAll('.q-option');
+      if (opts.length === 0) return;
+      const isAnswered = opts[0].classList.contains('disabled');
+      if (isAnswered) {
+        answered++;
+        const userWrong = item.querySelector('.q-option.wrong');
+        if (!userWrong) correct++;
+      }
+    }
+  });
+  if (answered === items.length && correct === items.length) {
+    // 全問正解!花吹雪+メッセージ
+    showAllCorrectCelebration(card, unit, mode, correct);
+    return true;
+  }
+  return false;
+}
+
+function showAllCorrectCelebration(card, unit, mode, total) {
+  // 既にお祝い表示済みなら何もしない(連打防止)
+  const content = card.querySelector(`.mode-content[data-mode="${mode}"]`);
+  if (!content || content.querySelector('.all-correct-banner')) return;
+
+  // バナーを挿入
+  const modeLabel = {
+    'choice4': '4択',
+    'ox': '〇×',
+    'confirm': '確認',
+    'practice': '練習',
+    'exercise': '演習'
+  }[mode] || '';
+  const banner = document.createElement('div');
+  banner.className = 'all-correct-banner';
+  banner.style.cssText = 'margin-top:16px; padding:18px 24px; background:linear-gradient(135deg,#FEF3C7,#FCE7F3); border:2px solid #F59E0B; border-radius:14px; text-align:center; box-shadow:0 4px 20px rgba(245,158,11,.25); font-size:1.05em; font-weight:700; color:#92400E;';
+  banner.innerHTML = `🎉 全問正解!${modeLabel}モード ${total}問すべて正解しました! <span style="font-size:1.4em;">🎊✨</span>`;
+  content.appendChild(banner);
+
+  // 花吹雪
+  confettiBurst();
+}
+
+
+
+// =================================================================
+// 練習モード / 演習モード(input型 と choice型 の混在)
+// =================================================================
+function renderPracticeOrExercise(unit, mode) {
+  const list = unit[mode] || [];
+  const headerColor = (mode === 'practice') ? '#10B981' : '#EC4899';
+  const headerBg = (mode === 'practice') ? '#D1FAE5' : '#FCE7F3';
+  const headerLabel = (mode === 'practice') ? '📚 練習問題:基本の定着' : '💪 演習問題:応用力アップ';
+  const headerHint = (mode === 'practice')
+    ? '一問ごとにすぐ答え合わせ。電卓を使ってもOKです。'
+    : '少し考えるシナリオです。じっくり取り組みましょう。';
+
+  const items = list.map((q, qi) => {
+    if (q.type === 'input') {
+      return `
+        <div class="q-item pe-item" data-unit="${unit.id}" data-mode="${mode}" data-qi="${qi}" style="border-left-color:${headerColor};">
+          <div class="q-text">問${qi + 1}:${escapeHtml(q.q)}</div>
+          <div class="pe-input-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0;">
+            <input type="text" class="pe-input" inputmode="decimal"
+              style="font-size:1.1em; padding:8px 12px; border:2px solid #CFFAFE; border-radius:8px; width:140px; font-weight:700; text-align:right;"
+              data-unit="${unit.id}" data-mode="${mode}" data-qi="${qi}" placeholder="答えを入力"/>
+            <span style="font-weight:700; color:#0E7490;">${escapeHtml(q.unit || '')}</span>
+            <button class="btn btn-primary pe-check" data-unit="${unit.id}" data-mode="${mode}" data-qi="${qi}">✅ 答え合わせ</button>
+            <button class="btn btn-secondary pe-show" data-unit="${unit.id}" data-mode="${mode}" data-qi="${qi}">💡 答えを見る</button>
+          </div>
+          <div class="pe-judge" style="display:none; margin:6px 0; font-weight:700;"></div>
+          <div class="q-feedback">
+            <div><span class="label">💡 解説</span>${escapeHtml(q.exp || '')}</div>
+            ${q.ex ? `<div style="margin-top:6px;"><span class="label">📝 例</span>${escapeHtml(q.ex)}</div>` : ''}
+          </div>
+        </div>`;
+    } else { // 'choice' or default
+      const opts = (q.options || []).map((opt, oi) =>
+        `<button class="q-option" data-unit="${unit.id}" data-mode="${mode}" data-qi="${qi}" data-oi="${oi}">${escapeHtmlAllowBr(opt)}</button>`
+      ).join('');
+      return `
+        <div class="q-item pe-item" data-unit="${unit.id}" data-mode="${mode}" data-qi="${qi}" style="border-left-color:${headerColor};">
+          <div class="q-text">問${qi + 1}:${escapeHtml(q.q)}</div>
+          <div class="q-options">${opts}</div>
+          <div class="q-feedback">
+            <div><span class="label">💡 解説</span>${escapeHtml(q.exp || '')}</div>
+            ${q.ex ? `<div style="margin-top:6px;"><span class="label">📝 例</span>${escapeHtml(q.ex)}</div>` : ''}
+          </div>
+        </div>`;
+    }
+  }).join('');
+
+  return `
+    <div class="pe-header" style="background:${headerBg}; padding:10px 14px; border-radius:8px; margin-bottom:12px;">
+      <div style="font-weight:700; color:${headerColor === '#10B981' ? '#065F46' : '#9D174D'};">${headerLabel}</div>
+      <div style="font-size:0.85em; color:#6B7280; margin-top:4px;">${headerHint}</div>
+    </div>
+    ${items}
+  `;
+}
+
+function initPracticeOrExercise(card, unit, mode) {
+  const list = unit[mode] || [];
+  // 入力型の答え合わせボタン
+  card.querySelectorAll(`.pe-check[data-mode="${mode}"]`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qi = parseInt(btn.dataset.qi);
+      const q = list[qi];
+      const item = card.querySelector(`.pe-item[data-mode="${mode}"][data-qi="${qi}"]`);
+      const input = item.querySelector('.pe-input');
+      const judge = item.querySelector('.pe-judge');
+      const userVal = (input.value || '').trim().replace(/,/g, '').replace(/\s/g, '');
+      const correctVal = String(q.answer).replace(/,/g, '');
+      // 数値比較を許容(123 == 123.0など)
+      let ok = (userVal === correctVal);
+      if (!ok) {
+        const a = parseFloat(userVal), b = parseFloat(correctVal);
+        if (!isNaN(a) && !isNaN(b) && a === b) ok = true;
+      }
+      judge.style.display = 'block';
+      if (ok) {
+        judge.textContent = `🎉 正解!  答え:${q.answer} ${q.unit || ''}`;
+        judge.style.color = '#065F46';
+        input.style.borderColor = '#10B981';
+        input.style.background = '#D1FAE5';
+      } else {
+        judge.textContent = `😢 残念。正しい答えは「${q.answer} ${q.unit || ''}」です。`;
+        judge.style.color = '#991B1B';
+        input.style.borderColor = '#EF4444';
+        input.style.background = '#FEE2E2';
+      }
+      item.querySelector('.q-feedback').classList.add('show');
+    });
+  });
+  // 入力型の「答えを見る」ボタン
+  card.querySelectorAll(`.pe-show[data-mode="${mode}"]`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qi = parseInt(btn.dataset.qi);
+      const q = list[qi];
+      const item = card.querySelector(`.pe-item[data-mode="${mode}"][data-qi="${qi}"]`);
+      const input = item.querySelector('.pe-input');
+      const judge = item.querySelector('.pe-judge');
+      input.value = String(q.answer);
+      input.style.borderColor = '#F59E0B';
+      input.style.background = '#FEF3C7';
+      judge.style.display = 'block';
+      judge.textContent = `💡 答え:${q.answer} ${q.unit || ''}`;
+      judge.style.color = '#92400E';
+      item.querySelector('.q-feedback').classList.add('show');
+    });
+  });
+  // Enterキーで答え合わせ
+  card.querySelectorAll(`.pe-input[data-mode="${mode}"]`).forEach(inp => {
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const qi = parseInt(inp.dataset.qi);
+        const btn = card.querySelector(`.pe-check[data-mode="${mode}"][data-qi="${qi}"]`);
+        if (btn) btn.click();
+      }
+    });
+  });
+  // 4択型(choice)の処理は initChoice と同じロジック
+  card.querySelectorAll(`.pe-item[data-mode="${mode}"]`).forEach(item => {
+    const qi = parseInt(item.dataset.qi);
+    const q = list[qi];
+    if (!q || q.type === 'input') return;
+    item.querySelectorAll('.q-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const oi = parseInt(opt.dataset.oi);
+        item.querySelectorAll('.q-option').forEach(o => o.classList.add('disabled'));
+        item.querySelectorAll('.q-option').forEach((o, idx) => {
+          if (idx === q.answer) o.classList.add('correct');
+        });
+        if (oi !== q.answer) opt.classList.add('wrong');
+        item.querySelector('.q-feedback').classList.add('show');
+        // 全問正解チェック(練習・演習用)
+        setTimeout(() => checkAllCorrectPE(card, unit, mode), 300);
+      });
+    });
+  });
+}
+
+// 練習・演習用 全問正解チェック(pe-item セレクタを使う)
+function checkAllCorrectPE(card, unit, mode) {
+  const items = card.querySelectorAll(`.pe-item[data-mode="${mode}"]`);
+  if (!items.length) return;
+  let answered = 0, correct = 0;
+  items.forEach((item, qi) => {
+    const q = (unit[mode] || [])[qi];
+    if (!q) return;
+    if (q.type === 'input') {
+      // input型: judgeが表示済みかつ green なら正解
+      const judge = item.querySelector('.pe-judge');
+      if (judge && judge.style.display === 'block') {
+        answered++;
+        if (judge.textContent.includes('正解')) correct++;
+      }
+    } else {
+      const opts = item.querySelectorAll('.q-option');
+      if (opts.length === 0) return;
+      if (opts[0].classList.contains('disabled')) {
+        answered++;
+        if (!item.querySelector('.q-option.wrong')) correct++;
+      }
+    }
+  });
+  if (answered === items.length && correct === items.length) {
+    showAllCorrectCelebration(card, unit, mode, correct);
+  }
+}
+
+// =================================================================
+// モードタブ切替
+// =================================================================
+function initModeTabs(card) {
+  const tabs = card.querySelectorAll('.mode-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const mode = tab.dataset.mode;
+      const unitId = card.id;
+      // タブ更新
+      card.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      // コンテンツ切替
+      card.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+      card.querySelector(`.mode-content[data-mode="${mode}"]`).classList.add('active');
+      
+      // チャレンジモード時のみタイマー起動
+      if (mode === 'challenge') {
+        startGlobalTimer();
+      } else {
+        stopGlobalTimer();
+      }
+    });
+  });
+}
+
+// =================================================================
+// 花吹雪
+// =================================================================
+function confettiBurst() {
+  const colors = ['#7C3AED', '#5B21B6', '#A78BFA', '#F59E0B', '#FBBF24', '#EC4899', '#10B981'];
+  for (let i = 0; i < 80; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.left = Math.random() * 100 + 'vw';
+    conf.style.top = '-20px';
+    conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(conf);
+    const duration = 2000 + Math.random() * 2000;
+    const xMove = (Math.random() - 0.5) * 200;
+    conf.animate([
+      { transform: `translate(0,0) rotate(0deg)`, opacity: 1 },
+      { transform: `translate(${xMove}px, ${window.innerHeight + 50}px) rotate(${720 + Math.random()*360}deg)`, opacity: 0 }
+    ], { duration: duration, easing: 'cubic-bezier(0.2, 0.7, 0.4, 1.0)' });
+    setTimeout(() => conf.remove(), duration);
+  }
+}
+
+// =================================================================
+// ページタブ
+// =================================================================
+document.querySelectorAll('#pageTabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const page = parseInt(tab.dataset.page);
+    state.currentPage = page;
+    document.querySelectorAll('#pageTabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderUnits();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// =================================================================
+// グローバルタイマー
+// =================================================================
+let timerIntervalId = null;
+
+function tickTimer() {
+  const sec = Math.floor((Date.now() - state.startTime) / 1000);
+  document.getElementById('timer').textContent = '⏱️ ' + formatTime(sec);
+}
+
+function startGlobalTimer() {
+  if (timerIntervalId) return; // 既に動作中なら何もしない
+  state.startTime = Date.now();
+  timerIntervalId = setInterval(tickTimer, 1000);
+  tickTimer(); // 即座に表示を更新
+}
+
+function stopGlobalTimer() {
+  if (timerIntervalId) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+  }
+}
+
+// =================================================================
+// 初期描画
+// =================================================================
+// URLハッシュ(#u3など)から初期ページを決定
+(function applyInitialHash() {
+  const hash = (location.hash || '').replace('#', '');
+  if (!hash) return;
+  const target = units.find(u => u.id === hash);
+  if (target && target.page) {
+    state.currentPage = target.page;
+    document.querySelectorAll('#pageTabs .tab').forEach(t => {
+      t.classList.toggle('active', parseInt(t.dataset.page) === target.page);
+    });
+  }
+})();
+
+renderUnits();
+
+// ハッシュに該当する単元へスクロール
+(function scrollToHashUnit() {
+  const hash = (location.hash || '').replace('#', '');
+  if (!hash) return;
+  setTimeout(function() {
+    const card = document.getElementById(hash);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.style.transition = 'box-shadow 0.4s';
+      const orig = card.style.boxShadow;
+      card.style.boxShadow = '0 0 0 4px #fbbf24, 0 8px 30px rgba(245,158,11,.4)';
+      setTimeout(function(){ card.style.boxShadow = orig; }, 1800);
+    }
+  }, 120);
+})();
+
+// hashchange時の対応
+window.addEventListener('hashchange', function() {
+  const hash = (location.hash || '').replace('#', '');
+  if (!hash) return;
+  const target = units.find(u => u.id === hash);
+  if (target && target.page) {
+    state.currentPage = target.page;
+    document.querySelectorAll('#pageTabs .tab').forEach(t => {
+      t.classList.toggle('active', parseInt(t.dataset.page) === target.page);
+    });
+    renderUnits();
+    setTimeout(function() {
+      const card = document.getElementById(hash);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        card.style.transition = 'box-shadow 0.4s';
+        const orig = card.style.boxShadow;
+        card.style.boxShadow = '0 0 0 4px #fbbf24, 0 8px 30px rgba(245,158,11,.4)';
+        setTimeout(function(){ card.style.boxShadow = orig; }, 1800);
+      }
+    }, 120);
+  }
+});
+
+
+
+// =================================================================
+// 重要語句ポップアップ
+// =================================================================
+(function() {
+  const popup = document.createElement('div');
+  popup.className = 'term-popup';
+  document.body.appendChild(popup);
+
+  let currentTerm = null;
+
+  document.addEventListener('click', (e) => {
+    const term = e.target.closest('.term');
+    if (term) {
+      e.stopPropagation();
+      const termKey = term.dataset.term;
+      
+      // 現在のカードのunit情報を取得
+      const card = term.closest('.unit-card');
+      if (!card) return;
+      
+      const unit = units.find(u => u.id === card.id);
+      if (!unit || !unit.terms || !unit.terms[termKey]) return;
+      
+      const termData = unit.terms[termKey];
+      
+      // ポップアップ内容を生成
+      popup.innerHTML = `
+        <div class="term-popup-title">${termKey}</div>
+        <div class="term-popup-en">${termData.en}</div>
+        <div class="term-popup-kana">${termData.kana}</div>
+        <div class="term-popup-origin">${termData.origin}</div>
+      `;
+      
+      // 位置調整
+      const rect = term.getBoundingClientRect();
+      let top = rect.bottom + window.scrollY + 10;
+      let left = rect.left + window.scrollX;
+      
+      // 画面外に出ないように調整
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+      popup.classList.add('show');
+      
+      // 画面下部はみ出し対策
+      requestAnimationFrame(() => {
+        const popupRect = popup.getBoundingClientRect();
+        if (popupRect.bottom > window.innerHeight) {
+          top = rect.top + window.scrollY - popupRect.height - 10;
+          popup.style.top = top + 'px';
+        }
+        if (popupRect.right > window.innerWidth) {
+          left = window.innerWidth - popupRect.width - 20;
+          popup.style.left = left + 'px';
+        }
+      });
+      
+      currentTerm = term;
+    } else if (!e.target.closest('.term-popup')) {
+      popup.classList.remove('show');
+      currentTerm = null;
+    }
+  });
+
+  // スクロール時にポップアップを閉じる
+  let scrollTimeout;
+  window.addEventListener('scroll', () => {
+    if (popup.classList.contains('show')) {
+      popup.classList.remove('show');
+      currentTerm = null;
+    }
+  }, { passive: true });
+})();
+
+
+// =================================================================
+// インタラクティブ表（5大装置）
+// =================================================================
+let tableChallengeModeActive = false;
+
+function toggleTableChallenge() {
+  tableChallengeModeActive = !tableChallengeModeActive;
+  const btn = document.querySelector('.btn-toggle-table-challenge');
+  const checkBtn = document.querySelector('.btn-check-table');
+  const wordBank = document.getElementById('table-word-bank');
+  const result = document.getElementById('table-result');
+  
+  // ボタン表示切替
+  btn.querySelector('.challenge-off').style.display = tableChallengeModeActive ? 'none' : 'inline';
+  btn.querySelector('.challenge-on').style.display = tableChallengeModeActive ? 'inline' : 'none';
+  checkBtn.style.display = tableChallengeModeActive ? 'inline-block' : 'none';
+  wordBank.style.display = tableChallengeModeActive ? 'block' : 'none';
+  result.style.display = 'none';
+  
+  // 全ての行を切り替え
+  document.querySelectorAll('.table-dropzone').forEach(cell => {
+    const answer = cell.querySelector('.table-answer');
+    const dropArea = cell.querySelector('.table-drop-area');
+    
+    if (tableChallengeModeActive) {
+      answer.style.display = 'none';
+      dropArea.style.display = 'flex';
+      dropArea.classList.remove('filled', 'correct', 'wrong');
+      dropArea.innerHTML = '<span class="table-placeholder">ここにドロップ</span>';
+      delete dropArea.dataset.userAnswer;
+    } else {
+      answer.style.display = 'block';
+      dropArea.style.display = 'none';
+    }
+  });
+  
+  if (tableChallengeModeActive) {
+    initTableDragDrop();
+  }
+}
+
+function initTableDragDrop() {
+  const chips = document.querySelectorAll('.table-chip');
+  const dropzones = document.querySelectorAll('.table-drop-area');
+  
+  chips.forEach(chip => {
+    chip.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', chip.dataset.word);
+      chip.classList.add('dragging');
+    });
+    
+    chip.addEventListener('dragend', () => {
+      chip.classList.remove('dragging');
+    });
+  });
+  
+  dropzones.forEach(zone => {
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+    
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('dragover');
+    });
+    
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      
+      const word = e.dataTransfer.getData('text/plain');
+      zone.textContent = word;
+      zone.dataset.userAnswer = word;
+      zone.classList.add('filled');
+      zone.classList.remove('correct', 'wrong');
+    });
+  });
+}
+
+function checkTableAnswers() {
+  const dropzones = document.querySelectorAll('.table-drop-area');
+  let correct = 0;
+  let total = dropzones.length;
+  
+  dropzones.forEach(zone => {
+    const userAnswer = zone.dataset.userAnswer || '';
+    const correctAnswer = zone.parentElement.dataset.answer;
+    
+    if (userAnswer === correctAnswer) {
+      zone.classList.add('correct');
+      zone.classList.remove('wrong');
+      correct++;
+    } else if (userAnswer) {
+      zone.classList.add('wrong');
+      zone.classList.remove('correct');
+    }
+  });
+  
+  const result = document.getElementById('table-result');
+  result.style.display = 'block';
+  
+  if (correct === total) {
+    result.className = 'table-result all-correct';
+    result.textContent = `🎉 全問正解! 5大装置をマスターしました! (${correct}/${total})`;
+    confettiBurst();
+  } else {
+    result.className = 'table-result partial';
+    result.textContent = `📊 正解数: ${correct}/${total} もう少し！`;
+  }
+}
+
+</script>
+
+</body>
+</html>
