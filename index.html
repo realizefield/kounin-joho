@@ -2,952 +2,1332 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>情報1 学習単元表</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>GAMBA 情報Ⅰ 単元表</title>
 <style>
-:root{
-  /* テック風テーマ:濃紺×シアン×水色 */
-  --ink:#0f172a;--ink2:#1e293b;
-  --paper:#f1f5f9;
-  --card:#ffffff;
-  --primary:#0ea5e9;     /* スカイブルー */
-  --primary-dark:#0369a1;
-  --primary-light:#e0f2fe;
-  --cyan:#06b6d4;
-  --teal:#14b8a6;
-  --accent:#22d3ee;      /* シアン光彩 */
-  --gold:#f59e0b;
-  --gold2:#fbbf24;
-  --muted:#64748b;
-  --border:#cbd5e1;
-  --A:#10b981;--B:#3b82f6;--C:#f59e0b;
-}
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Yu Gothic','BIZ UDGothic','Meiryo',sans-serif;
-  background:linear-gradient(135deg,#f8fafc 0%,#e0f2fe 100%);
-  color:var(--ink);font-size:15px;min-height:100vh
-}
+body{font-family:'Hiragino Maru Gothic ProN','Hiragino Kaku Gothic ProN','BIZ UDGothic','Yu Gothic UI',Meiryo,sans-serif;background:#eef2ff;color:#10172e;min-height:100vh;font-size:15px}
 
-/* ━━━ ヘッダー ━━━ */
-.hdr{
-  background:linear-gradient(135deg,var(--ink) 0%,var(--ink2) 50%,#1e3a8a 100%);
-  color:#fff;padding:0 20px;height:64px;
-  display:flex;align-items:center;justify-content:space-between;
-  box-shadow:0 4px 20px rgba(2,132,199,.3);
-  border-bottom:2px solid var(--accent);position:relative;overflow:hidden
-}
-.hdr::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 20% 50%,rgba(34,211,238,.15) 0%,transparent 50%);
-  pointer-events:none
-}
-.hdr-left h1{font-size:1.15em;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
-.hdr-left h1 .pulse{font-size:1.2em}
-.hdr-left p{font-size:.7em;opacity:.65;letter-spacing:.12em;margin-top:2px;color:var(--accent)}
-.streak-badge{
-  display:flex;align-items:center;gap:8px;
-  background:rgba(34,211,238,.12);
-  border:1px solid rgba(34,211,238,.4);
-  border-radius:24px;padding:7px 16px;
-  backdrop-filter:blur(10px)
-}
-.streak-badge .flame{font-size:1.3em}
-.streak-badge .days{font-size:.82em;font-weight:700;color:var(--gold2)}
+/* ヘッダー */
+.top-header{background:linear-gradient(135deg,#1e40af 0%,#1d4ed8 100%);color:#fff;padding:16px 16px 0;text-align:center}
+.top-header h1{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
+.top-header p{font-size:.78rem;margin-top:3px;opacity:.85}
+.summary-bar{background:rgba(0,0,0,.22);margin-top:12px;padding:9px 14px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:.78rem;color:#fff}
+.sum-item{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.sum-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sum-dot-a{background:#4ade80}.sum-dot-b{background:#fbbf24}.sum-dot-c{background:#f87171}.sum-dot-n{background:#94a3b8}
+.sum-count{font-weight:800;font-size:1rem;min-width:18px;text-align:center}
 
-/* ━━━ サマリーバー ━━━ */
-.summary-bar{
-  background:linear-gradient(135deg,#1e293b 0%,#0c4a6e 100%);
-  padding:14px 20px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;
-  border-bottom:1px solid rgba(34,211,238,.3)
-}
-.sbar-item{display:flex;flex-direction:column;align-items:center;gap:2px}
-.sbar-num{font-size:1.5em;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(34,211,238,.4)}
-.sbar-lbl{font-size:.68em;color:rgba(255,255,255,.7);letter-spacing:.06em}
-.sbar-div{width:1px;background:rgba(255,255,255,.2);height:36px;margin:0 4px}
-.progress-wrap{flex:1;min-width:220px}
-.progress-lbl{font-size:.7em;color:rgba(255,255,255,.7);margin-bottom:5px}
-.progress-bar{background:rgba(255,255,255,.12);border-radius:20px;height:12px;overflow:hidden;border:1px solid rgba(34,211,238,.2)}
-.progress-fill{
-  background:linear-gradient(90deg,var(--cyan),var(--accent),var(--gold2));
-  height:100%;border-radius:20px;transition:.6s;
-  box-shadow:0 0 10px rgba(34,211,238,.5)
-}
-.progress-pct{font-size:.78em;color:var(--accent);margin-top:4px;font-weight:700}
+.wrap{max-width:920px;margin:0 auto;padding:14px 12px 56px}
 
-/* ━━━ メイン ━━━ */
-.main{max-width:980px;margin:24px auto;padding:0 14px 60px}
+/* 学習フロー */
+.flow{background:#fff;border-radius:14px;border:1px solid #bfdbfe;padding:13px 16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.flow-title{font-size:.88rem;font-weight:800;color:#1e40af;margin-bottom:9px;padding-bottom:6px;border-bottom:2px solid #dbeafe}
+.flow-steps{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.flow-step{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:6px 11px;font-size:.78rem;color:#1e40af;font-weight:700;white-space:nowrap}
+.flow-arrow{color:#2563eb;font-size:1rem;font-weight:700}
 
-/* ━━━ 達成バッジエリア ━━━ */
-.badge-section{
-  background:var(--card);border:1px solid var(--border);border-radius:14px;
-  padding:18px 22px;margin-bottom:22px;
-  box-shadow:0 2px 12px rgba(2,132,199,.08);
-  border-left:5px solid var(--accent)
-}
-.badge-title{font-size:.85em;font-weight:700;color:var(--ink2);letter-spacing:.08em;margin-bottom:14px}
-.badges{display:flex;flex-wrap:wrap;gap:10px}
-.badge{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-  padding:11px 14px;border-radius:10px;
-  border:2px solid var(--border);background:#f8fafc;
-  min-width:84px;transition:.25s
-}
-.badge.earned{
-  border-color:var(--gold);
-  background:linear-gradient(135deg,#fffbeb,#fef3c7);
-  box-shadow:0 4px 14px rgba(245,158,11,.25)
-}
-.badge.locked{opacity:.32;filter:grayscale(.8)}
-.badge-icon{font-size:1.8em}
-.badge-name{font-size:.7em;font-weight:700;color:var(--ink);text-align:center;line-height:1.3}
+/* ユニット */
+.unit{background:#fff;border-radius:14px;border:1px solid #bfdbfe;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden}
+.unit-hd{padding:11px 16px;display:flex;align-items:center;gap:10px;color:#fff}
+.unit-num{background:rgba(255,255,255,.2);border-radius:7px;padding:3px 10px;font-size:.78rem;font-weight:800;white-space:nowrap}
+.unit-icon{font-size:1.3rem}
+.unit-title{font-size:1rem;font-weight:800;flex:1}
+.unit-badge{font-size:.72rem;background:rgba(255,255,255,.25);border-radius:999px;padding:2px 9px;font-weight:700;white-space:nowrap}
+.unit-body{padding:12px 14px}
+.group-label{font-size:.75rem;font-weight:800;color:#64748b;margin:12px 0 8px;letter-spacing:.05em;padding-bottom:4px;border-bottom:1.5px dashed #bfdbfe;display:flex;align-items:center;gap:7px}
+.group-label:first-child{margin-top:0}
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:4px}
 
-/* ━━━ 連続学習カレンダー ━━━ */
-.cal-section{
-  background:var(--card);border:1px solid var(--border);border-radius:14px;
-  padding:18px 22px;margin-bottom:24px;
-  box-shadow:0 2px 12px rgba(2,132,199,.08);
-  border-left:5px solid var(--cyan)
-}
-.cal-title{font-size:.85em;font-weight:700;color:var(--ink2);letter-spacing:.08em;margin-bottom:12px}
-.cal-grid{display:flex;flex-wrap:wrap;gap:4px}
-.cal-day{width:16px;height:16px;border-radius:3px;background:var(--border)}
-.cal-day.s1{background:#bae6fd}
-.cal-day.s2{background:#7dd3fc}
-.cal-day.s3{background:#0ea5e9}
-.cal-day.s4{background:#0369a1}
-.cal-lbl{display:flex;gap:6px;align-items:center;margin-top:10px;font-size:.72em;color:var(--muted)}
-.cal-lbl-dot{width:12px;height:12px;border-radius:2px}
+/* 章ごとのカラー */
+.ch1-hd{background:linear-gradient(90deg,#0369a1,#0ea5e9)}
+.ch2-hd{background:linear-gradient(90deg,#b45309,#f59e0b)}
+.ch3-hd{background:linear-gradient(90deg,#991b1b,#dc2626)}
+.ch4-hd{background:linear-gradient(90deg,#115e59,#0d9488)}
+.ch5-hd{background:linear-gradient(90deg,#15803d,#16a34a)}
+.ch6-hd{background:linear-gradient(90deg,#5b21b6,#7c3aed)}
+.ch7-hd{background:linear-gradient(90deg,#0f766e,#2dd4bf)}
 
-/* ━━━ 大カテゴリ(章) ━━━ */
-.cat-section{margin-bottom:34px}
-.cat-header{
-  display:flex;align-items:center;gap:14px;margin-bottom:14px;
-  padding:14px 18px;
-  background:var(--card);border-radius:12px;
-  box-shadow:0 2px 10px rgba(2,132,199,.08);
-  border:1px solid var(--border)
-}
-.cat-bar{width:6px;border-radius:4px;height:36px;flex-shrink:0}
-.cat-icon{font-size:1.5em}
-.cat-title-wrap{flex:1}
-.cat-title{font-size:1.15em;font-weight:700;letter-spacing:.04em;color:var(--ink)}
-.cat-sub{font-size:.7em;letter-spacing:.14em;color:var(--muted);margin-top:2px;font-family:'Courier New',monospace}
-.cat-count{font-size:.78em;color:var(--muted);font-weight:700;background:#f1f5f9;padding:6px 14px;border-radius:14px}
+/* カード */
+.sec-card{border-radius:10px;border:1.5px solid #bfdbfe;overflow:hidden;transition:.18s;background:#fff;display:flex;flex-direction:column}
+.sec-card:hover{box-shadow:0 3px 14px rgba(30,64,175,.13);transform:translateY(-1px)}
+.sc-hd{background:#eff6ff;border-bottom:2px solid #1d4ed8;padding:9px 12px;display:flex;align-items:center;gap:8px}
+.sc-num{background:#1d4ed8;color:#fff;border-radius:7px;padding:3px 9px;font-size:.75rem;font-weight:800;flex-shrink:0}
+.sc-title{font-size:.88rem;font-weight:800;flex:1;color:#1e3a8a;line-height:1.3}
+.sc-stars{font-size:.75rem;color:#fbbf24;letter-spacing:-1px;flex-shrink:0}
+.sc-body{padding:8px 12px;background:#fff;flex:1}
+.sc-topics{list-style:none;margin:0;padding:0}
+.sc-topics li{font-size:.78rem;color:#475569;padding:2px 0;border-bottom:1px solid #eff6ff;line-height:1.5}
+.sc-topics li:last-child{border-bottom:none}
+.sc-topics li::before{content:"・";color:#2563eb}
 
-/* ━━━ 単元カード ━━━ */
-.unit-card{
-  background:var(--card);border:1px solid var(--border);border-radius:10px;
-  margin-bottom:9px;overflow:hidden;
-  box-shadow:0 1px 4px rgba(2,132,199,.05);
-  transition:.18s
-}
-.unit-card:hover{
-  box-shadow:0 4px 18px rgba(14,165,233,.15);
-  transform:translateY(-1px);
-  border-color:var(--primary)
-}
-.unit-top{display:flex;align-items:center;gap:12px;padding:13px 16px}
-.unit-num{
-  width:32px;height:32px;border-radius:50%;
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:.85em;flex-shrink:0;
-  box-shadow:0 2px 6px rgba(0,0,0,.15)
-}
-.unit-title{flex:1;font-size:.95em;font-weight:700;line-height:1.4;color:var(--ink)}
-.unit-type{
-  font-size:.68em;padding:3px 9px;border-radius:10px;font-weight:700;
-  flex-shrink:0;letter-spacing:.04em
-}
-.type-main{background:#dbeafe;color:#1e40af}
+/* ボタン行 */
+.sc-btn-row{display:flex;gap:5px;padding:8px 12px 0;flex-wrap:wrap}
+.sc-btn{flex:1;min-width:60px;text-align:center;padding:7px 4px;border-radius:8px;font-size:.75rem;font-weight:800;text-decoration:none;transition:.13s;border:none;cursor:pointer;display:block;color:#fff;font-family:inherit;background:#1d4ed8}
+.sc-btn:hover{background:#1e40af}
+.sc-btn-soon{background:#cbd5e1;color:#fff;cursor:not-allowed;pointer-events:none}
 
-/* 理解度 ABC */
-.abc-row{display:flex;gap:6px;padding:0 16px 12px;align-items:center}
-.abc-lbl{font-size:.74em;color:var(--muted);font-weight:700;margin-right:4px;letter-spacing:.06em}
-.abc-btn{
-  width:36px;height:30px;border:2px solid var(--border);border-radius:7px;
-  font-family:inherit;font-weight:700;font-size:.85em;
-  background:#f8fafc;color:var(--muted);cursor:pointer;transition:.15s;flex-shrink:0
-}
-.abc-btn:hover{border-color:var(--primary)}
-.abc-btn.A{background:var(--A);color:#fff;border-color:var(--A);box-shadow:0 2px 6px rgba(16,185,129,.4)}
-.abc-btn.B{background:var(--B);color:#fff;border-color:var(--B);box-shadow:0 2px 6px rgba(59,130,246,.4)}
-.abc-btn.C{background:var(--C);color:#fff;border-color:var(--C);box-shadow:0 2px 6px rgba(245,158,11,.4)}
+/* A/B/C自己評価 */
+.abc-row{display:flex;gap:5px;padding:8px 12px 10px}
+.abc-btn{flex:1;padding:6px 2px;border-radius:20px;font-size:.75rem;font-weight:800;font-family:inherit;cursor:pointer;transition:.13s;border:2px solid;text-align:center;background:#fff}
+.abc-a{border-color:#16a34a;color:#16a34a}.abc-a.sel{background:#16a34a;color:#fff}
+.abc-b{border-color:#d97706;color:#d97706}.abc-b.sel{background:#d97706;color:#fff}
+.abc-c{border-color:#dc2626;color:#dc2626}.abc-c.sel{background:#dc2626;color:#fff}
+.abc-btn:hover{opacity:.8}
 
-/* 学習回数・最終日 */
-.stat-row{display:flex;gap:14px;padding:0 16px 10px;align-items:center;flex-wrap:wrap}
-.stat-item{display:flex;align-items:center;gap:4px;font-size:.78em;color:var(--muted)}
-.stat-item .val{font-weight:700;color:var(--ink)}
-.repeat-dots{display:flex;gap:3px}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--border)}
-.dot.done{background:var(--gold)}
-.dot.done.perfect{background:var(--A)}
+/* ステータス色 */
+.sec-card.s-a{border-color:#16a34a}.sec-card.s-a .sc-hd{background:#dcfce7!important;border-bottom-color:#16a34a!important}
+.sec-card.s-b{border-color:#d97706}.sec-card.s-b .sc-hd{background:#fef3c7!important;border-bottom-color:#d97706!important}
+.sec-card.s-c{border-color:#dc2626}.sec-card.s-c .sc-hd{background:#fee2e2!important;border-bottom-color:#dc2626!important}
 
-/* リンク行 */
-.link-row{display:flex;gap:8px;padding:0 16px 14px;flex-wrap:wrap}
-.page-link{
-  text-decoration:none;font-family:inherit;font-size:.82em;font-weight:700;
-  padding:7px 16px;border-radius:7px;
-  border:1.5px solid var(--border);color:var(--ink);background:#f8fafc;
-  transition:.15s;display:flex;align-items:center;gap:5px
-}
-.page-link:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
-.page-link.main-link{
-  background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;
-  border-color:var(--primary-dark);
-  box-shadow:0 2px 8px rgba(14,165,233,.3)
-}
-.page-link.main-link:hover{
-  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
-  box-shadow:0 4px 12px rgba(14,165,233,.4)
-}
+/* 章別カード色 */
+.sec-card.ch1 .sc-hd{background:#e0f2fe;border-bottom-color:#0369a1}.sec-card.ch1 .sc-num{background:#0369a1}.sec-card.ch1 .sc-title{color:#075985}.sec-card.ch1 .sc-topics li::before{color:#0369a1}
+.sec-card.ch2 .sc-hd{background:#fef3c7;border-bottom-color:#b45309}.sec-card.ch2 .sc-num{background:#b45309}.sec-card.ch2 .sc-title{color:#78350f}.sec-card.ch2 .sc-topics li::before{color:#b45309}
+.sec-card.ch3 .sc-hd{background:#fee2e2;border-bottom-color:#991b1b}.sec-card.ch3 .sc-num{background:#991b1b}.sec-card.ch3 .sc-title{color:#7f1d1d}.sec-card.ch3 .sc-topics li::before{color:#991b1b}
+.sec-card.ch4 .sc-hd{background:#ccfbf1;border-bottom-color:#115e59}.sec-card.ch4 .sc-num{background:#115e59}.sec-card.ch4 .sc-title{color:#134e4a}.sec-card.ch4 .sc-topics li::before{color:#115e59}
+.sec-card.ch5 .sc-hd{background:#dcfce7;border-bottom-color:#15803d}.sec-card.ch5 .sc-num{background:#15803d}.sec-card.ch5 .sc-title{color:#14532d}.sec-card.ch5 .sc-topics li::before{color:#15803d}
+.sec-card.ch6 .sc-hd{background:#ede9fe;border-bottom-color:#5b21b6}.sec-card.ch6 .sc-num{background:#5b21b6}.sec-card.ch6 .sc-title{color:#4c1d95}.sec-card.ch6 .sc-topics li::before{color:#5b21b6}
+.sec-card.ch7 .sc-hd{background:#ccfbf1;border-bottom-color:#0f766e}.sec-card.ch7 .sc-num{background:#0f766e}.sec-card.ch7 .sc-title{color:#134e4a}.sec-card.ch7 .sc-topics li::before{color:#0f766e}
 
-/* ━━━ モーダル(達成!) ━━━ */
-.achieve-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;align-items:center;justify-content:center}
-.achieve-modal.open{display:flex}
-.achieve-box{
-  background:#fff;border-radius:18px;padding:36px 40px;
-  text-align:center;max-width:380px;width:90%;
-  box-shadow:0 12px 48px rgba(0,0,0,.3);
-  position:relative;overflow:hidden
-}
-.achieve-box::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:5px;
-  background:linear-gradient(90deg,var(--cyan),var(--accent),var(--gold2),var(--cyan))
-}
-.achieve-emoji{font-size:3.2em;margin-bottom:10px}
-.achieve-title{font-size:1.3em;font-weight:700;margin-bottom:8px;color:var(--ink)}
-.achieve-sub{font-size:.9em;color:var(--muted);margin-bottom:20px;line-height:1.6}
-.achieve-close{
-  font-family:inherit;font-size:.9em;font-weight:700;
-  background:linear-gradient(135deg,var(--primary),var(--cyan));color:#fff;
-  border:none;border-radius:8px;padding:10px 30px;cursor:pointer;
-  box-shadow:0 4px 12px rgba(14,165,233,.4)
-}
+/* ステータス上書き（章別色より優先） */
+.sec-card.s-a .sc-hd{background:#dcfce7!important;border-bottom-color:#16a34a!important}
+.sec-card.s-b .sc-hd{background:#fef3c7!important;border-bottom-color:#d97706!important}
+.sec-card.s-c .sc-hd{background:#fee2e2!important;border-bottom-color:#dc2626!important}
 
-#cnv{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+/* ボタン章別色 */
+.sec-card.ch1 .sc-btn{background:#0369a1}.sec-card.ch1 .sc-btn:hover{background:#0c4a6e}
+.sec-card.ch2 .sc-btn{background:#b45309}.sec-card.ch2 .sc-btn:hover{background:#78350f}
+.sec-card.ch3 .sc-btn{background:#991b1b}.sec-card.ch3 .sc-btn:hover{background:#7f1d1d}
+.sec-card.ch4 .sc-btn{background:#115e59}.sec-card.ch4 .sc-btn:hover{background:#134e4a}
+.sec-card.ch5 .sc-btn{background:#15803d}.sec-card.ch5 .sc-btn:hover{background:#14532d}
+.sec-card.ch6 .sc-btn{background:#5b21b6}.sec-card.ch6 .sc-btn:hover{background:#4c1d95}
+.sec-card.ch7 .sc-btn{background:#0f766e}.sec-card.ch7 .sc-btn:hover{background:#134e4a}
 
-/* レスポンシブ */
-@media (max-width:640px){
-  .hdr{height:auto;padding:10px 14px;flex-direction:column;gap:8px;align-items:flex-start}
-  .hdr-left h1{font-size:1em}
-  .summary-bar{padding:12px 14px;gap:14px}
-  .sbar-num{font-size:1.2em}
-  .progress-wrap{min-width:100%}
-  .main{padding:0 10px 50px}
-  .cat-header{padding:12px 14px}
-  .unit-top{padding:11px 12px}
-  .link-row{padding:0 12px 12px}
-  .abc-row,.stat-row{padding-left:12px;padding-right:12px}
+/* 戻るリンク */
+.back-link{display:flex;gap:10px;justify-content:center;margin:22px 0 6px;flex-wrap:wrap}
+.back-btn{padding:9px 18px;border-radius:10px;border:1.5px solid #bfdbfe;background:#fff;color:#1e40af;font-size:.84rem;font-weight:700;text-decoration:none;transition:.13s}
+.back-btn:hover{border-color:#1e40af;color:#fff;background:#1e40af}
+
+canvas#cnf{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;display:none}
+
+@media(max-width:480px){
+  .unit-title{font-size:.9rem}
+  .sc-btn-row{gap:4px}
+  .sc-btn{font-size:.72rem;padding:6px 2px}
 }
 </style>
 </head>
 <body>
-<canvas id="cnv"></canvas>
+<canvas id="cnf"></canvas>
 
-<!-- ヘッダー -->
-<header class="hdr">
-  <div class="hdr-left">
-    <h1><span class="pulse">📘</span> 情報1 学習単元表</h1>
-    <p>INFORMATION I — STUDY DASHBOARD</p>
-  </div>
-  <div class="streak-badge">
-    <span class="flame">🔥</span>
-    <span class="days" id="streakDisp">0日連続</span>
-  </div>
-</header>
-
-<!-- サマリーバー -->
-<div class="summary-bar">
-  <div class="sbar-item"><div class="sbar-num" id="sumTotal">0</div><div class="sbar-lbl">総学習回数</div></div>
-  <div class="sbar-div"></div>
-  <div class="sbar-item"><div class="sbar-num" id="sumA">0</div><div class="sbar-lbl">理解A(完璧)</div></div>
-  <div class="sbar-item"><div class="sbar-num" id="sumB">0</div><div class="sbar-lbl">理解B(良好)</div></div>
-  <div class="sbar-item"><div class="sbar-num" id="sumC">0</div><div class="sbar-lbl">理解C(要復習)</div></div>
-  <div class="sbar-div"></div>
-  <div class="progress-wrap">
-    <div class="progress-lbl">全単元の習熟度</div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <div class="progress-pct" id="progressPct">0%</div>
+<div class="top-header">
+  <h1>📘 GAMBA 情報Ⅰ 単元表</h1>
+  <p>共通テスト・高卒認定試験 対応 ― 7章・全65単元 ―</p>
+  <div class="summary-bar">
+    <div class="sum-item"><span class="sum-dot sum-dot-a"></span>A わかった <span class="sum-count" id="cnt-a">0</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-b"></span>B 要復習 <span class="sum-count" id="cnt-b">0</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-c"></span>C 何度も <span class="sum-count" id="cnt-c">0</span></div>
+    <div class="sum-item"><span class="sum-dot sum-dot-n"></span>未実施 <span class="sum-count" id="cnt-n">65</span></div>
   </div>
 </div>
 
-<div class="main">
+<div class="wrap">
 
-<!-- 達成バッジ -->
-<div class="badge-section">
-  <div class="badge-title">🏅 達成バッジ</div>
-  <div class="badges" id="badgeArea"></div>
-</div>
-
-<!-- 学習カレンダー -->
-<div class="cal-section">
-  <div class="cal-title">📅 学習カレンダー(過去84日)</div>
-  <div class="cal-grid" id="calGrid"></div>
-  <div class="cal-lbl">
-    <span>少</span>
-    <div class="cal-lbl-dot" style="background:var(--border)"></div>
-    <div class="cal-lbl-dot cal-day s1"></div>
-    <div class="cal-lbl-dot cal-day s2"></div>
-    <div class="cal-lbl-dot cal-day s3"></div>
-    <div class="cal-lbl-dot cal-day s4"></div>
-    <span>多</span>
+  <!-- 学習の流れ -->
+  <div class="flow">
+    <div class="flow-title">📖 学習の流れ（各単元共通）</div>
+    <div class="flow-steps">
+      <div class="flow-step">① 単元を選ぶ</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">② 解説を読む</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">③ 練習問題</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">④ 確認問題</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">⑤ A/B/C 自己評価</div>
+    </div>
   </div>
-</div>
 
-<!-- 章ごとの単元カード -->
-<div id="chaptersWrap"></div>
+  <!-- ══ 第1章 情報社会 ══ -->
+  <div class="unit">
+    <div class="unit-hd ch1-hd">
+      <span class="unit-num">第1章</span>
+      <span class="unit-icon">🌐</span>
+      <span class="unit-title">情報社会</span>
+      <span class="unit-badge">全8単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">🌐 情報・メディア・社会とコンピュータ</div>
+      <div class="sec-grid">
 
-</div><!-- /main -->
+        <div class="sec-card ch1" data-id="ch1u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">情報の特徴と情報社会</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>情報の3つの特徴</li>
+            <li>情報社会・高度情報化</li>
+            <li>デジタルトランスフォーメーション</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u1','c',this)">C もう一度</button>
+          </div>
+        </div>
 
-<!-- 達成モーダル -->
-<div class="achieve-modal" id="achieveModal">
-  <div class="achieve-box">
-    <div class="achieve-emoji" id="achieveEmoji">🎉</div>
-    <div class="achieve-title" id="achieveTitle">達成!</div>
-    <div class="achieve-sub" id="achieveSub"></div>
-    <button class="achieve-close" onclick="closeAchieve()">とじる</button>
+        <div class="sec-card ch1" data-id="ch1u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">メディアとコミュニケーションの基礎</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>メディアの種類と役割</li>
+            <li>コミュニケーションの種類</li>
+            <li>同期・非同期通信</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch1" data-id="ch1u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">メディアリテラシー</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>メディアリテラシーとは</li>
+            <li>フェイクニュース・情報の信頼性</li>
+            <li>情報の批判的評価</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch1" data-id="ch1u4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">個人情報と肖像権</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>個人情報保護法</li>
+            <li>肖像権・プライバシー権</li>
+            <li>情報の適切な取り扱い</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit4">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch1" data-id="ch1u5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">情報モラルと法</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>情報モラルの意義</li>
+            <li>不正アクセス禁止法・サイバー犯罪</li>
+            <li>SNSのトラブル事例</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit5">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch1" data-id="ch1u6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">情報社会の問題</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>デジタルデバイド</li>
+            <li>ネット依存・炎上</li>
+            <li>情報セキュリティの重要性</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit6">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch1" data-id="ch1u7">
+          <div class="sc-hd"><span class="sc-num">⑦</span><span class="sc-title">コンピュータの発達</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>コンピュータの歴史（真空管〜IC）</li>
+            <li>第1〜5世代コンピュータ</li>
+            <li>AIの発展と社会への影響</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit7">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u7','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u7','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u7','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch1" data-id="ch1u8">
+          <div class="sc-hd"><span class="sc-num">⑧</span><span class="sc-title">コンピュータの構成</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ハードウェア・ソフトウェア</li>
+            <li>CPU・メモリ・補助記憶装置</li>
+            <li>入出力装置・OS</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho1.html#unit8">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch1u8','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch1u8','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch1u8','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
+
+  <!-- ══ 第2章 コミュニケーションと情報デザイン ══ -->
+  <div class="unit">
+    <div class="unit-hd ch2-hd">
+      <span class="unit-num">第2章</span>
+      <span class="unit-icon">🎨</span>
+      <span class="unit-title">コミュニケーションと情報デザイン</span>
+      <span class="unit-badge">全10単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">🎨 デザイン・UI・情報システム</div>
+      <div class="sec-grid">
+
+        <div class="sec-card ch2" data-id="ch2u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">コミュニケーション</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>コミュニケーションの要素</li>
+            <li>言語・非言語コミュニケーション</li>
+            <li>情報の送受信と誤解</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">メディアの分類と特性</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>マスメディア・インタラクティブメディア</li>
+            <li>各メディアの特性比較</li>
+            <li>メディアの選択と活用</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">情報デザインの考え方</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>情報デザインの目的</li>
+            <li>分かりやすさ・見やすさの原則</li>
+            <li>レイアウト・フォントの工夫</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">ユーザインタフェース</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>UI・UXの意味</li>
+            <li>GUI・CUI・音声UI</li>
+            <li>使いやすいインタフェースの設計</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit4">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">ユニバーサルデザイン</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ユニバーサルデザイン7原則</li>
+            <li>アクセシビリティ・バリアフリー</li>
+            <li>高齢者・障害者への配慮</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit5">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">ピクトグラムとサイン</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ピクトグラムの役割</li>
+            <li>非言語情報のデザイン</li>
+            <li>国際的なサインと記号</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit6">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u7">
+          <div class="sc-hd"><span class="sc-num">⑦</span><span class="sc-title">Webデザインと色彩</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>色の三属性（色相・明度・彩度）</li>
+            <li>配色の基本ルール</li>
+            <li>Webページの構成要素</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit7">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u7','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u7','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u7','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u8">
+          <div class="sc-hd"><span class="sc-num">⑧</span><span class="sc-title">社会の中の情報システム</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>医療・交通・金融システム</li>
+            <li>情報システムの信頼性</li>
+            <li>フェールセーフ・フールプルーフ</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit8">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u8','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u8','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u8','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u9">
+          <div class="sc-hd"><span class="sc-num">⑨</span><span class="sc-title">情報技術の活用</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>AI・IoT・ビッグデータ</li>
+            <li>クラウドコンピューティング</li>
+            <li>Society5.0と技術革新</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit9">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u9','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u9','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u9','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch2" data-id="ch2u10">
+          <div class="sc-hd"><span class="sc-num">⑩</span><span class="sc-title">人に優しい情報技術</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>支援技術（AT）の種類</li>
+            <li>音声読み上げ・点字ディスプレイ</li>
+            <li>インクルーシブデザイン</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho2.html#unit10">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch2u10','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch2u10','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch2u10','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 第3章 情報安全 ══ -->
+  <div class="unit">
+    <div class="unit-hd ch3-hd">
+      <span class="unit-num">第3章</span>
+      <span class="unit-icon">🔒</span>
+      <span class="unit-title">情報安全</span>
+      <span class="unit-badge">全9単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">🔒 セキュリティ・暗号・法律</div>
+      <div class="sec-grid">
+
+        <div class="sec-card ch3" data-id="ch3u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">個人による安全対策</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>パスワード管理・多要素認証</li>
+            <li>フィッシング詐欺・ウイルス対策</li>
+            <li>ソフトウェアの更新</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">組織による安全対策</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ファイアウォール・IDS/IPS</li>
+            <li>セキュリティポリシー</li>
+            <li>バックアップとリカバリ</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">安全のための情報技術</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>認証・生体認証</li>
+            <li>ハッシュ値・デジタル署名</li>
+            <li>SSL/TLS・HTTPS</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">暗号化</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>共通鍵暗号・公開鍵暗号</li>
+            <li>暗号化・復号の仕組み</li>
+            <li>暗号化の用途と限界</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit4">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">暗号化の仕組み（RSA暗号）</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>RSA暗号の原理</li>
+            <li>素因数分解の困難さ</li>
+            <li>公開鍵・秘密鍵のペア</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit5">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">法規による安全対策</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>不正アクセス禁止法</li>
+            <li>サイバーセキュリティ基本法</li>
+            <li>プロバイダ責任制限法</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit6">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u7">
+          <div class="sc-hd"><span class="sc-num">⑦</span><span class="sc-title">知的財産権・産業財産権</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>特許権・実用新案権</li>
+            <li>意匠権・商標権</li>
+            <li>知的財産の保護と活用</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit7">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u7','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u7','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u7','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u8">
+          <div class="sc-hd"><span class="sc-num">⑧</span><span class="sc-title">著作権</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>著作権の発生と保護期間</li>
+            <li>著作者の権利（著作者人格権等）</li>
+            <li>著作権の侵害と罰則</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit8">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u8','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u8','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u8','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch3" data-id="ch3u9">
+          <div class="sc-hd"><span class="sc-num">⑨</span><span class="sc-title">著作物の利用</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>引用・私的複製の条件</li>
+            <li>クリエイティブ・コモンズ</li>
+            <li>パブリックドメイン</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho3.html#unit9">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch3u9','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch3u9','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch3u9','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 第4章 ディジタル化 ══ -->
+  <div class="unit">
+    <div class="unit-hd ch4-hd">
+      <span class="unit-num">第4章</span>
+      <span class="unit-icon">💾</span>
+      <span class="unit-title">ディジタル化</span>
+      <span class="unit-badge">全14単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">💾 2進数・文字・音・画像・圧縮</div>
+      <div class="sec-grid">
+
+        <div class="sec-card ch4" data-id="ch4u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">アナログとディジタル</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>アナログ・ディジタルの違い</li>
+            <li>標本化・量子化・符号化</li>
+            <li>AD変換・DA変換</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">コンピュータの2進法</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>なぜ2進数を使うのか</li>
+            <li>0と1だけで表す原理</li>
+            <li>2進数の基本演算</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">ビットとバイト</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ビット（bit）・バイト（byte）</li>
+            <li>1バイト＝8ビット</li>
+            <li>情報量の基本単位</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">情報量の単位の階段</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>KB・MB・GB・TBの関係</li>
+            <li>2の10乗＝1024の覚え方</li>
+            <li>単位換算の計算</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u4">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">ペイント系とドロー系</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ラスタ形式・ベクタ形式</li>
+            <li>拡大時の画質の違い</li>
+            <li>代表的なファイル形式</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u5">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">進数変換（2/10/16進数）</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>2進数↔10進数の変換</li>
+            <li>16進数の表し方</li>
+            <li>変換の計算手順</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u6">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u7">
+          <div class="sc-hd"><span class="sc-num">⑦</span><span class="sc-title">文字コード</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>ASCII・JIS・Shift-JIS・Unicode</li>
+            <li>文字コードと文字化け</li>
+            <li>UTF-8の仕組み</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u7">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u7','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u7','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u7','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u8">
+          <div class="sc-hd"><span class="sc-num">⑧</span><span class="sc-title">音のディジタル化</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>標本化周波数・量子化ビット数</li>
+            <li>データ量の計算公式</li>
+            <li>PCMとファイルサイズ</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u8">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u8','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u8','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u8','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u9">
+          <div class="sc-hd"><span class="sc-num">⑨</span><span class="sc-title">光の三原色とRGB</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>加法混色（RGB）</li>
+            <li>RGB各8bitで約1677万色</li>
+            <li>モニタ・LED画面の仕組み</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u9">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u9','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u9','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u9','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u10">
+          <div class="sc-hd"><span class="sc-num">⑩</span><span class="sc-title">色の三原色とCMY</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>減法混色（CMY/CMYK）</li>
+            <li>印刷と画面の色の違い</li>
+            <li>RGB↔CMY変換</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u10">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u10','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u10','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u10','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u11">
+          <div class="sc-hd"><span class="sc-num">⑪</span><span class="sc-title">解像度と階調</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>dpi・ppi・解像度の意味</li>
+            <li>階調（グレースケール）</li>
+            <li>画像データ量の計算</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u11">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u11','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u11','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u11','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u12">
+          <div class="sc-hd"><span class="sc-num">⑫</span><span class="sc-title">圧縮の種類と仕組み</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>可逆圧縮・非可逆圧縮</li>
+            <li>ランレングス符号化</li>
+            <li>圧縮率の計算</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u12">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u12','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u12','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u12','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u13">
+          <div class="sc-hd"><span class="sc-num">⑬</span><span class="sc-title">音と画像の圧縮</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>MP3・AAC（音声圧縮）</li>
+            <li>JPEG・PNG・GIF（画像圧縮）</li>
+            <li>各形式の特徴と使い分け</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u13">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u13','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u13','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u13','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch4" data-id="ch4u14">
+          <div class="sc-hd"><span class="sc-num">⑭</span><span class="sc-title">動画の圧縮</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>フレームレート・ビットレート</li>
+            <li>フレーム間・フレーム内圧縮</li>
+            <li>MPEG・H.264の仕組み</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho4.html#u14">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch4u14','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch4u14','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch4u14','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 第5章 問題解決 ══ -->
+  <div class="unit">
+    <div class="unit-hd ch5-hd">
+      <span class="unit-num">第5章</span>
+      <span class="unit-icon">🧩</span>
+      <span class="unit-title">問題解決</span>
+      <span class="unit-badge">全13単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">🧩 データ収集・統計・情報の整理</div>
+      <div class="sec-grid">
+
+        <div class="sec-card ch5" data-id="ch5u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">問題解決の流れ</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>問題の発見・定義</li>
+            <li>解決策の立案・実行・評価</li>
+            <li>PDCAサイクル</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">情報の収集</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>一次情報・二次情報</li>
+            <li>アンケート・観察・実験</li>
+            <li>情報の信頼性の確認</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">検索と論理演算</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>AND・OR・NOT検索</li>
+            <li>ベン図と論理演算</li>
+            <li>真理値表の読み方</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">情報の整理</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>KJ法・マインドマップ</li>
+            <li>表・グラフへの整理</li>
+            <li>情報の構造化</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u4">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">論理的な文章構成</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>主張・根拠・事実の区別</li>
+            <li>帰納法・演繹法</li>
+            <li>論文・レポートの構成</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u5">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">表現の工夫</span><span class="sc-stars">★☆☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>グラフの種類と選び方</li>
+            <li>プレゼンテーションの構成</li>
+            <li>視覚的表現の効果</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u6">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u7">
+          <div class="sc-hd"><span class="sc-num">⑦</span><span class="sc-title">データの種類</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>量的データ・質的データ</li>
+            <li>連続データ・離散データ</li>
+            <li>名義・順序・間隔・比例尺度</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u7">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u7','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u7','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u7','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u8">
+          <div class="sc-hd"><span class="sc-num">⑧</span><span class="sc-title">度数分布表とヒストグラム</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>階級・度数・相対度数</li>
+            <li>ヒストグラムの読み方</li>
+            <li>累積度数・累積相対度数</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u8">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u8','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u8','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u8','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u9">
+          <div class="sc-hd"><span class="sc-num">⑨</span><span class="sc-title">代表値</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>平均値・中央値・最頻値</li>
+            <li>外れ値の影響</li>
+            <li>各代表値の使い分け</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u9">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u9','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u9','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u9','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u10">
+          <div class="sc-hd"><span class="sc-num">⑩</span><span class="sc-title">分散と標準偏差</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>分散の定義と計算</li>
+            <li>標準偏差＝分散の平方根</li>
+            <li>データのばらつきの評価</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u10">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u10','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u10','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u10','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u11">
+          <div class="sc-hd"><span class="sc-num">⑪</span><span class="sc-title">散布図と相関</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>散布図の読み方</li>
+            <li>正・負・無相関</li>
+            <li>相関係数の意味（−1〜1）</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u11">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u11','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u11','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u11','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u12">
+          <div class="sc-hd"><span class="sc-num">⑫</span><span class="sc-title">クロス集計</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>クロス集計表の作り方</li>
+            <li>2変数の関係を調べる</li>
+            <li>集計データの解釈</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u12">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u12','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u12','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u12','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch5" data-id="ch5u13">
+          <div class="sc-hd"><span class="sc-num">⑬</span><span class="sc-title">統計とデータ活用</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>相関と因果の違い</li>
+            <li>擬似相関・交絡変数</li>
+            <li>データに基づく意思決定</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho5.html#u13">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch5u13','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch5u13','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch5u13','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 第6章 アルゴリズムとプログラミング ══ -->
+  <div class="unit">
+    <div class="unit-hd ch6-hd">
+      <span class="unit-num">第6章</span>
+      <span class="unit-icon">💻</span>
+      <span class="unit-title">アルゴリズムとプログラミング</span>
+      <span class="unit-badge">全8単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">💻 フローチャート・変数・制御構造</div>
+      <div class="sec-grid">
+
+        <div class="sec-card ch6" data-id="ch6u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">アルゴリズムとフローチャート</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>アルゴリズムの意味</li>
+            <li>フローチャートの記号と書き方</li>
+            <li>順次・分岐・反復の基本構造</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">数値と文字列・算術演算子</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>整数・浮動小数点・文字列型</li>
+            <li>＋ − × ÷ と余り（mod）</li>
+            <li>型変換と注意点</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">変数（箱のたとえ）</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>変数の宣言と代入</li>
+            <li>変数名の命名規則</li>
+            <li>変数の上書きと参照</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u4">
+          <div class="sc-hd"><span class="sc-num">④</span><span class="sc-title">比較演算子</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>＝＝・≠・＜・＞・≦・≧</li>
+            <li>条件式の真偽（True/False）</li>
+            <li>AND・OR・NOT の組み合わせ</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u4">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u4','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u4','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u4','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u5">
+          <div class="sc-hd"><span class="sc-num">⑤</span><span class="sc-title">分岐構造</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>if〜else if〜else</li>
+            <li>条件の入れ子（ネスト）</li>
+            <li>フローチャートとの対応</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u5">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u5','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u5','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u5','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u6">
+          <div class="sc-hd"><span class="sc-num">⑥</span><span class="sc-title">繰り返し処理</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>for文・while文の違い</li>
+            <li>カウンタ変数の役割</li>
+            <li>無限ループの回避</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u6">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u6','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u6','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u6','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u7">
+          <div class="sc-hd"><span class="sc-num">⑦</span><span class="sc-title">関数</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>関数の定義・呼び出し</li>
+            <li>引数・戻り値</li>
+            <li>関数を使う利点（再利用）</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u7">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u7','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u7','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u7','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch6" data-id="ch6u8">
+          <div class="sc-hd"><span class="sc-num">⑧</span><span class="sc-title">実践（高認類題）</span><span class="sc-stars">★★★</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>試験形式のトレース問題</li>
+            <li>プログラムの出力予測</li>
+            <li>バグの発見と修正</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho6.html#u8">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch6u8','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch6u8','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch6u8','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 第7章 情報技術の仕組み ══ -->
+  <div class="unit">
+    <div class="unit-hd ch7-hd">
+      <span class="unit-num">第7章</span>
+      <span class="unit-icon">🌐</span>
+      <span class="unit-title">情報技術の仕組み</span>
+      <span class="unit-badge">全3単元</span>
+    </div>
+    <div class="unit-body">
+      <div class="group-label">🌐 コンピュータ・ネットワーク・通信</div>
+      <div class="sec-grid">
+
+        <div class="sec-card ch7" data-id="ch7u1">
+          <div class="sc-hd"><span class="sc-num">①</span><span class="sc-title">コンピュータの仕組み</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>CPU・主記憶・補助記憶</li>
+            <li>クロック周波数・コア数</li>
+            <li>プログラムの実行手順</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho7.html#u1">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch7u1','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch7u1','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch7u1','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch7" data-id="ch7u2">
+          <div class="sc-hd"><span class="sc-num">②</span><span class="sc-title">インターネットの仕組み</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>IPアドレス・DNS・ドメイン</li>
+            <li>パケット通信・ルーティング</li>
+            <li>TCP/IPプロトコル</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho7.html#u2">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch7u2','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch7u2','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch7u2','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+        <div class="sec-card ch7" data-id="ch7u3">
+          <div class="sc-hd"><span class="sc-num">③</span><span class="sc-title">メールの仕組み（POP・SMTP・IMAP）</span><span class="sc-stars">★★☆</span></div>
+          <div class="sc-body"><ul class="sc-topics">
+            <li>SMTPとPOP/IMAPの役割</li>
+            <li>メールの送受信の流れ</li>
+            <li>迷惑メール・なりすまし対策</li>
+          </ul></div>
+          <div class="sc-btn-row"><a class="sc-btn" href="joho7.html#u3">学習する</a></div>
+          <div class="abc-row">
+            <button class="abc-btn abc-a" onclick="setABC('ch7u3','a',this)">A OK</button>
+            <button class="abc-btn abc-b" onclick="setABC('ch7u3','b',this)">B 復習</button>
+            <button class="abc-btn abc-c" onclick="setABC('ch7u3','c',this)">C もう一度</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <a href="../gamba_kounin.html" class="back-btn">← 高認メニューに戻る</a>
+  </div>
+
 </div>
 
 <script>
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━
-   章・単元マスターデータ
-━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const CHAPTERS = [
-  {
-    "id": "ch1",
-    "no": 1,
-    "title": "情報社会",
-    "subtitle": "Information Society",
-    "color": "#0ea5e9",
-    "colorDark": "#0369a1",
-    "colorLight": "#e0f2fe",
-    "icon": "🌐",
-    "units": [
-      {
-        "id": "ch1u1",
-        "num": "①",
-        "title": "情報の特徴と情報社会",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u2",
-        "num": "②",
-        "title": "メディアとコミュニケーションの基礎",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u3",
-        "num": "③",
-        "title": "メディアリテラシー",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u4",
-        "num": "④",
-        "title": "個人情報と肖像権",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u5",
-        "num": "⑤",
-        "title": "情報モラルと法",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u6",
-        "num": "⑥",
-        "title": "情報社会の問題",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u7",
-        "num": "⑦",
-        "title": "コンピュータの発達",
-        "main": "joho1.html"
-      },
-      {
-        "id": "ch1u8",
-        "num": "⑧",
-        "title": "コンピュータの構成",
-        "main": "joho1.html"
-      }
-    ]
-  },
-  {
-    "id": "ch2",
-    "no": 2,
-    "title": "コミュニケーションと情報デザイン",
-    "subtitle": "Communication & Design",
-    "color": "#06b6d4",
-    "colorDark": "#0e7490",
-    "colorLight": "#cffafe",
-    "icon": "💬",
-    "units": [
-      {
-        "id": "ch2u1",
-        "num": "①",
-        "title": "コミュニケーションの形態と特性",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u2",
-        "num": "②",
-        "title": "メディアの分類と特性",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u3",
-        "num": "③",
-        "title": "情報デザインの考え方",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u4",
-        "num": "④",
-        "title": "ユーザインタフェース",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u5",
-        "num": "⑤",
-        "title": "ユニバーサルデザイン",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u6",
-        "num": "⑥",
-        "title": "ピクトグラムとサイン",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u7",
-        "num": "⑦",
-        "title": "Webデザインと色彩",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u8",
-        "num": "⑧",
-        "title": "社会の中の情報システム",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u9",
-        "num": "⑨",
-        "title": "情報技術の活用",
-        "main": "joho2.html"
-      },
-      {
-        "id": "ch2u10",
-        "num": "⑩",
-        "title": "人に優しい情報技術",
-        "main": "joho2.html"
-      }
-    ]
-  },
-  {
-    "id": "ch3",
-    "no": 3,
-    "title": "情報安全",
-    "subtitle": "Information Security",
-    "color": "#0891b2",
-    "colorDark": "#155e75",
-    "colorLight": "#cffafe",
-    "icon": "🔒",
-    "units": [
-      {
-        "id": "ch3u1",
-        "num": "①",
-        "title": "個人による安全対策",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u2",
-        "num": "②",
-        "title": "組織による安全対策",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u3",
-        "num": "③",
-        "title": "安全のための情報技術",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u4",
-        "num": "④",
-        "title": "暗号化",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u5",
-        "num": "⑤",
-        "title": "暗号化の仕組み(RSA暗号)",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u6",
-        "num": "⑥",
-        "title": "法規による安全対策",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u7",
-        "num": "⑦",
-        "title": "知的財産権・産業財産権",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u8",
-        "num": "⑧",
-        "title": "著作権",
-        "main": "joho3.html"
-      },
-      {
-        "id": "ch3u9",
-        "num": "⑨",
-        "title": "著作物の利用",
-        "main": "joho3.html"
-      }
-    ]
-  },
-  {
-    "id": "ch4",
-    "no": 4,
-    "title": "ディジタル化",
-    "subtitle": "Digitization",
-    "color": "#0d9488",
-    "colorDark": "#115e59",
-    "colorLight": "#ccfbf1",
-    "icon": "💾",
-    "units": [
-      {
-        "id": "ch4u1",
-        "num": "①",
-        "title": "アナログとディジタル",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u2",
-        "num": "②",
-        "title": "コンピュータの2進法",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u3",
-        "num": "③",
-        "title": "ビットとバイト ─ 情報の「箱」",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u4",
-        "num": "④",
-        "title": "情報量の単位の階段(KB・MB・GB)",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u5",
-        "num": "⑤",
-        "title": "ペイント系とドロー系",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u6",
-        "num": "⑥",
-        "title": "進数変換(2/10/16進数)",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u7",
-        "num": "⑦",
-        "title": "文字コード",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u8",
-        "num": "⑧",
-        "title": "音のディジタル化",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u9",
-        "num": "⑨",
-        "title": "光の三原色とRGB",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u10",
-        "num": "⑩",
-        "title": "色の三原色とCMY",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u11",
-        "num": "⑪",
-        "title": "解像度と階調",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u12",
-        "num": "⑫",
-        "title": "圧縮の種類と仕組み",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u13",
-        "num": "⑬",
-        "title": "動画とフレームレート",
-        "main": "joho4.html"
-      },
-      {
-        "id": "ch4u14",
-        "num": "⑭",
-        "title": "データ量の計算(高認頻出)",
-        "main": "joho4.html"
-      }
-    ]
-  },
-  {
-    "id": "ch5",
-    "no": 5,
-    "title": "問題解決",
-    "subtitle": "Problem Solving",
-    "color": "#10b981",
-    "colorDark": "#047857",
-    "colorLight": "#d1fae5",
-    "icon": "🧩",
-    "units": [
-      {
-        "id": "ch5u1",
-        "num": "①",
-        "title": "問題を解決するには",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u2",
-        "num": "②",
-        "title": "情報の収集",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u3",
-        "num": "③",
-        "title": "検索と論理演算",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u4",
-        "num": "④",
-        "title": "情報の整理と管理",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u5",
-        "num": "⑤",
-        "title": "分析のための工夫",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u6",
-        "num": "⑥",
-        "title": "関数と統計",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u7",
-        "num": "⑦",
-        "title": "表とグラフの活用",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u8",
-        "num": "⑧",
-        "title": "分析の実際",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u9",
-        "num": "⑨",
-        "title": "問題解決の実践",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u10",
-        "num": "⑩",
-        "title": "論理的な文章構成",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u11",
-        "num": "⑪",
-        "title": "表現の工夫",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u12",
-        "num": "⑫",
-        "title": "プレゼンテーションの方法",
-        "main": "joho5.html"
-      },
-      {
-        "id": "ch5u13",
-        "num": "⑬",
-        "title": "Webページによる情報発信",
-        "main": "joho5.html"
-      }
-    ]
-  }
+const STORAGE_KEY = 'gamba_joho_status_v1';
+const ACTIVE_IDS = [
+  'ch1u1','ch1u2','ch1u3','ch1u4','ch1u5','ch1u6','ch1u7','ch1u8',
+  'ch2u1','ch2u2','ch2u3','ch2u4','ch2u5','ch2u6','ch2u7','ch2u8','ch2u9','ch2u10',
+  'ch3u1','ch3u2','ch3u3','ch3u4','ch3u5','ch3u6','ch3u7','ch3u8','ch3u9',
+  'ch4u1','ch4u2','ch4u3','ch4u4','ch4u5','ch4u6','ch4u7','ch4u8','ch4u9','ch4u10','ch4u11','ch4u12','ch4u13','ch4u14',
+  'ch5u1','ch5u2','ch5u3','ch5u4','ch5u5','ch5u6','ch5u7','ch5u8','ch5u9','ch5u10','ch5u11','ch5u12','ch5u13',
+  'ch6u1','ch6u2','ch6u3','ch6u4','ch6u5','ch6u6','ch6u7','ch6u8',
+  'ch7u1','ch7u2','ch7u3'
 ];
+let status = {};
+try { const s = localStorage.getItem(STORAGE_KEY); if(s) status = JSON.parse(s); } catch(e){}
 
-const ALL_UNIT_IDS = CHAPTERS.flatMap(c => c.units.map(u => u.id));
+function saveStatus(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(status)); }catch(e){} }
 
-/* ━━━ バッジ定義 ━━━ */
-const BADGES = [
-  {id:'first',    icon:'🌱', name:'はじめの一歩', cond: d => getTotalCount(d) >= 1},
-  {id:'study5',   icon:'📚', name:'5回学習',     cond: d => getTotalCount(d) >= 5},
-  {id:'study20',  icon:'🏃', name:'20回学習',    cond: d => getTotalCount(d) >= 20},
-  {id:'study50',  icon:'💪', name:'50回学習',    cond: d => getTotalCount(d) >= 50},
-  {id:'half',     icon:'🎯', name:'半数チェック', cond: d => ALL_UNIT_IDS.filter(id => getGrade(d,id)).length >= Math.ceil(ALL_UNIT_IDS.length / 2)},
-  {id:'allC',     icon:'🗒️', name:'全単元チェック', cond: d => ALL_UNIT_IDS.every(id => getGrade(d,id))},
-  {id:'allB',     icon:'⭐', name:'全単元B以上',   cond: d => ALL_UNIT_IDS.every(id => ['A','B'].includes(getGrade(d,id)))},
-  {id:'allA',     icon:'👑', name:'全単元A達成',   cond: d => ALL_UNIT_IDS.every(id => getGrade(d,id)==='A')},
-  {id:'streak3',  icon:'🔥', name:'3日連続',       cond: d => getStreak() >= 3},
-  {id:'streak7',  icon:'🌟', name:'7日連続',       cond: d => getStreak() >= 7},
-  {id:'streak30', icon:'🏆', name:'30日連続',      cond: d => getStreak() >= 30},
-];
-
-/* ━━━ localStorage キー ━━━ */
-const LS_KEY = 'joho_index_v1';
-const LS_CAL = 'joho_calendar_v1';
-const LS_BADGE = 'joho_badges_v1';
-
-function loadData(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
-function saveData(d){ localStorage.setItem(LS_KEY, JSON.stringify(d)); }
-
-function getGrade(d,id){ return d[id+'_grade']||''; }
-function getCount(d,id){ return d[id+'_count']||0; }
-function getLast(d,id){  return d[id+'_last']||''; }
-function getTotalCount(d){ return ALL_UNIT_IDS.reduce((s,id)=>s+getCount(d,id),0); }
-
-/* ━━━ 連続学習日数 ━━━ */
-function getTodayStr(){ return new Date().toISOString().slice(0,10); }
-function getStreak(){
-  const cal = JSON.parse(localStorage.getItem(LS_CAL)||'{}');
-  let streak=0, dd=new Date();
-  for(let i=0;i<365;i++){
-    const k=dd.toISOString().slice(0,10);
-    if(cal[k]) streak++;
-    else if(i>0) break;
-    dd.setDate(dd.getDate()-1);
-  }
-  return streak;
-}
-function markToday(){
-  const cal = JSON.parse(localStorage.getItem(LS_CAL)||'{}');
-  cal[getTodayStr()]=(cal[getTodayStr()]||0)+1;
-  localStorage.setItem(LS_CAL, JSON.stringify(cal));
-}
-
-/* ━━━ 理解度セット ━━━ */
-function setGrade(btn){
-  const id=btn.dataset.id, grade=btn.dataset.grade;
-  const d=loadData();
-  const prev=getGrade(d,id);
-  if(prev===grade){ d[id+'_grade']=''; }
-  else { d[id+'_grade']=grade; }
-  d[id+'_count']=(getCount(d,id)||0)+1;
-  d[id+'_last']=getTodayStr();
-  saveData(d);
-  markToday();
-  render();
-  checkBadges(d);
-}
-
-/* ━━━ 章・単元カードのレンダリング ━━━ */
-function buildChapters(){
-  const wrap = document.getElementById('chaptersWrap');
-  wrap.innerHTML = CHAPTERS.map(ch => `
-    <div class="cat-section">
-      <div class="cat-header" style="border-left:5px solid ${ch.color}">
-        <div class="cat-bar" style="background:${ch.color}"></div>
-        <div class="cat-icon">${ch.icon}</div>
-        <div class="cat-title-wrap">
-          <div class="cat-title">第${ch.no}章 ${ch.title}</div>
-          <div class="cat-sub">${ch.subtitle}</div>
-        </div>
-        <div class="cat-count" id="cnt-${ch.id}">0/${ch.units.length}単元</div>
-      </div>
-      ${ch.units.map(u => `
-        <div class="unit-card" id="uc-${u.id}">
-          <div class="unit-top">
-            <div class="unit-num" style="background:${ch.color}">${u.num}</div>
-            <div class="unit-title">${u.title}</div>
-            <span class="unit-type type-main">単元</span>
-          </div>
-          <div class="abc-row">
-            <span class="abc-lbl">理解度</span>
-            <button class="abc-btn" data-id="${u.id}" data-grade="A" onclick="setGrade(this)">A</button>
-            <button class="abc-btn" data-id="${u.id}" data-grade="B" onclick="setGrade(this)">B</button>
-            <button class="abc-btn" data-id="${u.id}" data-grade="C" onclick="setGrade(this)">C</button>
-          </div>
-          <div class="stat-row">
-            <div class="stat-item">学習回数:<span class="val" id="cnt-u-${u.id}">0</span>回</div>
-            <div class="repeat-dots" id="dots-${u.id}"></div>
-            <div class="stat-item">最終:<span class="val" id="last-${u.id}">—</span></div>
-          </div>
-          <div class="link-row">
-            <a class="page-link main-link" href="${u.main}">📖 単元を開く</a>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
-}
-
-/* ━━━ 繰り返しドット ━━━ */
-function renderDots(id, cnt, grade){
-  const el=document.getElementById('dots-'+id);
-  if(!el) return;
-  const max=7;
-  let html='';
-  for(let i=0;i<max;i++){
-    const done=i<cnt;
-    const cls=done?(grade==='A'?'done perfect':'done'):'';
-    html+=`<div class="dot ${cls}"></div>`;
-  }
-  if(cnt>max) html+=`<span style="font-size:.7em;color:var(--muted);margin-left:2px">+${cnt-max}</span>`;
-  el.innerHTML=html;
-}
-
-/* ━━━ 全体レンダリング ━━━ */
-function render(){
-  const d=loadData();
-  let cntA=0,cntB=0,cntC=0,total=0;
-
-  ALL_UNIT_IDS.forEach(id=>{
-    const grade=getGrade(d,id);
-    const cnt=getCount(d,id);
-    const last=getLast(d,id);
-    total+=cnt;
-    if(grade==='A') cntA++;
-    else if(grade==='B') cntB++;
-    else if(grade==='C') cntC++;
-
-    document.querySelectorAll(`[data-id="${id}"]`).forEach(btn=>{
-      btn.className='abc-btn'+(grade===btn.dataset.grade?' '+grade:'');
-    });
-
-    const ce=document.getElementById('cnt-u-'+id);
-    if(ce) ce.textContent=cnt;
-    renderDots(id,cnt,grade);
-    const le=document.getElementById('last-'+id);
-    if(le) le.textContent=last||'—';
-
-    const card=document.getElementById('uc-'+id);
-    if(card){
-      card.style.borderLeft=grade?`4px solid var(--${grade})`:'';
-    }
+function applyAll(){
+  ACTIVE_IDS.forEach(id=>{
+    const g = status[id];
+    if(!g) return;
+    const card = document.querySelector('[data-id="'+id+'"]');
+    if(!card) return;
+    card.classList.remove('s-a','s-b','s-c');
+    card.classList.add('s-'+g);
+    card.querySelectorAll('.abc-btn').forEach(b=>b.classList.remove('sel'));
+    const btn = card.querySelector('.abc-'+g);
+    if(btn) btn.classList.add('sel');
   });
-
-  document.getElementById('sumTotal').textContent=total;
-  document.getElementById('sumA').textContent=cntA;
-  document.getElementById('sumB').textContent=cntB;
-  document.getElementById('sumC').textContent=cntC;
-
-  const pct = Math.round(
-    ALL_UNIT_IDS.reduce((s,id)=>{
-      const g=getGrade(d,id);
-      return s+(g==='A'?100:g==='B'?60:g==='C'?30:0);
-    },0)/ALL_UNIT_IDS.length
-  );
-  document.getElementById('progressFill').style.width=pct+'%';
-  document.getElementById('progressPct').textContent=pct+'%';
-
-  // 章別カウント
-  CHAPTERS.forEach(ch => {
-    const checked = ch.units.filter(u => getGrade(d,u.id)).length;
-    const el = document.getElementById('cnt-'+ch.id);
-    if(el) el.textContent = `${checked}/${ch.units.length}単元`;
-  });
-
-  document.getElementById('streakDisp').textContent=getStreak()+'日連続';
-  renderBadges(d);
-  renderCalendar();
+  updateSummary();
 }
 
-/* ━━━ バッジレンダリング ━━━ */
-function renderBadges(d){
-  const area=document.getElementById('badgeArea');
-  area.innerHTML=BADGES.map(b=>{
-    const earned=b.cond(d);
-    return `<div class="badge ${earned?'earned':'locked'}" title="${b.name}">
-      <div class="badge-icon">${b.icon}</div>
-      <div class="badge-name">${b.name}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ━━━ バッジ取得チェック ━━━ */
-function checkBadges(d){
-  const prev=JSON.parse(localStorage.getItem(LS_BADGE)||'[]');
-  BADGES.forEach(b=>{
-    if(!prev.includes(b.id) && b.cond(d)){
-      prev.push(b.id);
-      localStorage.setItem(LS_BADGE,JSON.stringify(prev));
-      showAchieve(b.icon, b.name+'を獲得!', 'おめでとうございます!🎊');
-    }
-  });
-}
-
-/* ━━━ カレンダーレンダリング ━━━ */
-function renderCalendar(){
-  const cal=JSON.parse(localStorage.getItem(LS_CAL)||'{}');
-  const grid=document.getElementById('calGrid');
-  let html='';
-  for(let i=83;i>=0;i--){
-    const dt=new Date(); dt.setDate(dt.getDate()-i);
-    const k=dt.toISOString().slice(0,10);
-    const v=cal[k]||0;
-    const cls=v>=4?'s4':v>=3?'s3':v>=2?'s2':v>=1?'s1':'';
-    html+=`<div class="cal-day ${cls}" title="${k}:${v}回"></div>`;
+function setABC(id, grade, btn){
+  const card = document.querySelector('[data-id="'+id+'"]');
+  if(!card) return;
+  if(status[id]===grade){
+    delete status[id];
+    card.classList.remove('s-a','s-b','s-c');
+    card.querySelectorAll('.abc-btn').forEach(b=>b.classList.remove('sel'));
+    saveStatus(); updateSummary(); return;
   }
-  grid.innerHTML=html;
+  status[id]=grade;
+  card.classList.remove('s-a','s-b','s-c');
+  card.classList.add('s-'+grade);
+  card.querySelectorAll('.abc-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  saveStatus();
+  if(grade==='a') confetti();
+  updateSummary();
 }
 
-/* ━━━ 達成モーダル ━━━ */
-function showAchieve(emoji, title, sub){
-  document.getElementById('achieveEmoji').textContent=emoji;
-  document.getElementById('achieveTitle').textContent=title;
-  document.getElementById('achieveSub').textContent=sub;
-  document.getElementById('achieveModal').classList.add('open');
-  startConf();
-  setTimeout(()=>{ stopConf(); }, 4000);
-}
-function closeAchieve(){
-  document.getElementById('achieveModal').classList.remove('open');
-  stopConf();
+function updateSummary(){
+  let ca=0,cb=0,cc=0,cn=0;
+  ACTIVE_IDS.forEach(id=>{
+    const s=status[id];
+    if(s==='a')ca++; else if(s==='b')cb++; else if(s==='c')cc++; else cn++;
+  });
+  document.getElementById('cnt-a').textContent=ca;
+  document.getElementById('cnt-b').textContent=cb;
+  document.getElementById('cnt-c').textContent=cc;
+  document.getElementById('cnt-n').textContent=cn;
 }
 
-/* ━━━ 紙吹雪 ━━━ */
-const cv=document.getElementById('cnv'),cx=cv.getContext('2d');
-let pts=[],raf=null;
-function startConf(){
-  cv.width=innerWidth;cv.height=innerHeight;pts=[];
-  for(let i=0;i<220;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height-cv.height,s:Math.random()*10+4,c:`hsl(${180+Math.random()*60},70%,${55+Math.random()*15}%)`,sp:Math.random()*3+2,r:Math.random()*Math.PI*2,dr:.05});
-  af();
+function confetti(){
+  const cv=document.getElementById('cnf');
+  cv.width=innerWidth;cv.height=innerHeight;cv.style.display='block';
+  const ctx=cv.getContext('2d');
+  const cols=['#2563eb','#60a5fa','#fbbf24','#34d399','#f87171','#a78bfa','#38bdf8'];
+  let ps=[];
+  function petal(x,y,vx,vy){return{x,y,vx,vy,s:Math.random()*8+5,c:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.3,sw:Math.random()*6,shape:Math.random()<.5?'p':'s'};}
+  for(let i=0;i<90;i++){ps.push(petal(0,cv.height,4+Math.random()*8,-(10+Math.random()*10)));ps.push(petal(cv.width,cv.height,-(4+Math.random()*8),-(10+Math.random()*10)));}
+  for(let i=0;i<120;i++){ps.push(petal(Math.random()*cv.width,-Math.random()*cv.height*.4,(Math.random()-.5)*2,1.5+Math.random()*2));}
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(p=>{p.vy+=.18;p.sw+=.06;p.x+=p.vx+Math.sin(p.sw)*1.5;p.y+=p.vy;p.rot+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;
+      if(p.shape==='p'){ctx.beginPath();ctx.ellipse(0,0,p.s,p.s*.55,0,0,7);ctx.fill();}
+      else ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
+      ctx.restore();});
+    f++;
+    if(f<380)requestAnimationFrame(loop);
+    else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+  })();
 }
-function af(){
-  cx.clearRect(0,0,cv.width,cv.height);
-  pts.forEach(p=>{p.y+=p.sp;p.r+=p.dr;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s);cx.restore();if(p.y>cv.height)p.y=-20;});
-  raf=requestAnimationFrame(af);
-}
-function stopConf(){if(raf){cancelAnimationFrame(raf);raf=null;}cx.clearRect(0,0,cv.width,cv.height);pts=[];}
 
-/* ━━━ 初期化 ━━━ */
-buildChapters();
-render();
+applyAll();
 </script>
 </body>
 </html>
