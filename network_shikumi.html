@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インターネット・メール・無線LANの仕組み</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#fefce8;color:#1e293b;line-height:1.8;padding:16px;font-size:14px;max-width:860px;margin:0 auto}
+h1{text-align:center;font-size:21px;color:#0f172a;padding:18px 0 6px;font-weight:bold}
+.subtitle{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.tip{text-align:center;font-size:12px;color:#92400e;background:#fef3c7;border-radius:20px;padding:5px 18px;margin:0 auto 10px;display:block;max-width:460px;border:1px solid #fcd34d}
+.toc{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:5px solid #BA7517}
+.toc-title{font-size:14px;font-weight:bold;color:#BA7517;margin-bottom:10px}
+.toc-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #fef3c7;font-size:13px}
+.toc-item:last-child{border-bottom:none;padding-bottom:0}
+.toc-num{background:#BA7517;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0}
+.toc-label{flex:1}
+.stars{color:#f59e0b;letter-spacing:1px;font-size:13px;flex-shrink:0}
+.star-note{font-size:11px;color:#64748b;margin-top:8px}
+.section{background:#fff;border-radius:16px;padding:20px 18px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+.sec-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sec-num{background:#BA7517;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0}
+.sec-title{font-size:15px;font-weight:bold;color:#0f172a;border-bottom:2px solid #fef3c7;padding-bottom:4px;flex:1}
+.sec-stars{color:#f59e0b;font-size:14px;flex-shrink:0}
+.analog{font-size:13px;background:#fef9c3;border-left:4px solid #facc15;padding:10px 14px;border-radius:6px;margin-bottom:14px;color:#78350f;line-height:1.8}
+.body-text{font-size:13px;line-height:1.8;margin-bottom:12px}
+.term{display:inline-block;background:#fef3c7;color:#92400e;border-radius:4px;padding:1px 7px;cursor:pointer;font-weight:bold;border-bottom:2px dotted #BA7517;white-space:nowrap;user-select:none}
+.term:hover{background:#fde68a}
+#popup-layer{display:none;position:absolute;z-index:9999;background:#1e293b;color:#f8fafc;border-radius:12px;padding:14px 18px;width:280px;font-size:12px;line-height:1.7;box-shadow:0 10px 30px rgba(0,0,0,0.35);pointer-events:none}
+#popup-layer.above::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#1e293b}
+#popup-layer.below::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-bottom-color:#1e293b}
+.pop-en{font-size:11px;color:#94a3b8;margin-bottom:3px}
+.pop-main{font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:6px}
+.pop-eg{font-size:12px;color:#cbd5e1;border-top:1px solid #334155;padding-top:6px;margin-top:4px}
+/* フロー図 */
+.flow-wrap{background:#fefce8;border-radius:12px;padding:14px;margin:12px 0;border:1.5px solid #fcd34d}
+.flow-title{font-size:12px;font-weight:bold;color:#92400e;margin-bottom:10px}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.flow-box{border-radius:10px;padding:9px 10px;font-size:12px;font-weight:bold;text-align:center;min-width:70px;flex:1;max-width:115px;line-height:1.4}
+.flow-label{font-size:10px;font-weight:normal;margin-top:2px;opacity:0.85}
+.flow-arrow{font-size:16px;color:#BA7517;flex-shrink:0}
+.fb-amber{background:#fef3c7;color:#92400e;border:2px solid #fcd34d}
+.fb-blue{background:#eff6ff;color:#1d4ed8;border:2px solid #93c5fd}
+.fb-green{background:#f0fdf4;color:#14532d;border:2px solid #86efac}
+.fb-red{background:#fee2e2;color:#991b1b;border:2px solid #fca5a5}
+.fb-purple{background:#f5f3ff;color:#5b21b6;border:2px solid #c4b5fd}
+.fb-gray{background:#f8fafc;color:#475569;border:2px solid #cbd5e1}
+/* 2カラム */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+@media(max-width:520px){.cols{grid-template-columns:1fr}}
+.col-card{background:#fefce8;border-radius:10px;padding:13px;border:1.5px solid #fcd34d}
+.col-title{font-size:13px;font-weight:bold;margin-bottom:8px;color:#92400e}
+/* 比較表 */
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.cmp-table th{background:#BA7517;color:#fff;padding:8px 10px;text-align:left;font-weight:bold}
+.cmp-table td{padding:8px 10px;border-bottom:1px solid #fef3c7;vertical-align:top;line-height:1.6}
+.cmp-table tr:nth-child(even) td{background:#fefce8}
+/* 試験ポイント */
+.exam-box{background:#fffbeb;border:2px solid #fcd34d;border-radius:10px;padding:14px 16px;margin-top:14px}
+.exam-title{font-size:13px;font-weight:bold;color:#92400e;margin-bottom:8px}
+.exam-item{font-size:13px;color:#78350f;margin-bottom:6px;padding-left:18px;position:relative;line-height:1.6}
+.exam-item::before{content:'\2713';position:absolute;left:0;color:#BA7517;font-weight:bold}
+/* まとめ表 */
+.summary-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.summary-table th{background:#BA7517;color:#fff;padding:8px 10px;text-align:left;font-weight:bold}
+.summary-table td{padding:8px 10px;border-bottom:1px solid #fef3c7;vertical-align:top;line-height:1.6}
+.summary-table tr:nth-child(even) td{background:#fefce8}
+.connect-box{margin-top:18px;padding:14px;background:#fef3c7;border-radius:10px;font-size:13px;border-left:4px solid #BA7517;line-height:1.8}
+/* ミニテスト */
+.quiz-toggle{width:100%;background:#BA7517;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.quiz-toggle:hover{background:#92400e}
+.quiz-toggle .arrow{transition:transform 0.25s;font-size:16px}
+.quiz-toggle.open .arrow{transform:rotate(180deg)}
+.quiz-body{display:none;background:#fffbeb;border:2px solid #fcd34d;border-radius:0 0 10px 10px;padding:16px}
+.quiz-body.open{display:block}
+.quiz-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;line-height:1.7}
+.quiz-type{font-size:11px;color:#64748b;margin-bottom:8px;font-style:italic}
+.quiz-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.quiz-opt{background:#fff;border:1.5px solid #fcd34d;border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.quiz-opt:hover{background:#fef3c7;border-color:#BA7517}
+.quiz-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.quiz-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.quiz-result{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:10px;line-height:1.7}
+.quiz-result.ok{background:#dcfce7;color:#14532d;border:1.5px solid #16a34a}
+.quiz-result.ng{background:#fee2e2;color:#7f1d1d;border:1.5px solid #dc2626}
+.quiz-retry{background:#64748b;color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;cursor:pointer;margin-top:4px}
+.quiz-retry:hover{background:#475569}
+.quiz-progress{font-size:12px;color:#64748b;margin-bottom:8px}
+.quiz-nav{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.btn-next{background:#BA7517;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:12px;cursor:pointer;font-weight:bold}
+.btn-next:hover{background:#92400e}
+.btn-next:disabled{background:#cbd5e1;cursor:default}
+/* フラッシュカード */
+.fc-open-btn{width:100%;background:#BA7517;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.fc-open-btn:hover{background:#92400e}
+#fc-overlay{display:none;position:absolute;top:0;left:0;width:100%;background:rgba(0,0,0,0.55);z-index:10000;padding-top:30px}
+#fc-overlay.show{display:flex;flex-direction:column;align-items:center}
+#fc-modal{background:#fff;border-radius:20px;padding:24px 20px 20px;width:min(96vw,480px);box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative}
+.fc-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:#64748b}
+.fc-header{font-size:13px;font-weight:bold;color:#BA7517;margin-bottom:14px;text-align:center}
+.fc-card{min-height:190px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:22px 18px;text-align:center;background:linear-gradient(135deg,#BA7517 0%,#f59e0b 100%);color:#fff;user-select:none;margin-bottom:14px}
+.fc-card-front{width:100%}
+.fc-card-back{width:100%;display:none}
+.fc-card.flipped .fc-card-front{display:none}
+.fc-card.flipped .fc-card-back{display:block}
+.fc-card.flipped{background:linear-gradient(135deg,#14532d 0%,#0369a1 100%)}
+.fc-word{font-size:22px;font-weight:bold;margin-bottom:8px}
+.fc-hint{font-size:12px;opacity:0.85;margin-top:6px}
+.fc-en{font-size:12px;color:#fde68a;margin-bottom:5px}
+.fc-def{font-size:13px;font-weight:bold;margin-bottom:6px}
+.fc-eg{font-size:12px;opacity:0.88;border-top:1px solid rgba(255,255,255,0.3);padding-top:7px;margin-top:5px}
+.fc-counter{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.fc-auto-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:10px;overflow:hidden;display:none}
+.fc-auto-bar-inner{height:100%;background:#BA7517;border-radius:2px}
+.fc-controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.fc-btn{border:none;border-radius:8px;padding:8px 13px;font-size:12px;font-weight:bold;cursor:pointer}
+.fc-btn-prev{background:#f1f5f9;color:#475569}
+.fc-btn-next{background:#BA7517;color:#fff}
+.fc-btn-auto2{background:#f59e0b;color:#fff}
+.fc-btn-auto3{background:#ef4444;color:#fff}
+.fc-btn-stop{background:#64748b;color:#fff;display:none}
+.fc-btn-shuffle{background:#10b981;color:#fff}
+.fc-stars{color:#fde68a;font-size:12px;margin-top:4px}
+/* 確認問題 */
+.final-section{background:#fff;border-radius:16px;padding:20px 18px 28px;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,0.1);border-top:5px solid #BA7517}
+.final-title{font-size:16px;font-weight:bold;color:#BA7517;margin-bottom:6px}
+.final-sub{font-size:12px;color:#64748b;margin-bottom:16px}
+.fq-block{background:#fffbeb;border:1.5px solid #fcd34d;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.fq-num{font-size:11px;color:#BA7517;font-weight:bold;margin-bottom:4px}
+.fq-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:10px;line-height:1.7}
+.fq-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.fq-opt{background:#fff;border:1.5px solid #fcd34d;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.fq-opt:hover{background:#fef3c7;border-color:#BA7517}
+.fq-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.fq-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.fq-result{font-size:12px;padding:8px 12px;border-radius:6px;margin-top:4px;line-height:1.6}
+.fq-result.ok{background:#dcfce7;color:#14532d}
+.fq-result.ng{background:#fee2e2;color:#7f1d1d}
+.final-score{text-align:center;padding:18px;background:#fffbeb;border-radius:12px;border:2px solid #fcd34d;margin-top:16px;display:none}
+.score-num{font-size:32px;font-weight:bold;color:#BA7517}
+.score-msg{font-size:14px;color:#92400e;margin-top:6px}
+.final-retry{background:#BA7517;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer;margin-top:12px;font-weight:bold}
+.final-retry:hover{background:#92400e}
+#confetti-canvas{position:absolute;top:0;left:0;width:100%;height:3000px;pointer-events:none;z-index:99999;display:none}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div id="popup-layer"><div class="pop-en" id="pop-en"></div><div class="pop-main" id="pop-main"></div><div class="pop-eg" id="pop-eg"></div></div>
+
+<h1>&#127760; インターネット・メール・無線LANの仕組み</h1>
+<p class="subtitle">江原予備校&#12288;情報&#8544;&#12288;第2章</p>
+<p class="tip">&#128161; 黄色い語句をクリック（またはタップ）すると説明が表示されます。</p>
+
+<!-- 目次 -->
+<div class="toc">
+  <div class="toc-title">&#128218; この単元の構成</div>
+  <div class="toc-item"><div class="toc-num">1</div><div class="toc-label">インターネットの仕組み&#12288;&#8212;&#12288;IP・DNS・URL</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">2</div><div class="toc-label">Webページが表示されるまでの流れ&#12288;&#8212;&#12288;HTTP・HTTPS</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">3</div><div class="toc-label">メールの仕組み&#12288;&#8212;&#12288;SMTP・POP・IMAP</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">4</div><div class="toc-label">無線LANの仕組み&#12288;&#8212;&#12288;SSID・WPA・ルータ</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">5</div><div class="toc-label">用語まとめ一覧&#43;フラッシュカード（16語）</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">&#9999;</div><div class="toc-label">確認問題（高認試験類題）全5問</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="star-note">&#9733;&#9733;&#9733; 最重要（必ず出ます）&#12288;&#9733;&#9733; 重要（よく出ます）&#12288;&#9733; 知識として押さえます</div>
+</div>
+
+<!-- セクション1：インターネットの仕組み -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title">インターネットの仕組み&#12288;&#8212;&#12288;IP・DNS・URL</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：インターネット上のすべてのコンピュータには「住所番号（IPアドレス）」がついています。人名は覚えやすいのに住所番号は覚えにくいですが、「電話帳（DNS）」があれば名前から番号を調べられます。URLとドメイン名はちょうど人の名前にあたります。</div>
+  <p class="body-text">インターネットに接続されたすべての機器には
+    <span class="term" data-en="IP Address&#61;Internet Protocol Address" data-main="IPアドレス（アイピーアドレス）" data-eg="&#128172; インターネット上の住所番号です。例：142.250.196.46（Googleのサーバのひとつ）。郵便物を正しく届けるために住所が必要なように、データを正しく届けるためにIPアドレスが必要です。">IPアドレス</span>
+    という固有の番号が割り当てられています。しかし数字の羅列は覚えにくいため、人間が覚えやすい名前として
+    <span class="term" data-en="Domain Name（ドメイン・ネーム）" data-main="ドメイン名（どめいんめい）" data-eg="&#128172; IPアドレスの代わりに使う人間に読みやすい名前です。例：www.google.com / www.mext.go.jp。「.jp」は日本、「.go.jp」は日本の政府機関を表します。">ドメイン名</span>
+    を使います。この変換を担うのが
+    <span class="term" data-en="DNS&#61;Domain Name System（ドメイン・ネーム・システム）" data-main="DNS（ディーエヌエス）" data-eg="&#128172; ドメイン名をIPアドレスに変換する「インターネットの電話帳」のようなシステムです。「www.google.com」と入力すると、DNSサーバが「142.250.196.46」のようなIPアドレスに変換してくれます。">DNS（ドメインネームシステム）</span>
+    です。</p>
+
+  <div class="flow-wrap">
+    <div class="flow-title">&#9312; URLを入力してからWebページが表示されるまで</div>
+    <div class="flow">
+      <div class="flow-box fb-amber">①URLを入力<div class="flow-label">www.example.com</div></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-box fb-blue">②DNSサーバに問い合わせ<div class="flow-label">名前&#8594;IPへ変換</div></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-box fb-green">③IPアドレスを取得<div class="flow-label">203.0.113.1</div></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-box fb-purple">④Webサーバに接続<div class="flow-label">HTTPSで通信</div></div>
+      <div class="flow-arrow">&#8594;</div>
+      <div class="flow-box fb-amber">&#9312;ページ表示<div class="flow-label">ブラウザが描画</div></div>
+    </div>
+  </div>
+
+  <p class="body-text">Webページの住所を表す文字列を
+    <span class="term" data-en="URL&#61;Uniform Resource Locator（ユニフォーム・リソース・ロケータ）" data-main="URL（ユーアールエル）" data-eg="&#128172; Webページの場所（住所）を示す文字列です。例：https://www.mext.go.jp/index.html　スキーム（https）&#43;ドメイン名&#43;パスで構成されます。">URL</span>
+    といいます。URLの構成を覚えましょう。</p>
+
+  <div style="background:#fef3c7;border-radius:10px;padding:13px;font-size:13px;margin:10px 0;border:1.5px solid #fcd34d">
+    <strong>URL の構成例：</strong><br>
+    <code style="font-size:13px;color:#92400e">https://www.mext.go.jp/index.html</code><br><br>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <tr><td style="padding:3px 8px;font-weight:bold;color:#BA7517;width:30%">https://</td><td style="padding:3px 8px;color:#475569">スキーム（通信方式。httpsはSSL暗号化あり）</td></tr>
+      <tr style="background:#fffbeb"><td style="padding:3px 8px;font-weight:bold;color:#BA7517">www.mext.go.jp</td><td style="padding:3px 8px;color:#475569">ドメイン名（サーバの名前。go.jp&#61;日本の政府機関）</td></tr>
+      <tr><td style="padding:3px 8px;font-weight:bold;color:#BA7517">/index.html</td><td style="padding:3px 8px;color:#475569">パス（サーバ内のファイルの場所）</td></tr>
+    </table>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">IPアドレス&#61;インターネット上の機器の住所番号です。</div>
+    <div class="exam-item">DNS&#61;ドメイン名をIPアドレスに変換するしくみです（「インターネットの電話帳」）。</div>
+    <div class="exam-item">URL&#61;Webページの場所を示す文字列です（スキーム&#43;ドメイン名&#43;パス）。</div>
+    <div class="exam-item">ドメイン名の「.jp」は日本、「.com」は商業組織、「.go.jp」は日本の政府機関を表します。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q1')">&#9999; ミニテスト &#8212; インターネットの仕組み（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q1-body"><div id="q1-container"></div></div>
+</div>
+
+<!-- セクション2：HTTP/HTTPS -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title">Webページが表示されるまで&#12288;&#8212;&#12288;HTTP・HTTPS・パケット</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：インターネットでデータを送るとき、大きなデータをそのままでは送れません。手紙を分割して複数の封筒（パケット）に入れて送り、相手が受け取ったら順番に並べ直すイメージです。</div>
+
+  <div class="cols">
+    <div class="col-card">
+      <div class="col-title">&#128274; <span class="term" data-en="HTTP&#61;HyperText Transfer Protocol（ハイパーテキスト・トランスファー・プロトコル）" data-main="HTTP（エイチティーティーピー）" data-eg="&#128172; WebブラウザとWebサーバが通信するためのルール（プロトコル）です。暗号化なしのため「ハガキ」と同じで中身が見えます。">HTTP</span> と <span class="term" data-en="HTTPS&#61;HTTP Secure（エイチティーティーピーエス）" data-main="HTTPS（エイチティーティーピーエス）" data-eg="&#128172; HTTPにSSL/TLS暗号化を加えた安全な通信方式です。URLが「https://」で始まり、ブラウザに&#128274;マークが表示されます。">HTTPS</span></div>
+      <ul style="font-size:12px;color:#475569;padding-left:16px;line-height:1.8">
+        <li>HTTP&#61;Webの通信ルール（暗号化なし）</li>
+        <li>HTTPS&#61;SSL暗号化あり（安全）</li>
+        <li>URLが「http://」&#61;&#128275;危険</li>
+        <li>URLが「https://」&#61;&#128274;安全</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <div class="col-title">&#128233; <span class="term" data-en="Packet（パケット）&#61;小包" data-main="パケット（ぱけっと）" data-eg="&#128172; データを小分けにした「小包」のことです。送信元・送信先のIPアドレスなどの情報（ヘッダ）と実際のデータ（ペイロード）からなります。複数の経路に分かれて届いてから順番に組み立てられます。">パケット</span>通信</div>
+      <ul style="font-size:12px;color:#475569;padding-left:16px;line-height:1.8">
+        <li>データを小分けにして送ります</li>
+        <li>異なる経路で同時に送れます</li>
+        <li>届いた後に順番を組み立てます</li>
+        <li>通信が効率的になります</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="body-text">インターネットの通信では
+    <span class="term" data-en="Protocol（プロトコル）" data-main="プロトコル（ぷろとこる）" data-eg="&#128172; 通信の「ルール・取り決め」のことです。「同じプロトコルを使えば、どのメーカーの機器同士でも通信できる」という役割を果たします。HTTP・SMTP・FTPなどがあります。">プロトコル</span>
+    というルールを使います。通信の階層を定めたモデルとして
+    <span class="term" data-en="TCP/IP&#61;Transmission Control Protocol / Internet Protocol" data-main="TCP/IP（ティーシーピー・アイピー）" data-eg="&#128172; インターネット通信の基本となるプロトコルの組み合わせです。TCP&#61;データを確実に届ける役割、IP&#61;データをどこに届けるかの住所役割。">TCP/IP</span>
+    が広く使われています。</p>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">HTTP&#61;Webの通信ルール（暗号化なし）。HTTPS&#61;SSL暗号化あり（安全）。</div>
+    <div class="exam-item">パケット&#61;データを小分けにした「小包」。インターネットはパケット通信で効率よく送受信します。</div>
+    <div class="exam-item">プロトコル&#61;通信のルール・取り決め。同じプロトコルなら異なる機器同士でも通信できます。</div>
+    <div class="exam-item">TCP/IP&#61;インターネット通信の基本となるプロトコルの組み合わせです。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q2')">&#9999; ミニテスト &#8212; HTTP・パケット（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q2-body"><div id="q2-container"></div></div>
+</div>
+
+<!-- セクション3：メール -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title">メールの仕組み&#12288;&#8212;&#12288;SMTP・POP・IMAP</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：メールの仕組みは「郵便」と同じです。差出人が郵便ポスト（SMTPサーバ）に投函し、郵便局（メールサーバ）で保管され、受取人が郵便受けから取り出します（POP/IMAP）。</div>
+
+  <div class="flow-wrap">
+    <div class="flow-title">&#9993; メールが届くまでの流れ</div>
+    <div class="flow">
+      <div class="flow-box fb-amber">太郎さん<div class="flow-label">メールを書く</div></div>
+      <div class="flow-arrow">SMTP&#8594;</div>
+      <div class="flow-box fb-blue">送信メール<br>サーバ<div class="flow-label">太郎の会社</div></div>
+      <div class="flow-arrow">SMTP&#8594;</div>
+      <div class="flow-box fb-blue">受信メール<br>サーバ<div class="flow-label">花子の会社</div></div>
+      <div class="flow-arrow">POP/IMAP&#8594;</div>
+      <div class="flow-box fb-green">花子さん<div class="flow-label">受け取る</div></div>
+    </div>
+  </div>
+
+  <table class="cmp-table">
+    <tr><th>プロトコル</th><th>正式名称</th><th>役割</th><th>たとえ</th></tr>
+    <tr>
+      <td><strong><span class="term" data-en="SMTP&#61;Simple Mail Transfer Protocol（シンプル・メール・トランスファー・プロトコル）" data-main="SMTP（エスエムティーピー）" data-eg="&#128172; メールを「送信する」ためのプロトコルです。ポスト（SMTP）に入れると、メールサーバが相手に届けてくれます。送信専用です。">SMTP</span></strong></td>
+      <td>Simple Mail Transfer Protocol</td>
+      <td>メールの<strong>送信</strong>に使います</td>
+      <td>郵便ポストに投函するイメージ</td>
+    </tr>
+    <tr>
+      <td><strong><span class="term" data-en="POP&#61;Post Office Protocol（ポスト・オフィス・プロトコル）" data-main="POP（ポップ）" data-eg="&#128172; メールを「受信してダウンロード」するプロトコルです。サーバからメールをダウンロードすると、サーバから削除されます。1台のパソコンで使う場合に向いています。">POP</span></strong></td>
+      <td>Post Office Protocol</td>
+      <td>メールをサーバから<strong>ダウンロード</strong>します（サーバから削除）</td>
+      <td>郵便受けから手紙を取り出すイメージ</td>
+    </tr>
+    <tr>
+      <td><strong><span class="term" data-en="IMAP&#61;Internet Message Access Protocol（インターネット・メッセージ・アクセス・プロトコル）" data-main="IMAP（アイマップ）" data-eg="&#128172; メールをサーバに残したまま確認するプロトコルです。スマホ・PC・タブレットなど複数の端末で同じメールを確認できます。現在の主流です。">IMAP</span></strong></td>
+      <td>Internet Message Access Protocol</td>
+      <td>サーバにメールを<strong>残したまま</strong>確認します</td>
+      <td>コンビニの宅配ボックスのイメージ（何度でも確認可）</td>
+    </tr>
+  </table>
+
+  <div class="cols" style="margin-top:10px">
+    <div class="col-card">
+      <div class="col-title">POP の特徴</div>
+      <ul style="font-size:12px;color:#475569;padding-left:14px;line-height:1.8">
+        <li>ダウンロード後サーバから削除</li>
+        <li>オフラインでも読める</li>
+        <li>1台の端末向き</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <div class="col-title">IMAP の特徴（現在主流）</div>
+      <ul style="font-size:12px;color:#475569;padding-left:14px;line-height:1.8">
+        <li>サーバにメールが残る</li>
+        <li>スマホ・PC など複数端末で同期</li>
+        <li>GmailやYahoo!メールはIMAP</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="body-text" style="margin-top:10px">メールアドレスの構成も覚えましょう。
+    <code style="background:#fef3c7;padding:2px 6px;border-radius:4px;color:#92400e">taro@example.co.jp</code>
+    &#8594;「taro」がユーザ名、「@」の後ろ「example.co.jp」がドメイン名（メールサーバの住所）です。</p>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">SMTP&#61;メールの<strong>送信</strong>に使うプロトコルです。</div>
+    <div class="exam-item">POP&#61;メールを<strong>ダウンロードして削除</strong>するプロトコルです（1台向き）。</div>
+    <div class="exam-item">IMAP&#61;メールをサーバに<strong>残したまま</strong>確認するプロトコルです（複数端末向き・現在主流）。</div>
+    <div class="exam-item">メールアドレスは「ユーザ名@ドメイン名」の形式です。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q3')">&#9999; ミニテスト &#8212; メールの仕組み（3問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q3-body"><div id="q3-container"></div></div>
+</div>
+
+<!-- セクション4：無線LAN -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title">無線LANの仕組み&#12288;&#8212;&#12288;SSID・WPA・ルータ</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：無線LANは「見えないケーブル」でインターネットに繋ぐしくみです。Wi-Fiのアクセスポイントが「電波の発信基地」で、SSID はそのネットワークの「名前」です。パスワードで不正接続を防ぎます。</div>
+
+  <div class="cols">
+    <div class="col-card">
+      <div class="col-title">&#128246; <span class="term" data-en="SSID&#61;Service Set Identifier（サービス・セット・アイデンティファイア）" data-main="SSID（エスエスアイディー）" data-eg="&#128172; 無線LANネットワークの「名前」のことです。スマホのWi-Fi設定画面に表示されるネットワーク名がSSIDです。例：「406_WiFi」「Buffalo-G-XXXX」など。">SSID</span>&#12288;とは</div>
+      <ul style="font-size:12px;color:#475569;padding-left:14px;line-height:1.8">
+        <li>無線LANネットワークの「名前」</li>
+        <li>Wi-Fi設定画面に表示される</li>
+        <li>同じSSIDのネットワークに接続</li>
+        <li>セキュリティのため非表示設定も可能</li>
+      </ul>
+    </div>
+    <div class="col-card">
+      <div class="col-title">&#128274; <span class="term" data-en="WPA2/WPA3&#61;Wi-Fi Protected Access（ワイファイ・プロテクテッド・アクセス）" data-main="WPA2・WPA3（ダブリューピーエー）" data-eg="&#128172; 無線LANの通信を暗号化して盗聴・不正接続を防ぐセキュリティ規格です。WPA3が現在の最新規格です。設定時に入力するパスワードで通信を守ります。">WPA2・WPA3</span>（暗号化）</div>
+      <ul style="font-size:12px;color:#475569;padding-left:14px;line-height:1.8">
+        <li>無線LAN通信の暗号化規格</li>
+        <li>WPA3が現在の最新規格</li>
+        <li>接続時のパスワードで守る</li>
+        <li>古い規格（WEP）は危険</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="body-text">家庭内ネットワークの機器も覚えましょう。</p>
+
+  <table class="cmp-table">
+    <tr><th>機器名</th><th>役割</th><th>たとえ</th></tr>
+    <tr><td><strong><span class="term" data-en="Router（ルータ）" data-main="ルータ（るーた）" data-eg="&#128172; 複数のネットワークを繋ぎ、データを適切な経路に転送する機器です。家庭では「インターネット回線&#8596;家庭内LAN」をつなぐ役割を担います。">ルータ</span></strong></td><td>ネットワーク同士をつなぎ、データを適切な宛先に転送します</td><td>郵便局の仕分け係</td></tr>
+    <tr><td><strong><span class="term" data-en="Access Point（アクセスポイント）" data-main="アクセスポイント（AP）" data-eg="&#128172; 無線LANの電波を発信する基地局です。スマホやPCはアクセスポイントを経由して有線ネットワーク（インターネット）に接続します。家庭用Wi-Fiルータはルータとアクセスポイントが一体になっています。">アクセスポイント</span></strong></td><td>無線LANの電波を発信する基地局です</td><td>Wi-Fiの発信基地</td></tr>
+    <tr><td><strong><span class="term" data-en="Hub（ハブ）" data-main="ハブ（はぶ）" data-eg="&#128172; 複数の有線LAN機器を束ねてつなぐ機器です。タコ足配線の延長コードのイメージです。">ハブ（スイッチ）</span></strong></td><td>複数の有線LAN機器を束ねてつなぎます</td><td>タコ足配線の延長コード</td></tr>
+    <tr><td><strong><span class="term" data-en="DHCP&#61;Dynamic Host Configuration Protocol" data-main="DHCPサーバ（ディーエイチシーピー）" data-eg="&#128172; ネットワークに接続した機器に自動でIPアドレスを割り当てる機能です。スマホをWi-Fiにつなぐと自動でIPアドレスが設定されるのはDHCPのおかげです。">DHCPサーバ</span></strong></td><td>ネットワークに接続した機器にIPアドレスを自動で割り当てます</td><td>宿泊者に自動で部屋番号を割り当てるホテル</td></tr>
+  </table>
+
+  <div style="background:#fee2e2;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px;border-left:4px solid #fca5a5">
+    <strong>&#9888; 公衆無線LAN（フリーWi-Fi）の危険性</strong><br>
+    カフェや駅などのフリーWi-Fiは暗号化されていない場合があります。同じネットワーク上の悪意ある第三者に通信内容を盗まれる（<span class="term" data-en="Packet Sniffing（パケット・スニッフィング）" data-main="盗聴・パケット盗聴（とうちょう）" data-eg="&#128172; ネットワーク上を流れるパケット（データの小包）を不正に傍受して内容を読み取る行為です。暗号化されていない通信では特に危険です。">盗聴</span>）リスクがあります。利用する際はHTTPSのサイトのみ使用し、重要な情報の入力は避けましょう。
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">SSID&#61;無線LANネットワークの「名前」です。Wi-Fi設定画面に表示されます。</div>
+    <div class="exam-item">WPA2・WPA3&#61;無線LANの暗号化規格です（WPA3が最新）。</div>
+    <div class="exam-item">ルータ&#61;ネットワーク同士をつなぎ、データを転送する機器です。</div>
+    <div class="exam-item">フリーWi-Fiは盗聴リスクがあります。HTTPSサイト以外で個人情報を入力してはいけません。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q4')">&#9999; ミニテスト &#8212; 無線LANの仕組み（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q4-body"><div id="q4-container"></div></div>
+</div>
+
+<!-- セクション5：まとめ -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title">用語まとめ一覧</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <button class="fc-open-btn" onclick="fcOpen()">&#127183; フラッシュカードで暗記する（16語）</button>
+  <table class="summary-table" style="margin-top:16px">
+    <tr><th>用語</th><th>英語・読み方</th><th>一言でいうと</th><th>重要度</th></tr>
+    <tr><td><strong>IPアドレス</strong></td><td>Internet Protocol Address</td><td>インターネット上の機器の住所番号です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>DNS</strong></td><td>Domain Name System ディーエヌエス</td><td>ドメイン名をIPアドレスに変換する「電話帳」です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>ドメイン名</strong></td><td>Domain Name</td><td>IPアドレスの代わりに使う人間に読みやすい名前です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>URL</strong></td><td>Uniform Resource Locator ユーアールエル</td><td>Webページの場所（住所）を示す文字列です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>HTTP</strong></td><td>HyperText Transfer Protocol</td><td>Webの通信ルールです（暗号化なし）。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>HTTPS</strong></td><td>HTTP Secure</td><td>SSL暗号化ありの安全なWeb通信です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>パケット</strong></td><td>Packet（小包）</td><td>データを小分けにして送る「小包」です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>プロトコル</strong></td><td>Protocol（議定書・規則）</td><td>通信のルール・取り決めです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>SMTP</strong></td><td>Simple Mail Transfer Protocol</td><td>メールの送信に使うプロトコルです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>POP</strong></td><td>Post Office Protocol ポップ</td><td>メールをダウンロード・削除するプロトコルです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>IMAP</strong></td><td>Internet Message Access Protocol アイマップ</td><td>メールをサーバに残したまま確認するプロトコルです（複数端末向き）。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>SSID</strong></td><td>Service Set Identifier エスエスアイディー</td><td>無線LANネットワークの「名前」です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>WPA2・WPA3</strong></td><td>Wi-Fi Protected Access</td><td>無線LANの暗号化規格です（WPA3が最新）。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>ルータ</strong></td><td>Router（経路指定）</td><td>ネットワーク間でデータを転送する機器です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>TCP/IP</strong></td><td>Transmission Control Protocol / Internet Protocol</td><td>インターネット通信の基本プロトコルの組み合わせです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+    <tr><td><strong>DHCP</strong></td><td>Dynamic Host Configuration Protocol</td><td>IPアドレスを自動で割り当てる機能です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+  </table>
+  <div class="connect-box">
+    <strong>&#129513; この章のつながり</strong><br>
+    インターネット通信はすべて「プロトコル（ルール）」に従って行われます。Webページを見るときはHTTP/HTTPS、メールを送るときはSMTP、受け取るときはPOP/IMAPを使います。これらのデータはすべてパケットに分割されてIPアドレスを手がかりにDNSの助けを借りて届けられます。第3章で学んだ「SSL・暗号化」も、このネットワーク上の通信を安全にする技術です。
+  </div>
+</div>
+
+<!-- フラッシュカード -->
+<div id="fc-overlay" onclick="fcOverlayClick(event)">
+  <div id="fc-modal">
+    <button class="fc-close" onclick="fcClose()">&#10005;</button>
+    <div class="fc-header">&#127183; フラッシュカード &#8212; インターネット・メール・無線LAN</div>
+    <div class="fc-counter" id="fc-counter">1 / 16</div>
+    <div class="fc-auto-bar" id="fc-bar"><div class="fc-auto-bar-inner" id="fc-bar-inner" style="width:0%"></div></div>
+    <div class="fc-card" id="fc-card" onclick="fcFlip()">
+      <div class="fc-card-front"><div class="fc-word" id="fc-word"></div><div class="fc-stars" id="fc-stars"></div><div class="fc-hint">&#128070; タップして答えを見る</div></div>
+      <div class="fc-card-back"><div class="fc-en" id="fc-en"></div><div class="fc-def" id="fc-def"></div><div class="fc-eg" id="fc-eg"></div></div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn fc-btn-prev" onclick="fcPrev()">&#9664; 前へ</button>
+      <button class="fc-btn fc-btn-next" onclick="fcNext()">次へ &#9654;</button>
+      <button class="fc-btn fc-btn-auto2" onclick="fcAuto(2)">&#8987; 2秒自動</button>
+      <button class="fc-btn fc-btn-auto3" onclick="fcAuto(3)">&#8987; 3秒自動</button>
+      <button class="fc-btn fc-btn-stop" id="btn-stop" onclick="fcStop()">&#9209; 停止</button>
+      <button class="fc-btn fc-btn-shuffle" onclick="fcShuffle()">&#128256; シャッフル</button>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#94a3b8">カードをタップすると表裏が切り替わります</div>
+  </div>
+</div>
+
+<!-- 確認問題 -->
+<div class="final-section">
+  <div class="final-title">&#9999; 確認問題（高認試験類題）&#12288;&#9733;&#9733;&#9733;</div>
+  <div class="final-sub">全5問・4択&#47;合格ライン：4問以上正解</div>
+  <div id="final-container"></div>
+  <div class="final-score" id="final-score">
+    <div class="score-num" id="score-num"></div>
+    <div class="score-msg" id="score-msg"></div>
+    <br><button class="final-retry" onclick="initFinal()">&#128260; もう一度挑戦する</button>
+  </div>
+</div>
+<p style="text-align:center;font-size:12px;color:#94a3b8;padding:16px 0">江原予備校&#12288;情報&#8544;&#12288;第2章&#12288;&#47;&#12288;インターネット・メール・無線LANの仕組み</p>
+
+<script>
+/* ===== ポップアップ ===== */
+(function(){
+  var layer=document.getElementById('popup-layer');
+  var pEn=document.getElementById('pop-en'),pMain=document.getElementById('pop-main'),pEg=document.getElementById('pop-eg');
+  var cur=null;
+  function show(el){pEn.textContent=el.dataset.en||'';pMain.textContent=el.dataset.main||'';pEg.textContent=el.dataset.eg||'';layer.style.display='block';place(el);cur=el;}
+  function place(el){
+    var r=el.getBoundingClientRect(),pw=280,ph=layer.offsetHeight||130;
+    var sY=window.scrollY||document.documentElement.scrollTop;
+    var sX=window.scrollX||document.documentElement.scrollLeft;
+    var left=r.left+sX+r.width/2-pw/2;
+    left=Math.max(8,Math.min(left,document.body.offsetWidth-pw-8));
+    layer.style.left=left+'px';
+    var topA=r.top+sY-ph-14;
+    if(topA>=sY+8){layer.style.top=topA+'px';layer.className='above';}
+    else{layer.style.top=(r.bottom+sY+14)+'px';layer.className='below';}
+  }
+  function hide(){layer.style.display='none';cur=null;}
+  document.querySelectorAll('.term').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();if(cur===el){hide();return;}show(el);});});
+  document.addEventListener('click',function(){hide();});
+  window.addEventListener('scroll',function(){if(cur)place(cur);},{passive:true});
+  window.addEventListener('resize',function(){if(cur)place(cur);});
+})();
+
+/* ===== 花吹雪 ===== */
+function burst(){
+  var cv=document.getElementById('confetti-canvas');cv.style.display='block';
+  var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=document.body.scrollHeight;
+  var pieces=[],colors=['#BA7517','#f59e0b','#10b981','#3b82f6','#ec4899','#fcd34d'];
+  for(var i=0;i<90;i++)pieces.push({x:Math.random()*cv.width,y:window.scrollY-20-Math.random()*100,w:6+Math.random()*6,h:10+Math.random()*8,color:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*360,vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,vr:(Math.random()-0.5)*8});
+  var start=null;
+  function draw(ts){
+    if(!start)start=ts;ctx.clearRect(0,0,cv.width,cv.height);var alive=false;
+    pieces.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y<cv.height+20)alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    if(alive&&ts-start<3000)requestAnimationFrame(draw);else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+  }
+  requestAnimationFrame(draw);
+}
+
+/* ===== ミニテストデータ ===== */
+var MINI={
+  q1:[
+    {type:'4択　正しいものはどれですか。',
+     q:'DNSの説明として正しいものはどれですか。',
+     opts:['データを小分けにして送受信するしくみです。','ドメイン名をIPアドレスに変換するしくみです。','メールを送信するためのプロトコルです。','無線LANのネットワーク名のことです。'],
+     ans:1,
+     exp:'DNS（Domain Name System）はドメイン名（www.example.comなど）をIPアドレス（数字の住所）に変換するしくみです。「インターネットの電話帳」とたとえられます。URLを入力すると、まずDNSに問い合わせてIPアドレスを取得します。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'URLの説明として誤っているものはどれですか。',
+     opts:['URLはWebページの場所（住所）を示す文字列です。','URLは「スキーム＋ドメイン名＋パス」で構成されます。','URLが「https://」で始まるとSSL暗号化が使われています。','URLのドメイン名「.go.jp」は日本の民間企業を表します。'],
+     ans:3,
+     exp:'「.go.jp」は日本の政府機関（Government）を表します。日本の民間企業は「.co.jp」や「.com」などを使います。「.jp」は日本全般、「.ac.jp」は学術機関、「.go.jp」は政府機関です。'}
+  ],
+  q2:[
+    {type:'4択　正しいものはどれですか。',
+     q:'パケット通信の説明として正しいものはどれですか。',
+     opts:['データをそのままひとかたまりで送る通信方式です。','データを小分けにして複数の経路で送る通信方式です。','メールの添付ファイルを送るための専用プロトコルです。','無線LAN専用の通信方式です。'],
+     ans:1,
+     exp:'パケット通信では、大きなデータを「パケット」という小包に分割して送ります。複数の経路で同時に送ることができ、受け取った側で順番に組み立て直します。これにより通信が効率的になります。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'HTTPとHTTPSの違いについて、誤っているものはどれですか。',
+     opts:['HTTPSはHTTPにSSL暗号化を加えたものです。','HTTPSのURLは「https://」で始まります。','HTTPは暗号化されていないため、通信内容が盗聴される危険があります。','HTTPSを使うと通信速度が速くなります。'],
+     ans:3,
+     exp:'HTTPSを使うと暗号化の処理が加わるため、理論上はHTTPよりわずかに遅くなります。しかし現代の通信環境ではその差はほぼ感じられません。HTTPSの主な目的は「通信の安全性（暗号化・本人確認）」であり、速度向上ではありません。'}
+  ],
+  q3:[
+    {type:'4択　正しいものはどれですか。',
+     q:'SMTPの役割として正しいものはどれですか。',
+     opts:['メールをサーバからダウンロードするプロトコルです。','メールを送信するためのプロトコルです。','Webページを表示するためのプロトコルです。','IPアドレスを自動で割り当てるプロトコルです。'],
+     ans:1,
+     exp:'SMTP（Simple Mail Transfer Protocol）はメールを「送信」するためのプロトコルです。郵便ポストに手紙を投函するイメージです。メールの受信にはPOP（ダウンロード）またはIMAP（サーバに残したまま確認）を使います。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'POPとIMAPの違いとして正しいものはどれですか。',
+     opts:['POPはサーバにメールを残したまま確認し、IMAPはダウンロードして削除します。','POPはメールをダウンロードしてサーバから削除し、IMAPはサーバにメールを残したまま確認します。','POPとIMAPはまったく同じプロトコルです。','POPはメールの送信に使い、IMAPはメールの受信に使います。'],
+     ans:1,
+     exp:'POP（Post Office Protocol）はメールをダウンロードしてサーバから削除するプロトコルです。1台のパソコン向きです。IMAP（Internet Message Access Protocol）はサーバにメールを残したまま確認するため、スマホ・PC・タブレットなど複数の端末で同じメールを確認できます。現在の主流はIMAPです。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'メールアドレス「taro@example.co.jp」についての説明として、誤っているものはどれですか。',
+     opts:['「taro」はユーザ名です。','「example.co.jp」はドメイン名（メールサーバの住所）です。','「@」より前がドメイン名を表します。','「.co.jp」は日本の民間企業のドメインです。'],
+     ans:2,
+     exp:'メールアドレスは「ユーザ名@ドメイン名」の構造です。「@」より前（taro）がユーザ名、「@」より後ろ（example.co.jp）がドメイン名です。「@」より後ろがドメイン名です。'}
+  ],
+  q4:[
+    {type:'4択　正しいものはどれですか。',
+     q:'SSIDの説明として正しいものはどれですか。',
+     opts:['無線LANの暗号化規格の名称です。','無線LANネットワークの「名前」（識別子）です。','無線LANルータのIPアドレスのことです。','メールサーバのドメイン名のことです。'],
+     ans:1,
+     exp:'SSID（Service Set Identifier）は無線LANネットワークの「名前」（識別子）です。スマホのWi-Fi設定画面に表示されるネットワーク名がSSIDです。同じSSIDのネットワークに接続することで、そのアクセスポイントのインターネット回線を使えるようになります。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'フリーWi-Fi（公衆無線LAN）の利用について、誤っているものはどれですか。',
+     opts:['暗号化されていない場合、通信内容が盗聴されるリスクがあります。','フリーWi-Fiを使う場合は、HTTPSのサイトのみを利用するのが安全です。','フリーWi-Fiでは個人情報やパスワードの入力は避けるべきです。','フリーWi-Fiに接続すれば、すべての通信が安全に暗号化されます。'],
+     ans:3,
+     exp:'フリーWi-Fiに接続しただけでは通信が暗号化されるわけではありません。暗号化されていないフリーWi-Fiでは、同じネットワーク上の第三者に通信内容を盗聴されるリスクがあります。利用する際はHTTPSのサイトのみを使用し、ネットバンキングや個人情報の入力は避けましょう。'}
+  ]
+};
+
+/* ===== ミニテスト制御 ===== */
+var miniState={};
+function toggleQuiz(id){
+  var btn=document.querySelector('[onclick="toggleQuiz(\''+id+'\')"]');
+  var body=document.getElementById(id+'-body');
+  var open=body.classList.contains('open');
+  if(open){body.classList.remove('open');btn.classList.remove('open');}
+  else{body.classList.add('open');btn.classList.add('open');if(!miniState[id])initMini(id);}
+}
+function initMini(id){miniState[id]={idx:0,score:0,done:false};renderMini(id);}
+function renderMini(id){
+  var s=miniState[id],qs=MINI[id],q=qs[s.idx];
+  document.getElementById(id+'-container').innerHTML=
+    '<div class="quiz-progress">問題 '+(s.idx+1)+' / '+qs.length+'</div>'
+    +'<div class="quiz-type">【'+q.type+'】</div>'
+    +'<div class="quiz-q">'+q.q+'</div>'
+    +'<div class="quiz-opts" id="'+id+'-opts">'
+    +q.opts.map(function(o,i){return '<button class="quiz-opt" onclick="answerMini(\''+id+'\','+i+')">'+(['①','②','③','④'][i])+' '+o+'</button>';}).join('')
+    +'</div><div id="'+id+'-result"></div>'
+    +'<div class="quiz-nav"><button class="btn-next" id="'+id+'-next" onclick="nextMini(\''+id+'\')" disabled>次の問題 →</button>'
+    +'<button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 やり直す</button></div>';
+}
+function answerMini(id,chosen){
+  var s=miniState[id];if(s.done)return;s.done=true;
+  var q=MINI[id][s.idx];
+  var opts=document.querySelectorAll('#'+id+'-opts .quiz-opt');
+  opts.forEach(function(b){b.disabled=true;});
+  if(chosen===q.ans){s.score++;opts[chosen].classList.add('correct');document.getElementById(id+'-result').innerHTML='<div class="quiz-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';burst();}
+  else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');document.getElementById(id+'-result').innerHTML='<div class="quiz-result ng">❌ 不正解です。<br>正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  var nb=document.getElementById(id+'-next');nb.disabled=false;nb.textContent=s.idx<MINI[id].length-1?'次の問題 →':'結果を見る';
+}
+function nextMini(id){
+  var s=miniState[id];s.idx++;s.done=false;
+  if(s.idx<MINI[id].length){renderMini(id);}
+  else{
+    var pass=(s.score===MINI[id].length);
+    document.getElementById(id+'-container').innerHTML='<div class="quiz-result '+(pass?'ok':'ng')+'" style="font-size:14px;text-align:center;padding:16px">'+(pass?'🎉 全問正解です！':s.score+' / '+MINI[id].length+' 問正解でした。もう一度確認しましょう。')+'</div><div style="text-align:center;margin-top:10px"><button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 もう一度挑戦する</button></div>';
+    if(pass)burst();
+  }
+}
+
+/* ===== フラッシュカード ===== */
+var FC_DATA=[
+  {word:'IPアドレス',stars:'☆☆☆',en:'Internet Protocol Address',def:'インターネット上の機器の住所番号です。',eg:'💬 例：142.250.196.46（Googleのサーバのひとつ）。数字の羅列なので覚えにくいです。'},
+  {word:'DNS',stars:'☆☆☆',en:'Domain Name System ディーエヌエス',def:'ドメイン名をIPアドレスに変換するしくみです。',eg:'💬 「インターネットの電話帳」。www.google.com→IPアドレスに変換します。'},
+  {word:'ドメイン名',stars:'☆☆☆',en:'Domain Name ドメイン・ネーム',def:'IPアドレスの代わりに使う人間に読みやすい名前です。',eg:'💬 例：www.mext.go.jp。「.go.jp」は日本の政府機関を表します。'},
+  {word:'URL',stars:'☆☆☆',en:'Uniform Resource Locator ユーアールエル',def:'Webページの場所（住所）を示す文字列です。',eg:'💬 https://www.example.co.jp/index.html（スキーム+ドメイン+パス）'},
+  {word:'HTTP',stars:'☆☆☆',en:'HyperText Transfer Protocol',def:'Webの通信ルールです（暗号化なし）。',eg:'💬 ハガキのように通信内容が見えます。'},
+  {word:'HTTPS',stars:'☆☆☆',en:'HTTP Secure エイチティーティーピーエス',def:'SSL暗号化ありの安全なWeb通信です。',eg:'💬 URLが「https://」で始まり🔒マークが表示されます。'},
+  {word:'パケット',stars:'☆☆☆',en:'Packet（小包）',def:'データを小分けにして送る「小包」のことです。',eg:'💬 大きなデータを小包に分けて複数の経路で送ります。'},
+  {word:'プロトコル',stars:'☆☆☆',en:'Protocol（議定書・通信規約）',def:'通信のルール・取り決めのことです。',eg:'💬 HTTP・SMTP・POPなどがプロトコルの例です。'},
+  {word:'SMTP',stars:'☆☆☆',en:'Simple Mail Transfer Protocol エスエムティーピー',def:'メールの送信に使うプロトコルです。',eg:'💬 郵便ポストに投函するイメージです。送信専用です。'},
+  {word:'POP',stars:'☆☆☆',en:'Post Office Protocol ポップ',def:'メールをダウンロードしてサーバから削除するプロトコルです。',eg:'💬 郵便受けから手紙を取り出すイメージ。1台のPC向きです。'},
+  {word:'IMAP',stars:'☆☆☆',en:'Internet Message Access Protocol アイマップ',def:'メールをサーバに残したまま確認するプロトコルです。',eg:'💬 複数端末（スマホ・PC）で同じメールを確認できます。現在の主流です。'},
+  {word:'SSID',stars:'☆☆☆',en:'Service Set Identifier エスエスアイディー',def:'無線LANネットワークの「名前」（識別子）のことです。',eg:'💬 Wi-Fi設定画面に表示されるネットワーク名がSSIDです。'},
+  {word:'WPA2・WPA3',stars:'☆☆☆',en:'Wi-Fi Protected Access ダブリューピーエー',def:'無線LANの通信を暗号化するセキュリティ規格です。',eg:'💬 WPA3が現在の最新規格。古いWEPは危険です。'},
+  {word:'ルータ',stars:'☆☆☆',en:'Router（経路指定）',def:'ネットワーク間でデータを適切な宛先に転送する機器です。',eg:'💬 家庭ではインターネット回線と家庭内LANをつなぎます。'},
+  {word:'TCP/IP',stars:'☆☆',en:'Transmission Control Protocol / Internet Protocol',def:'インターネット通信の基本となるプロトコルの組み合わせです。',eg:'💬 TCP=確実に届ける役割、IP=住所の役割。'},
+  {word:'DHCP',stars:'☆☆',en:'Dynamic Host Configuration Protocol ディーエイチシーピー',def:'IPアドレスをネットワーク機器に自動で割り当てる機能です。',eg:'💬 Wi-Fiに接続すると自動でIPアドレスが割り当てられるのはDHCPのおかげです。'},
+];
+var fcIdx=0,fcOrder=FC_DATA.map(function(_,i){return i;}),fcTimer=null,fcBarTimer=null,fcAutoSec=0;
+function fcOpen(){document.getElementById('fc-overlay').classList.add('show');fcStop();fcIdx=0;fcOrder=FC_DATA.map(function(_,i){return i;});fcRender();}
+function fcClose(){document.getElementById('fc-overlay').classList.remove('show');fcStop();}
+function fcOverlayClick(e){if(e.target===document.getElementById('fc-overlay'))fcClose();}
+function fcRender(){
+  var d=FC_DATA[fcOrder[fcIdx]];
+  document.getElementById('fc-card').classList.remove('flipped');
+  document.getElementById('fc-word').textContent=d.word;
+  document.getElementById('fc-stars').textContent=d.stars;
+  document.getElementById('fc-en').textContent=d.en;
+  document.getElementById('fc-def').textContent=d.def;
+  document.getElementById('fc-eg').textContent=d.eg;
+  document.getElementById('fc-counter').textContent=(fcIdx+1)+' / '+fcOrder.length;
+}
+function fcFlip(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcNext(){fcIdx=(fcIdx+1)%fcOrder.length;fcRender();if(fcAutoSec>0)fcStartBar();}
+function fcPrev(){fcIdx=(fcIdx-1+fcOrder.length)%fcOrder.length;fcRender();}
+function fcAuto(sec){fcStop();fcAutoSec=sec;document.getElementById('btn-stop').style.display='inline-block';document.getElementById('fc-bar').style.display='block';fcStartBar();}
+function fcStartBar(){
+  document.getElementById('fc-card').classList.remove('flipped');
+  var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';
+  var h=fcAutoSec*500,f=fcAutoSec*1000;
+  setTimeout(function(){bar.style.transition='width '+f+'ms linear';bar.style.width='100%';},30);
+  fcTimer=setTimeout(function(){document.getElementById('fc-card').classList.add('flipped');},h);
+  fcBarTimer=setTimeout(function(){fcNext();},f);
+}
+function fcStop(){clearTimeout(fcTimer);clearTimeout(fcBarTimer);fcAutoSec=0;document.getElementById('btn-stop').style.display='none';document.getElementById('fc-bar').style.display='none';var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';}
+function fcShuffle(){fcStop();for(var i=fcOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=fcOrder[i];fcOrder[i]=fcOrder[j];fcOrder[j]=tmp;}fcIdx=0;fcRender();}
+
+/* ===== 確認問題 ===== */
+var FINAL=[
+  {q:'「www.example.co.jp」というドメイン名をIPアドレスに変換するしくみはどれですか。',
+   opts:['SMTP','DNS','SSID','DHCP'],
+   ans:1,
+   exp:'DNS（Domain Name System）はドメイン名をIPアドレスに変換するしくみです。「インターネットの電話帳」と覚えましょう。URLを入力すると、まずDNSサーバに問い合わせてIPアドレスを取得し、そのアドレス宛にデータを送ります。'},
+  {q:'メールの送信に使うプロトコルとして正しいものはどれですか。',
+   opts:['POP','IMAP','SMTP','HTTP'],
+   ans:2,
+   exp:'SMTP（Simple Mail Transfer Protocol）はメールを「送信」するためのプロトコルです。メールの受信にはPOP（ダウンロード・削除）またはIMAP（サーバに残したまま確認）を使います。HTTPはWebページの通信に使うプロトコルです。'},
+  {q:'スマホのWi-Fi設定画面に表示されるネットワークの「名前」を何といいますか。',
+   opts:['IPアドレス','URL','SSID','WPA'],
+   ans:2,
+   exp:'SSID（Service Set Identifier）は無線LANネットワークの「名前」（識別子）です。スマホのWi-Fi設定画面に表示されるネットワーク名がSSIDです。WPAは無線LANの暗号化規格の名称です。'},
+  {q:'POPとIMAPを比較した説明として正しいものはどれですか。',
+   opts:['POPはサーバにメールを残し複数端末で使え、IMAPはダウンロードして削除します。','POPはメールをダウンロードしてサーバから削除し、IMAPはサーバにメールを残したまま確認します。','POPはメールの送信に、IMAPはメールの受信に使います。','POPとIMAPはどちらもメールの送信に使うプロトコルです。'],
+   ans:1,
+   exp:'POPはメールをダウンロードしてサーバから削除します（1台向き）。IMAPはサーバにメールを残したまま確認でき、スマホ・PC・タブレットなど複数の端末で同じメールを確認できます。現在のGmailやYahoo!メールなどはIMAPが主流です。'},
+  {q:'フリーWi-Fi（公衆無線LAN）を安全に利用する方法として最も適切なものはどれですか。',
+   opts:['パスワードを入力してSSIDに接続すれば、すべての通信が安全に暗号化されます。','URLが「https://」で始まるサイトのみ使用し、重要な個人情報の入力は避けます。','フリーWi-Fiは政府が管理しているため、安全に使用できます。','接続台数が少ない時間帯に使えば盗聴リスクはありません。'],
+   ans:1,
+   exp:'フリーWi-Fiは暗号化されていない場合があり、同じネットワーク上の第三者に通信を盗聴されるリスクがあります。利用する際は「https://」のサイトのみ使用して通信内容を暗号化し、ネットバンキングや個人情報の入力は避けるのが安全な使い方です。'}
+];
+var finalState={answers:[]};
+function initFinal(){finalState={answers:Array(FINAL.length).fill(null)};document.getElementById('final-score').style.display='none';renderFinal();}
+function renderFinal(){
+  var html='';
+  FINAL.forEach(function(q,i){
+    html+='<div class="fq-block" id="fq-'+i+'"><div class="fq-num">問'+(i+1)+'</div><div class="fq-q">'+q.q+'</div><div class="fq-opts">'
+      +q.opts.map(function(o,j){return '<button class="fq-opt" id="fq-'+i+'-'+j+'" onclick="answerFinal('+i+','+j+')">'+(['①','②','③','④'][j])+' '+o+'</button>';}).join('')
+      +'</div><div id="fq-res-'+i+'"></div></div>';
+  });
+  html+='<div style="text-align:center;margin-top:10px"><button class="final-retry" onclick="checkFinal()" id="btn-check" style="background:#0ea5e9">✅ 採点する</button><button class="quiz-retry" style="margin-left:10px" onclick="initFinal()">🔄 やり直す</button></div>';
+  document.getElementById('final-container').innerHTML=html;
+}
+function answerFinal(qi,chosen){
+  finalState.answers[qi]=chosen;
+  var opts=document.querySelectorAll('#fq-'+qi+' .fq-opt');
+  opts.forEach(function(b){b.style.background='';b.style.border='1.5px solid #fcd34d';});
+  opts[chosen].style.background='#fef3c7';opts[chosen].style.border='2px solid #BA7517';
+}
+function checkFinal(){
+  var score=0;
+  FINAL.forEach(function(q,i){
+    var chosen=finalState.answers[i];
+    var opts=document.querySelectorAll('#fq-'+i+' .fq-opt');
+    opts.forEach(function(b){b.disabled=true;});
+    var res=document.getElementById('fq-res-'+i);
+    if(chosen===null){res.innerHTML='<div class="fq-result ng">未回答です。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」でした。<br><small>'+q.exp+'</small></div>';opts[q.ans].classList.add('correct');}
+    else if(chosen===q.ans){score++;opts[chosen].classList.add('correct');res.innerHTML='<div class="fq-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';}
+    else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');res.innerHTML='<div class="fq-result ng">❌ 不正解。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  });
+  var scoreEl=document.getElementById('final-score');scoreEl.style.display='block';
+  document.getElementById('score-num').textContent=score+' / '+FINAL.length+' 問正解';
+  var msg='';
+  if(score===FINAL.length){msg='🎉 全問正解です！すばらしい出来です。';burst();}
+  else if(score>=4){msg='✅ 合格です！惜しかった問題を復習しましょう。';burst();}
+  else if(score>=3){msg='📖 あと少しです。間違えた問題をもう一度確認しましょう。';}
+  else{msg='📖 もう一度テキストを読み直してから挑戦してみましょう。';}
+  document.getElementById('score-msg').textContent=msg;
+  scoreEl.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('btn-check').style.display='none';
+}
+initFinal();
+</script>
+<div style="text-align:center;margin:26px 0 10px">
+  <a href="kouninjoho_index.html" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px">🏠 単元表に戻る</a>
+</div>
+  <script src="https://realizefield.github.io/gamba-kounin-seito/gamba-ai.js" defer></script>
+</body>
+</html>

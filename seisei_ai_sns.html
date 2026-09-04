@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生成AI・SNSとの付き合い方</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f0f8ff;color:#1e293b;line-height:1.8;padding:16px;font-size:14px;max-width:860px;margin:0 auto}
+h1{text-align:center;font-size:21px;color:#0f172a;padding:18px 0 6px;font-weight:bold}
+.subtitle{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.tip{text-align:center;font-size:12px;color:#0c4a6e;background:#e0f2fe;border-radius:20px;padding:5px 18px;margin:0 auto 10px;display:block;max-width:460px;border:1px solid #7dd3fc}
+.toc{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:5px solid #185FA5}
+.toc-title{font-size:14px;font-weight:bold;color:#185FA5;margin-bottom:10px}
+.toc-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #e0f2fe;font-size:13px}
+.toc-item:last-child{border-bottom:none;padding-bottom:0}
+.toc-num{background:#185FA5;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0}
+.toc-label{flex:1}
+.stars{color:#f59e0b;letter-spacing:1px;font-size:13px;flex-shrink:0}
+.star-note{font-size:11px;color:#64748b;margin-top:8px}
+.section{background:#fff;border-radius:16px;padding:20px 18px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+.sec-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sec-num{background:#185FA5;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0}
+.sec-title{font-size:15px;font-weight:bold;color:#0f172a;border-bottom:2px solid #e0f2fe;padding-bottom:4px;flex:1}
+.sec-stars{color:#f59e0b;font-size:14px;flex-shrink:0}
+.analog{font-size:13px;background:#fef9c3;border-left:4px solid #facc15;padding:10px 14px;border-radius:6px;margin-bottom:14px;color:#78350f;line-height:1.8}
+.body-text{font-size:13px;line-height:1.8;margin-bottom:12px}
+.term{display:inline-block;background:#dbeafe;color:#1d4ed8;border-radius:4px;padding:1px 7px;cursor:pointer;font-weight:bold;border-bottom:2px dotted #3b82f6;white-space:nowrap;user-select:none}
+.term:hover{background:#bfdbfe}
+#popup-layer{display:none;position:absolute;z-index:9999;background:#1e293b;color:#f8fafc;border-radius:12px;padding:14px 18px;width:280px;font-size:12px;line-height:1.7;box-shadow:0 10px 30px rgba(0,0,0,0.35);pointer-events:none}
+#popup-layer.above::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#1e293b}
+#popup-layer.below::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-bottom-color:#1e293b}
+.pop-en{font-size:11px;color:#94a3b8;margin-bottom:3px}
+.pop-main{font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:6px}
+.pop-eg{font-size:12px;color:#cbd5e1;border-top:1px solid #334155;padding-top:6px;margin-top:4px}
+/* カード系 */
+.ai-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+@media(max-width:520px){.ai-cards{grid-template-columns:1fr}}
+.ai-card{border-radius:12px;padding:13px 14px;border:2px solid}
+.ai-card-title{font-size:13px;font-weight:bold;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.ai-card-body{font-size:12px;color:#475569;line-height:1.8}
+.card-blue{background:#eff6ff;border-color:#93c5fd}
+.card-blue .ai-card-title{color:#1d4ed8}
+.card-green{background:#f0fdf4;border-color:#86efac}
+.card-green .ai-card-title{color:#14532d}
+.card-amber{background:#fffbeb;border-color:#fcd34d}
+.card-amber .ai-card-title{color:#92400e}
+.card-red{background:#fff5f5;border-color:#fca5a5}
+.card-red .ai-card-title{color:#991b1b}
+.card-purple{background:#f5f3ff;border-color:#c4b5fd}
+.card-purple .ai-card-title{color:#5b21b6}
+/* OK/NG判定 */
+.judge-list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.judge-item{display:flex;align-items:flex-start;gap:10px;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.6}
+.jok{background:#dcfce7;border:1.5px solid #86efac}
+.jng{background:#fee2e2;border:1.5px solid #fca5a5}
+.jcaution{background:#fffbeb;border:1.5px solid #fcd34d}
+.jicon{font-size:18px;flex-shrink:0;margin-top:1px}
+.jbody{flex:1}
+.jlabel{font-weight:bold;margin-bottom:2px;font-size:12px}
+/* SNSリスク表 */
+.risk-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.risk-table th{background:#185FA5;color:#fff;padding:8px 10px;text-align:left;font-weight:bold}
+.risk-table td{padding:8px 10px;border-bottom:1px solid #e0f2fe;vertical-align:top;line-height:1.6}
+.risk-table tr:nth-child(even) td{background:#f0f8ff}
+/* ステップフロー */
+.step-flow{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.step-item{display:flex;align-items:flex-start;gap:12px;background:#eff6ff;border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.7;border-left:4px solid #185FA5}
+.step-num{background:#185FA5;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;flex-shrink:0;margin-top:1px}
+/* 試験ポイント */
+.exam-box{background:#eff6ff;border:2px solid #93c5fd;border-radius:10px;padding:14px 16px;margin-top:14px}
+.exam-title{font-size:13px;font-weight:bold;color:#1d4ed8;margin-bottom:8px}
+.exam-item{font-size:13px;color:#1e3a5f;margin-bottom:6px;padding-left:18px;position:relative;line-height:1.6}
+.exam-item::before{content:'\2713';position:absolute;left:0;color:#185FA5;font-weight:bold}
+/* まとめ表 */
+.summary-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.summary-table th{background:#185FA5;color:#fff;padding:8px 10px;text-align:left;font-weight:bold}
+.summary-table td{padding:8px 10px;border-bottom:1px solid #e0f2fe;vertical-align:top;line-height:1.6}
+.summary-table tr:nth-child(even) td{background:#f0f8ff}
+.connect-box{margin-top:18px;padding:14px;background:#e0f2fe;border-radius:10px;font-size:13px;border-left:4px solid #185FA5;line-height:1.8}
+/* ミニテスト */
+.quiz-toggle{width:100%;background:#185FA5;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.quiz-toggle:hover{background:#0c447c}
+.quiz-toggle .arrow{transition:transform 0.25s;font-size:16px}
+.quiz-toggle.open .arrow{transform:rotate(180deg)}
+.quiz-body{display:none;background:#eff6ff;border:2px solid #93c5fd;border-radius:0 0 10px 10px;padding:16px}
+.quiz-body.open{display:block}
+.quiz-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;line-height:1.7}
+.quiz-type{font-size:11px;color:#64748b;margin-bottom:8px;font-style:italic}
+.quiz-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.quiz-opt{background:#fff;border:1.5px solid #93c5fd;border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.quiz-opt:hover{background:#dbeafe;border-color:#185FA5}
+.quiz-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.quiz-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.quiz-result{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:10px;line-height:1.7}
+.quiz-result.ok{background:#dcfce7;color:#14532d;border:1.5px solid #16a34a}
+.quiz-result.ng{background:#fee2e2;color:#7f1d1d;border:1.5px solid #dc2626}
+.quiz-retry{background:#64748b;color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;cursor:pointer;margin-top:4px}
+.quiz-retry:hover{background:#475569}
+.quiz-progress{font-size:12px;color:#64748b;margin-bottom:8px}
+.quiz-nav{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.btn-next{background:#185FA5;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:12px;cursor:pointer;font-weight:bold}
+.btn-next:hover{background:#0c447c}
+.btn-next:disabled{background:#cbd5e1;cursor:default}
+/* フラッシュカード */
+.fc-open-btn{width:100%;background:#185FA5;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.fc-open-btn:hover{background:#0c447c}
+#fc-overlay{display:none;position:absolute;top:0;left:0;width:100%;background:rgba(0,0,0,0.55);z-index:10000;padding-top:30px}
+#fc-overlay.show{display:flex;flex-direction:column;align-items:center}
+#fc-modal{background:#fff;border-radius:20px;padding:24px 20px 20px;width:min(96vw,480px);box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative}
+.fc-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:#64748b}
+.fc-header{font-size:13px;font-weight:bold;color:#185FA5;margin-bottom:14px;text-align:center}
+.fc-card{min-height:190px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:22px 18px;text-align:center;background:linear-gradient(135deg,#185FA5 0%,#0ea5e9 100%);color:#fff;user-select:none;margin-bottom:14px}
+.fc-card-front{width:100%}
+.fc-card-back{width:100%;display:none}
+.fc-card.flipped .fc-card-front{display:none}
+.fc-card.flipped .fc-card-back{display:block}
+.fc-card.flipped{background:linear-gradient(135deg,#14532d 0%,#185FA5 100%)}
+.fc-word{font-size:22px;font-weight:bold;margin-bottom:8px}
+.fc-hint{font-size:12px;opacity:0.85;margin-top:6px}
+.fc-en{font-size:12px;color:#bae6fd;margin-bottom:5px}
+.fc-def{font-size:13px;font-weight:bold;margin-bottom:6px}
+.fc-eg{font-size:12px;opacity:0.88;border-top:1px solid rgba(255,255,255,0.3);padding-top:7px;margin-top:5px}
+.fc-counter{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.fc-auto-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:10px;overflow:hidden;display:none}
+.fc-auto-bar-inner{height:100%;background:#185FA5;border-radius:2px}
+.fc-controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.fc-btn{border:none;border-radius:8px;padding:8px 13px;font-size:12px;font-weight:bold;cursor:pointer}
+.fc-btn-prev{background:#f1f5f9;color:#475569}
+.fc-btn-next{background:#185FA5;color:#fff}
+.fc-btn-auto2{background:#f59e0b;color:#fff}
+.fc-btn-auto3{background:#ef4444;color:#fff}
+.fc-btn-stop{background:#64748b;color:#fff;display:none}
+.fc-btn-shuffle{background:#10b981;color:#fff}
+.fc-stars{color:#bae6fd;font-size:12px;margin-top:4px}
+/* 確認問題 */
+.final-section{background:#fff;border-radius:16px;padding:20px 18px 28px;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,0.1);border-top:5px solid #185FA5}
+.final-title{font-size:16px;font-weight:bold;color:#185FA5;margin-bottom:6px}
+.final-sub{font-size:12px;color:#64748b;margin-bottom:16px}
+.fq-block{background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.fq-num{font-size:11px;color:#185FA5;font-weight:bold;margin-bottom:4px}
+.fq-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:10px;line-height:1.7}
+.fq-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.fq-opt{background:#fff;border:1.5px solid #93c5fd;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.fq-opt:hover{background:#dbeafe;border-color:#185FA5}
+.fq-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.fq-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.fq-result{font-size:12px;padding:8px 12px;border-radius:6px;margin-top:4px;line-height:1.6}
+.fq-result.ok{background:#dcfce7;color:#14532d}
+.fq-result.ng{background:#fee2e2;color:#7f1d1d}
+.final-score{text-align:center;padding:18px;background:#eff6ff;border-radius:12px;border:2px solid #93c5fd;margin-top:16px;display:none}
+.score-num{font-size:32px;font-weight:bold;color:#185FA5}
+.score-msg{font-size:14px;color:#0c447c;margin-top:6px}
+.final-retry{background:#185FA5;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer;margin-top:12px;font-weight:bold}
+.final-retry:hover{background:#0c447c}
+#confetti-canvas{position:absolute;top:0;left:0;width:100%;height:3000px;pointer-events:none;z-index:99999;display:none}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div id="popup-layer"><div class="pop-en" id="pop-en"></div><div class="pop-main" id="pop-main"></div><div class="pop-eg" id="pop-eg"></div></div>
+
+<h1>&#129302; 生成AI・SNSとの付き合い方</h1>
+<p class="subtitle">江原予備校&#12288;情報&#8544;&#12288;第1章</p>
+<p class="tip">&#128161; 青い語句をクリック（またはタップ）すると説明が表示されます。</p>
+
+<div class="toc">
+  <div class="toc-title">&#128218; この単元の構成</div>
+  <div class="toc-item"><div class="toc-num">1</div><div class="toc-label">生成AIとは何か &#8212; しくみと種類</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">2</div><div class="toc-label">生成AIの活用と注意点 &#8212; ハルシネーション・著作権</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">3</div><div class="toc-label">SNSの特徴とリスク &#8212; 炎上・フェイクニュース・デジタルタトゥー</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">4</div><div class="toc-label">情報リテラシーと情報の信頼性の見分け方</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">5</div><div class="toc-label">用語まとめ一覧&#43;フラッシュカード（14語）</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">&#9999;</div><div class="toc-label">確認問題（高認試験類題）全5問</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="star-note">&#9733;&#9733;&#9733; 最重要（必ず出ます）&#12288;&#9733;&#9733; 重要（よく出ます）&#12288;&#9733; 知識として押さえます</div>
+</div>
+
+<!-- セクション1：生成AIとは -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title">生成AIとは何か &#8212; しくみと種類</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：生成AIは「大量の教科書を読んで覚えた優秀なアシスタント」のようなものです。文章・画像・音楽など様々なものを生み出せますが、間違えることもあります。</div>
+  <p class="body-text">
+    <span class="term" data-en="Generative AI（ジェネレーティブ・エーアイ）" data-main="生成AI（せいせいエーアイ）" data-eg="&#128172; 大量のデータを学習し、新しい文章・画像・音楽・動画・プログラムなどを生み出すAIです。ChatGPT・Claude・Geminiなどが代表例です。">生成AI</span>
+    とは、大量のデータを学習し、新しいコンテンツ（文章・画像・音楽・動画・プログラムなど）を生み出す人工知能です。従来のAIが「分類・判定」をするのに対し、生成AIは「創造」を行います。
+  </p>
+  <div class="ai-cards">
+    <div class="ai-card card-blue">
+      <div class="ai-card-title">&#128172; 文章生成AI</div>
+      <div class="ai-card-body">質問への回答・文章作成・翻訳・要約・プログラミング支援を行います。<br>例：ChatGPT、Claude、Gemini</div>
+    </div>
+    <div class="ai-card card-green">
+      <div class="ai-card-title">&#128444; 画像生成AI</div>
+      <div class="ai-card-body">テキストの説明から画像・イラストを自動生成します。<br>例：Midjourney、DALL-E、Stable Diffusion</div>
+    </div>
+    <div class="ai-card card-amber">
+      <div class="ai-card-title">&#127925; 音楽・音声生成AI</div>
+      <div class="ai-card-body">音楽・歌声・人の声を自動生成します。声のなりすまし（ディープフェイク音声）にも悪用されます。</div>
+    </div>
+    <div class="ai-card card-purple">
+      <div class="ai-card-title">&#127916; 動画生成AI</div>
+      <div class="ai-card-body">テキストや静止画から動画を生成します。<br>例：Sora（OpenAI）。フェイク動画の問題もあります。</div>
+    </div>
+  </div>
+  <p class="body-text">生成AIの基盤技術として
+    <span class="term" data-en="Large Language Model（ラージ・ランゲージ・モデル）" data-main="LLM 大規模言語モデル（だいきぼげんごモデル）" data-eg="&#128172; 膨大なテキストデータを学習した大規模なAIモデルです。ChatGPTやClaudeのベース技術です。「L」arge「L」anguage「M」odelの略です。">LLM（大規模言語モデル）</span>
+    が広く使われています。インターネット上の膨大なテキストを学習することで、人間のような自然な文章を生成します。</p>
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">生成AI&#61;文章・画像・音楽・動画などを新しく「生み出す」AIです。</div>
+    <div class="exam-item">LLM（大規模言語モデル）&#61;文章生成AIの基盤技術です。</div>
+    <div class="exam-item">ChatGPT・Claude・Gemini&#61;代表的な文章生成AIサービスです。</div>
+    <div class="exam-item">生成AIは「創造」を行う点が従来のAIと異なります。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q1')">&#9999; ミニテスト &#8212; 生成AIの種類（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q1-body"><div id="q1-container"></div></div>
+</div>
+
+<!-- セクション2：生成AIの注意点 -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title">生成AIの活用と注意点</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：生成AIは「非常に物知りだが、時々自信満々に嘘をつく人」のようなものです。出力された情報は必ず別の情報源で確認する習慣が大切です。</div>
+  <p class="body-text">生成AIを使う上で特に重要な注意点を覚えましょう。</p>
+  <div class="ai-cards">
+    <div class="ai-card card-red">
+      <div class="ai-card-title">&#9888; <span class="term" data-en="Hallucination（ハルシネーション）＝幻覚" data-main="ハルシネーション（幻覚）" data-eg="&#128172; AIが事実ではない情報を、あたかも正しいかのように自信満々に生成する現象です。存在しない論文・人物・法律などを「正確な情報」として出力することがあります。必ず一次情報源で確認が必要です。">ハルシネーション（幻覚）</span></div>
+      <div class="ai-card-body">AIが事実ではない情報を正確であるかのように生成する現象です。存在しない論文や人物の情報を作り出すことがあります。<strong>出力内容を鵜呑みにせず、必ず一次情報源で確認</strong>しましょう。</div>
+    </div>
+    <div class="ai-card card-amber">
+      <div class="ai-card-title">&#128272; 著作権・個人情報の問題</div>
+      <div class="ai-card-body">生成AIの出力が既存の著作物と酷似する場合があります。また個人情報・機密情報をAIに入力すると外部に漏えいするリスクがあります。</div>
+    </div>
+    <div class="ai-card card-purple">
+      <div class="ai-card-title">&#129302; <span class="term" data-en="Deepfake（ディープフェイク）" data-main="ディープフェイク" data-eg="&#128172; AIを使って人物の顔や声を本物そっくりに合成した偽のコンテンツです。有名人がしていない発言をしているように見える動画などが問題になっています。">ディープフェイク</span>の問題</div>
+      <div class="ai-card-body">AIで生成した偽の顔・声・動画によるなりすましや詐欺が社会問題となっています。見分けることが難しいのが特徴です。</div>
+    </div>
+    <div class="ai-card card-blue">
+      <div class="ai-card-title">&#9989; 適切な活用場面</div>
+      <div class="ai-card-body">文章の草案作成・ブレインストーミング・プログラムのデバッグ支援・外国語の翻訳補助など、人間の作業を支援するツールとして活用できます。</div>
+    </div>
+  </div>
+
+  <div style="background:#fef3c7;border-radius:10px;padding:13px;margin:12px 0;border-left:4px solid #f59e0b;font-size:13px">
+    <strong>&#128161; 生成AIを使うときの5つのポイント</strong>
+    <div class="step-flow" style="margin-top:10px">
+      <div class="step-item"><div class="step-num">1</div><div>出力内容を鵜呑みにせず、必ず別の情報源で事実確認します（ハルシネーション対策）。</div></div>
+      <div class="step-item"><div class="step-num">2</div><div>個人情報・会社の機密情報・試験の答えなどを入力しません。</div></div>
+      <div class="step-item"><div class="step-num">3</div><div>AIが生成した文章をそのまま自分の作品として提出するのは不正です（著作権・剽窃の問題）。</div></div>
+      <div class="step-item"><div class="step-num">4</div><div>生成された画像・動画が偽物（ディープフェイク）である可能性を常に意識します。</div></div>
+      <div class="step-item"><div class="step-num">5</div><div>AIは補助ツールです。最終的な判断は人間が行います。</div></div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">ハルシネーション&#61;AIが事実ではない情報を正確であるかのように生成する現象です。</div>
+    <div class="exam-item">生成AIへの個人情報・機密情報の入力は情報漏えいのリスクがあります。</div>
+    <div class="exam-item">ディープフェイク&#61;AIで生成した偽の顔・声・動画です。なりすましや詐欺に悪用されます。</div>
+    <div class="exam-item">AIの出力をそのまま提出することは剽窃（ひょうせつ）として問題になります。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q2')">&#9999; ミニテスト &#8212; 生成AIの注意点（3問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q2-body"><div id="q2-container"></div></div>
+</div>
+
+<!-- セクション3：SNS -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title">SNSの特徴とリスク</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：SNSへの投稿は「消えないインクで書いた掲示板」と同じです。一度投稿した情報は完全に消すことが難しく、全世界に一瞬で広がります。</div>
+
+  <p class="body-text">
+    <span class="term" data-en="SNS&#61;Social Networking Service（ソーシャル・ネットワーキング・サービス）" data-main="SNS（エスエヌエス）" data-eg="&#128172; 人々がインターネット上で交流するためのサービスの総称です。X（旧Twitter）・Instagram・LINE・Facebook・TikTokなどが代表例です。">SNS（ソーシャルネットワーキングサービス）</span>
+    は、人々がインターネット上で情報共有・交流できるサービスです。便利な反面、様々なリスクが存在します。
+  </p>
+
+  <table class="risk-table">
+    <tr><th>リスクの種類</th><th>内容</th><th>具体的な例</th></tr>
+    <tr>
+      <td><strong><span class="term" data-en="Digital Tattoo（デジタル・タトゥー）" data-main="デジタルタトゥー" data-eg="&#128172; 一度インターネットに投稿した情報は、削除しても完全には消えないことをタトゥーにたとえた言葉です。キャッシュ・スクリーンショット・アーカイブサイトなどに残り続けます。">デジタルタトゥー</span></strong></td>
+      <td>一度投稿した情報はインターネット上に永続的に残る可能性があります。</td>
+      <td>若気の至りの不適切投稿が何年後かに掘り起こされて問題になります。</td>
+    </tr>
+    <tr>
+      <td><strong><span class="term" data-en="Flaming（フレーミング）" data-main="炎上（えんじょう）" data-eg="&#128172; SNS上で特定の人物・企業の言動に対して大量の批判・非難コメントが殺到する現象です。意図せず炎上することもあり、精神的・社会的に大きなダメージを受けます。">炎上</span></strong></td>
+      <td>不適切な投稿に対して大量の批判コメントが集中する現象です。</td>
+      <td>バイトテロ・不適切自撮り投稿などが原因で炎上し、個人特定・職場特定されます。</td>
+    </tr>
+    <tr>
+      <td><strong><span class="term" data-en="Fake News（フェイクニュース）" data-main="フェイクニュース" data-eg="&#128172; 事実ではない情報をニュースのように見せかけて拡散する情報のことです。SNSでは正確な情報も誤った情報も同じ速度で広がるため、情報の真偽を確認することが重要です。">フェイクニュース</span></strong></td>
+      <td>事実ではない情報がSNSで急速に拡散する現象です。</td>
+      <td>「○○で大地震」などのデマが拡散され、パニックを引き起こします。</td>
+    </tr>
+    <tr>
+      <td><strong>なりすまし・個人情報漏えい</strong></td>
+      <td>他人の写真・名前を使ったなりすましアカウントの問題です。</td>
+      <td>位置情報付き写真の投稿から自宅が特定されます。</td>
+    </tr>
+    <tr>
+      <td><strong><span class="term" data-en="Filter Bubble（フィルター・バブル）" data-main="フィルターバブル" data-eg="&#128172; SNSのアルゴリズムが自分の好みに合った情報だけを表示し続けることで、異なる意見や情報が届きにくくなる現象です。自分の意見だけが正しいという偏った見方につながります。">フィルターバブル</span></strong></td>
+      <td>SNSのアルゴリズムが自分好みの情報だけを表示し、視野が狭まる現象です。</td>
+      <td>同じ意見の投稿ばかり表示され、社会の多様な意見が見えなくなります。</td>
+    </tr>
+  </table>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">デジタルタトゥー&#61;一度投稿した情報はインターネット上から完全には消せません。</div>
+    <div class="exam-item">炎上&#61;不適切な投稿に批判が殺到する現象です。個人・職場の特定につながります。</div>
+    <div class="exam-item">フェイクニュース&#61;事実でない情報がSNSで急速に拡散する現象です。</div>
+    <div class="exam-item">フィルターバブル&#61;SNSのアルゴリズムが偏った情報だけを見せる現象です。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q3')">&#9999; ミニテスト &#8212; SNSのリスク（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q3-body"><div id="q3-container"></div></div>
+</div>
+
+<!-- セクション4：情報リテラシー -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title">情報リテラシーと情報の信頼性の見分け方</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：情報を受け取るときは「5W1H（誰が・いつ・どこで・何を・なぜ・どのように）」と「その情報の出所はどこか」を確認する習慣を持ちましょう。</div>
+
+  <p class="body-text">
+    <span class="term" data-en="Information Literacy（インフォメーション・リテラシー）" data-main="情報リテラシー（じょうほうリテラシー）" data-eg="&#128172; 情報を正しく収集・評価・活用する能力のことです。「リテラシー」は読み書き能力という意味で、情報社会で生きるための基礎能力です。">情報リテラシー</span>
+    とは、情報を正しく収集・評価・活用する能力です。特にSNSや生成AIが普及した現代では、
+    <span class="term" data-en="Media Literacy（メディア・リテラシー）" data-main="メディアリテラシー" data-eg="&#128172; メディア（新聞・テレビ・インターネット・SNSなど）が発信する情報を批判的に読み解き、正しく活用する能力のことです。「この情報は誰が・何の目的で発信しているか」を考えることが重要です。">メディアリテラシー</span>
+    が特に重要です。
+  </p>
+
+  <div style="background:#eff6ff;border-radius:12px;padding:14px;margin:12px 0;border:1.5px solid #93c5fd">
+    <div style="font-size:13px;font-weight:bold;color:#185FA5;margin-bottom:10px">&#128269; 情報の信頼性を確認する方法</div>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div><strong>情報源を確認します。</strong>政府機関・大学・公的機関・大手メディアの一次情報か確認します。</div></div>
+      <div class="step-item"><div class="step-num">2</div><div><strong>複数の情報源で確認します。</strong>1つの情報源だけでなく、複数のソースで同じ内容が確認できるか調べます。</div></div>
+      <div class="step-item"><div class="step-num">3</div><div><strong>情報の新しさを確認します。</strong>いつ発信された情報か確認します。古い情報が拡散されることがあります。</div></div>
+      <div class="step-item"><div class="step-num">4</div><div><strong>発信者の意図を考えます。</strong>誰が何の目的で発信しているかを考えます（商業目的・政治的意図など）。</div></div>
+      <div class="step-item"><div class="step-num">5</div><div><strong>感情をあおる表現に注意します。</strong>「衝撃」「緊急」「絶対」などの強い表現はフェイクニュースに多く使われます。</div></div>
+    </div>
+  </div>
+
+  <div class="judge-list">
+    <div class="judge-item jok">
+      <div class="jicon">&#10003;</div>
+      <div class="jbody"><div class="jlabel" style="color:#14532d">適切な情報活用</div>政府公式サイトやNHKのニュースで情報を確認してからSNSに投稿する。</div>
+    </div>
+    <div class="judge-item jok">
+      <div class="jicon">&#10003;</div>
+      <div class="jbody"><div class="jlabel" style="color:#14532d">適切な情報活用</div>生成AIで作成した文章の事実確認を別の情報源で行ってから使用する。</div>
+    </div>
+    <div class="judge-item jng">
+      <div class="jicon">&#10008;</div>
+      <div class="jbody"><div class="jlabel" style="color:#991b1b">不適切な行動</div>SNSで見た「地震速報」をすぐにリツイートする（出所を確認せずに拡散する）。</div>
+    </div>
+    <div class="judge-item jng">
+      <div class="jicon">&#10008;</div>
+      <div class="jbody"><div class="jlabel" style="color:#991b1b">不適切な行動</div>生成AIが生成した情報をそのままレポートに使い、出所の確認をしない。</div>
+    </div>
+    <div class="judge-item jcaution">
+      <div class="jicon">&#9888;</div>
+      <div class="jbody"><div class="jlabel" style="color:#92400e">注意が必要</div>「みんながシェアしているから正しい」と思い込む。&#8594;
+        <span class="term" data-en="Confirmation Bias（コンファメーション・バイアス）" data-main="確証バイアス（かくしょうバイアス）" data-eg="&#128172; 自分の信じたいことを裏付ける情報だけを集め、反対の情報を無視してしまう心理的傾向です。フェイクニュースが拡散される原因の一つです。">確証バイアス</span>
+        に注意が必要です。</div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">情報リテラシー&#61;情報を正しく収集・評価・活用する能力です。</div>
+    <div class="exam-item">メディアリテラシー&#61;メディアの情報を批判的に読み解く能力です。</div>
+    <div class="exam-item">情報の信頼性は「情報源・複数確認・発信日・発信者の意図」で判断します。</div>
+    <div class="exam-item">確証バイアス&#61;自分の信念を裏付ける情報だけを集めてしまう心理的傾向です。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q4')">&#9999; ミニテスト &#8212; 情報リテラシー（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q4-body"><div id="q4-container"></div></div>
+</div>
+
+<!-- セクション5：まとめ -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title">用語まとめ一覧</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <button class="fc-open-btn" onclick="fcOpen()">&#127183; フラッシュカードで暗記する（14語）</button>
+  <table class="summary-table" style="margin-top:16px">
+    <tr><th>用語</th><th>英語・読み方</th><th>一言でいうと</th><th>重要度</th></tr>
+    <tr><td><strong>生成AI</strong></td><td>Generative AI ジェネレーティブ・エーアイ</td><td>文章・画像・動画などを新しく生み出すAIです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>LLM</strong></td><td>Large Language Model 大規模言語モデル</td><td>文章生成AIの基盤となるAI技術です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>ハルシネーション</strong></td><td>Hallucination（幻覚）</td><td>AIが事実でない情報を正確であるかのように生成する現象です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>ディープフェイク</strong></td><td>Deepfake（深層学習&#43;フェイク）</td><td>AIで生成した偽の顔・声・動画です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>SNS</strong></td><td>Social Networking Service</td><td>インターネット上で人々が交流するサービスの総称です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>デジタルタトゥー</strong></td><td>Digital Tattoo</td><td>一度投稿した情報はネット上から完全には消せません。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>炎上</strong></td><td>Flaming（フレーミング）</td><td>不適切な投稿に批判が殺到する現象です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>フェイクニュース</strong></td><td>Fake News</td><td>事実でない情報がニュースのように拡散される現象です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>フィルターバブル</strong></td><td>Filter Bubble</td><td>SNSのアルゴリズムが偏った情報だけを見せる現象です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>情報リテラシー</strong></td><td>Information Literacy</td><td>情報を正しく収集・評価・活用する能力です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>メディアリテラシー</strong></td><td>Media Literacy</td><td>メディアの情報を批判的に読み解く能力です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>確証バイアス</strong></td><td>Confirmation Bias</td><td>自分の信念を裏付ける情報だけを集めてしまう心理的傾向です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+    <tr><td><strong>著作権（AIと）</strong></td><td>Copyright</td><td>AI生成物の著作権の扱いは現在整備中です。無断利用・剽窃に注意します。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>プロンプト</strong></td><td>Prompt（プロンプト）</td><td>生成AIに与える指示・質問文のことです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+  </table>
+  <div class="connect-box">
+    <strong>&#129513; 第1章から第3章のつながり</strong><br>
+    第1章では情報社会で生きる上での「情報との付き合い方」を学びました。第2章では情報を届ける「ネットワークの仕組み」を学び、第3章では情報を守る「セキュリティ・法律」を学びます。生成AIとSNSの普及により、情報リテラシーの重要性はますます高まっています。
+  </div>
+</div>
+
+<!-- フラッシュカード -->
+<div id="fc-overlay" onclick="fcOverlayClick(event)">
+  <div id="fc-modal">
+    <button class="fc-close" onclick="fcClose()">&#10005;</button>
+    <div class="fc-header">&#127183; フラッシュカード &#8212; 生成AI・SNSとの付き合い方</div>
+    <div class="fc-counter" id="fc-counter">1 / 14</div>
+    <div class="fc-auto-bar" id="fc-bar"><div class="fc-auto-bar-inner" id="fc-bar-inner" style="width:0%"></div></div>
+    <div class="fc-card" id="fc-card" onclick="fcFlip()">
+      <div class="fc-card-front"><div class="fc-word" id="fc-word"></div><div class="fc-stars" id="fc-stars"></div><div class="fc-hint">&#128070; タップして答えを見る</div></div>
+      <div class="fc-card-back"><div class="fc-en" id="fc-en"></div><div class="fc-def" id="fc-def"></div><div class="fc-eg" id="fc-eg"></div></div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn fc-btn-prev" onclick="fcPrev()">&#9664; 前へ</button>
+      <button class="fc-btn fc-btn-next" onclick="fcNext()">次へ &#9654;</button>
+      <button class="fc-btn fc-btn-auto2" onclick="fcAuto(2)">&#8987; 2秒自動</button>
+      <button class="fc-btn fc-btn-auto3" onclick="fcAuto(3)">&#8987; 3秒自動</button>
+      <button class="fc-btn fc-btn-stop" id="btn-stop" onclick="fcStop()">&#9209; 停止</button>
+      <button class="fc-btn fc-btn-shuffle" onclick="fcShuffle()">&#128256; シャッフル</button>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#94a3b8">カードをタップすると表裏が切り替わります</div>
+  </div>
+</div>
+
+<!-- 確認問題 -->
+<div class="final-section">
+  <div class="final-title">&#9999; 確認問題（高認試験類題）&#12288;&#9733;&#9733;&#9733;</div>
+  <div class="final-sub">全5問・4択&#47;合格ライン：4問以上正解</div>
+  <div id="final-container"></div>
+  <div class="final-score" id="final-score">
+    <div class="score-num" id="score-num"></div>
+    <div class="score-msg" id="score-msg"></div>
+    <br><button class="final-retry" onclick="initFinal()">&#128260; もう一度挑戦する</button>
+  </div>
+</div>
+<p style="text-align:center;font-size:12px;color:#94a3b8;padding:16px 0">江原予備校&#12288;情報&#8544;&#12288;第1章&#12288;&#47;&#12288;生成AI・SNSとの付き合い方</p>
+
+<script>
+(function(){
+  var layer=document.getElementById('popup-layer');
+  var pEn=document.getElementById('pop-en'),pMain=document.getElementById('pop-main'),pEg=document.getElementById('pop-eg');
+  var cur=null;
+  function show(el){pEn.textContent=el.dataset.en||'';pMain.textContent=el.dataset.main||'';pEg.textContent=el.dataset.eg||'';layer.style.display='block';place(el);cur=el;}
+  function place(el){
+    var r=el.getBoundingClientRect(),pw=280,ph=layer.offsetHeight||130;
+    var sY=window.scrollY||document.documentElement.scrollTop;
+    var sX=window.scrollX||document.documentElement.scrollLeft;
+    var left=r.left+sX+r.width/2-pw/2;
+    left=Math.max(8,Math.min(left,document.body.offsetWidth-pw-8));
+    layer.style.left=left+'px';
+    var topA=r.top+sY-ph-14;
+    if(topA>=sY+8){layer.style.top=topA+'px';layer.className='above';}
+    else{layer.style.top=(r.bottom+sY+14)+'px';layer.className='below';}
+  }
+  function hide(){layer.style.display='none';cur=null;}
+  document.querySelectorAll('.term').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();if(cur===el){hide();return;}show(el);});});
+  document.addEventListener('click',function(){hide();});
+  window.addEventListener('scroll',function(){if(cur)place(cur);},{passive:true});
+  window.addEventListener('resize',function(){if(cur)place(cur);});
+})();
+
+function burst(){
+  var cv=document.getElementById('confetti-canvas');cv.style.display='block';
+  var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=document.body.scrollHeight;
+  var pieces=[],colors=['#185FA5','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6'];
+  for(var i=0;i<90;i++)pieces.push({x:Math.random()*cv.width,y:window.scrollY-20-Math.random()*100,w:6+Math.random()*6,h:10+Math.random()*8,color:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*360,vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,vr:(Math.random()-0.5)*8});
+  var start=null;
+  function draw(ts){
+    if(!start)start=ts;ctx.clearRect(0,0,cv.width,cv.height);var alive=false;
+    pieces.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y<cv.height+20)alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    if(alive&&ts-start<3000)requestAnimationFrame(draw);else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+  }
+  requestAnimationFrame(draw);
+}
+
+var MINI={
+  q1:[
+    {type:'4択　正しいものはどれですか。',
+     q:'「生成AI」の説明として正しいものはどれですか。',
+     opts:['与えられたデータをもとに「分類・判定」を行うAIです。','大量のデータを学習し、新しい文章・画像・動画などのコンテンツを生み出すAIです。','コンピュータの計算速度を向上させる技術です。','インターネット上の通信を暗号化する技術です。'],
+     ans:1,
+     exp:'生成AI（Generative AI）は大量のデータを学習し、新しい文章・画像・音楽・動画・プログラムなどを「生み出す」AIです。従来のAIが「分類・判定」を主に行うのに対して、生成AIは「創造」を行う点が特徴です。ChatGPT・Claude・Geminiなどが代表例です。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'生成AIについての説明として、誤っているものはどれですか。',
+     opts:['ChatGPT・Claude・Geminiは代表的な文章生成AIサービスです。','画像生成AIはテキストの説明から画像を自動生成できます。','生成AIの出力は常に正確で、事実確認は不要です。','LLM（大規模言語モデル）は文章生成AIの基盤技術の一つです。'],
+     ans:2,
+     exp:'生成AIはハルシネーション（幻覚）と呼ばれる現象があり、事実ではない情報を正確であるかのように生成することがあります。そのため、AIの出力内容は必ず別の信頼できる情報源で確認する必要があります。「常に正確」というのは誤りです。'}
+  ],
+  q2:[
+    {type:'4択　正しいものはどれですか。',
+     q:'「ハルシネーション」の説明として正しいものはどれですか。',
+     opts:['AIが特定のウイルスに感染する現象です。','AIが事実ではない情報を、正確であるかのように生成する現象です。','AIの処理速度が急激に低下する現象です。','AIが個人情報を外部に送信する現象です。'],
+     ans:1,
+     exp:'ハルシネーション（幻覚）とは、生成AIが事実ではない情報（存在しない論文・人物・法律など）を自信満々に正確な情報として生成する現象です。生成AIを使う際は、出力内容を鵜呑みにせず、必ず一次情報源で確認することが重要です。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'生成AIの利用上の注意として、誤っているものはどれですか。',
+     opts:['個人情報や機密情報をAIに入力しないようにします。','AIの出力内容は必ず別の情報源で事実確認します。','AIが生成した文章をそのままレポートに提出しても問題ありません。','ディープフェイクによる偽の動画・音声に注意が必要です。'],
+     ans:2,
+     exp:'AIが生成した文章をそのまま自分の作品として提出することは剽窃（ひょうせつ）にあたり、学術上・倫理上の重大な問題です。AIはあくまでも補助ツールとして活用し、最終的な内容の責任は人間が負います。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'「ディープフェイク」の問題として正しいものはどれですか。',
+     opts:['コンピュータウイルスの一種で、ファイルを暗号化します。','AIを使って人物の顔や声を本物そっくりに合成した偽コンテンツを作成し、なりすましや詐欺に悪用されます。','インターネット回線の速度を低下させる攻撃のことです。','SNSのアルゴリズムが特定の情報だけを表示する現象です。'],
+     ans:1,
+     exp:'ディープフェイクはAI（深層学習）を使って人物の顔・声・動画を本物そっくりに合成する技術です。有名人がしていない発言をしているように見える動画、詐欺に使われる偽の音声電話などが社会問題となっています。見分けることが難しいため注意が必要です。'}
+  ],
+  q3:[
+    {type:'4択　正しいものはどれですか。',
+     q:'「デジタルタトゥー」の説明として正しいものはどれですか。',
+     opts:['スマートフォンの画面にタトゥーのような模様を描くアプリです。','一度インターネットに投稿した情報は完全には消去できない、という性質をタトゥーにたとえた言葉です。','デジタル機器を使ってタトゥーを彫る医療技術です。','SNSのアカウントを複数持つことを禁止するルールです。'],
+     ans:1,
+     exp:'デジタルタトゥーとは、一度インターネットに投稿した情報は、削除してもキャッシュ・スクリーンショット・アーカイブサイトなどに残り続け、完全に消去することが難しいことをタトゥーにたとえた言葉です。不適切な投稿が何年後かに問題になることもあります。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'SNSの「フィルターバブル」について、誤っているものはどれですか。',
+     opts:['SNSのアルゴリズムが自分の好みに合った情報だけを表示し続ける現象です。','自分と異なる意見や情報が届きにくくなります。','フィルターバブルは視野を広げる効果があります。','自分の意見だけが正しいという偏った見方につながる可能性があります。'],
+     ans:2,
+     exp:'フィルターバブルは視野を「狭める」現象であり、視野を広げる効果はありません。SNSのアルゴリズムは自分が「いいね」した投稿・閲覧した内容をもとに、好みに合った情報を優先表示します。その結果、多様な意見や情報が届きにくくなります。'}
+  ],
+  q4:[
+    {type:'4択　正しいものはどれですか。',
+     q:'「情報リテラシー」の説明として正しいものはどれですか。',
+     opts:['コンピュータプログラムを作成する技術です。','情報を正しく収集・評価・活用する能力のことです。','インターネットに接続する通信速度のことです。','SNSのフォロワー数を増やす手法のことです。'],
+     ans:1,
+     exp:'情報リテラシーとは、情報を正しく収集・評価・活用する能力のことです。情報社会で生きる上での基礎能力であり、インターネット・SNS・生成AIが普及した現代では特に重要です。メディアリテラシー（メディアの情報を批判的に読み解く能力）も関連する重要概念です。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'SNSで見た情報の信頼性を確認する方法として、誤っているものはどれですか。',
+     opts:['政府機関や大手メディアなど信頼できる情報源を確認します。','複数の情報源で同じ内容を確認します。','「みんながシェアしているから正しい」と判断します。','情報がいつ発信されたか（鮮度）を確認します。'],
+     ans:2,
+     exp:'「みんながシェアしているから正しい」という判断は確証バイアスの一種であり、誤った情報の拡散につながります。フェイクニュースも短時間で大量にシェアされることがあります。情報の信頼性は「情報源・複数確認・発信日・発信者の意図」で判断することが重要です。'}
+  ]
+};
+
+var miniState={};
+function toggleQuiz(id){
+  var btn=document.querySelector('[onclick="toggleQuiz(\''+id+'\')"]');
+  var body=document.getElementById(id+'-body');
+  var open=body.classList.contains('open');
+  if(open){body.classList.remove('open');btn.classList.remove('open');}
+  else{body.classList.add('open');btn.classList.add('open');if(!miniState[id])initMini(id);}
+}
+function initMini(id){miniState[id]={idx:0,score:0,done:false};renderMini(id);}
+function renderMini(id){
+  var s=miniState[id],qs=MINI[id],q=qs[s.idx];
+  document.getElementById(id+'-container').innerHTML=
+    '<div class="quiz-progress">問題 '+(s.idx+1)+' / '+qs.length+'</div>'
+    +'<div class="quiz-type">【'+q.type+'】</div>'
+    +'<div class="quiz-q">'+q.q+'</div>'
+    +'<div class="quiz-opts" id="'+id+'-opts">'
+    +q.opts.map(function(o,i){return '<button class="quiz-opt" onclick="answerMini(\''+id+'\','+i+')">'+(['①','②','③','④'][i])+' '+o+'</button>';}).join('')
+    +'</div><div id="'+id+'-result"></div>'
+    +'<div class="quiz-nav"><button class="btn-next" id="'+id+'-next" onclick="nextMini(\''+id+'\')" disabled>次の問題 →</button>'
+    +'<button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 やり直す</button></div>';
+}
+function answerMini(id,chosen){
+  var s=miniState[id];if(s.done)return;s.done=true;
+  var q=MINI[id][s.idx];
+  var opts=document.querySelectorAll('#'+id+'-opts .quiz-opt');
+  opts.forEach(function(b){b.disabled=true;});
+  if(chosen===q.ans){s.score++;opts[chosen].classList.add('correct');document.getElementById(id+'-result').innerHTML='<div class="quiz-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';burst();}
+  else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');document.getElementById(id+'-result').innerHTML='<div class="quiz-result ng">❌ 不正解です。<br>正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  var nb=document.getElementById(id+'-next');nb.disabled=false;nb.textContent=s.idx<MINI[id].length-1?'次の問題 →':'結果を見る';
+}
+function nextMini(id){
+  var s=miniState[id];s.idx++;s.done=false;
+  if(s.idx<MINI[id].length){renderMini(id);}
+  else{
+    var pass=(s.score===MINI[id].length);
+    document.getElementById(id+'-container').innerHTML='<div class="quiz-result '+(pass?'ok':'ng')+'" style="font-size:14px;text-align:center;padding:16px">'+(pass?'🎉 全問正解です！':s.score+' / '+MINI[id].length+' 問正解でした。もう一度確認しましょう。')+'</div><div style="text-align:center;margin-top:10px"><button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 もう一度挑戦する</button></div>';
+    if(pass)burst();
+  }
+}
+
+var FC_DATA=[
+  {word:'生成AI',stars:'☆☆☆',en:'Generative AI ジェネレーティブ・エーアイ',def:'文章・画像・音楽・動画などを新しく生み出すAIです。',eg:'💬 ChatGPT・Claude・Geminiなどが代表例です。'},
+  {word:'LLM',stars:'☆☆☆',en:'Large Language Model 大規模言語モデル',def:'文章生成AIの基盤技術。膨大なテキストを学習したAIモデルです。',eg:'💬 ChatGPTやClaudeのベース技術です。'},
+  {word:'ハルシネーション',stars:'☆☆☆',en:'Hallucination（幻覚）',def:'AIが事実でない情報を正確であるかのように生成する現象です。',eg:'💬 存在しない論文・法律・人物をでたらめに生成することがあります。'},
+  {word:'ディープフェイク',stars:'☆☆☆',en:'Deepfake（深層学習＋フェイク）',def:'AIで生成した偽の顔・声・動画です。なりすましや詐欺に悪用されます。',eg:'💬 有名人がしていない発言をしているように見える偽動画が問題です。'},
+  {word:'プロンプト',stars:'☆☆',en:'Prompt（プロンプト）',def:'生成AIに与える指示・質問文のことです。',eg:'💬 「〇〇について簡潔に説明してください」のような文章です。'},
+  {word:'SNS',stars:'☆☆☆',en:'Social Networking Service',def:'インターネット上で人々が交流するサービスの総称です。',eg:'💬 X・Instagram・LINE・Facebook・TikTokなどが代表例です。'},
+  {word:'デジタルタトゥー',stars:'☆☆☆',en:'Digital Tattoo',def:'一度投稿した情報はネット上から完全には消せない性質のことです。',eg:'💬 削除してもキャッシュやスクリーンショットに残り続けます。'},
+  {word:'炎上',stars:'☆☆☆',en:'Flaming（フレーミング）',def:'不適切な投稿に批判が殺到する現象です。',eg:'💬 バイトテロ・不適切投稿が原因で個人・職場が特定されます。'},
+  {word:'フェイクニュース',stars:'☆☆☆',en:'Fake News',def:'事実でない情報がニュースのように急速に拡散される現象です。',eg:'💬 「緊急」「衝撃」などの強い表現に注意が必要です。'},
+  {word:'フィルターバブル',stars:'☆☆☆',en:'Filter Bubble',def:'SNSのアルゴリズムが自分の好みに合った情報だけを見せる現象です。',eg:'💬 異なる意見や情報が届きにくくなり、視野が狭まります。'},
+  {word:'情報リテラシー',stars:'☆☆☆',en:'Information Literacy',def:'情報を正しく収集・評価・活用する能力です。',eg:'💬 情報社会で生きるための基礎能力です。'},
+  {word:'メディアリテラシー',stars:'☆☆☆',en:'Media Literacy',def:'メディアの情報を批判的に読み解く能力です。',eg:'💬 「誰が・何の目的で発信しているか」を考えることが重要です。'},
+  {word:'確証バイアス',stars:'☆☆',en:'Confirmation Bias コンファメーション・バイアス',def:'自分の信念を裏付ける情報だけを集めてしまう心理的傾向です。',eg:'💬 フェイクニュースが拡散される原因の一つです。'},
+  {word:'著作権（AIと）',stars:'☆☆☆',en:'Copyright',def:'AI生成物の著作権は現在整備中。剽窃・無断利用に注意が必要です。',eg:'💬 AIの出力をそのまま提出するのは剽窃（ひょうせつ）になります。'},
+];
+var fcIdx=0,fcOrder=FC_DATA.map(function(_,i){return i;}),fcTimer=null,fcBarTimer=null,fcAutoSec=0;
+function fcOpen(){document.getElementById('fc-overlay').classList.add('show');fcStop();fcIdx=0;fcOrder=FC_DATA.map(function(_,i){return i;});fcRender();}
+function fcClose(){document.getElementById('fc-overlay').classList.remove('show');fcStop();}
+function fcOverlayClick(e){if(e.target===document.getElementById('fc-overlay'))fcClose();}
+function fcRender(){
+  var d=FC_DATA[fcOrder[fcIdx]];
+  document.getElementById('fc-card').classList.remove('flipped');
+  document.getElementById('fc-word').textContent=d.word;
+  document.getElementById('fc-stars').textContent=d.stars;
+  document.getElementById('fc-en').textContent=d.en;
+  document.getElementById('fc-def').textContent=d.def;
+  document.getElementById('fc-eg').textContent=d.eg;
+  document.getElementById('fc-counter').textContent=(fcIdx+1)+' / '+fcOrder.length;
+}
+function fcFlip(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcNext(){fcIdx=(fcIdx+1)%fcOrder.length;fcRender();if(fcAutoSec>0)fcStartBar();}
+function fcPrev(){fcIdx=(fcIdx-1+fcOrder.length)%fcOrder.length;fcRender();}
+function fcAuto(sec){fcStop();fcAutoSec=sec;document.getElementById('btn-stop').style.display='inline-block';document.getElementById('fc-bar').style.display='block';fcStartBar();}
+function fcStartBar(){
+  document.getElementById('fc-card').classList.remove('flipped');
+  var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';
+  var h=fcAutoSec*500,f=fcAutoSec*1000;
+  setTimeout(function(){bar.style.transition='width '+f+'ms linear';bar.style.width='100%';},30);
+  fcTimer=setTimeout(function(){document.getElementById('fc-card').classList.add('flipped');},h);
+  fcBarTimer=setTimeout(function(){fcNext();},f);
+}
+function fcStop(){clearTimeout(fcTimer);clearTimeout(fcBarTimer);fcAutoSec=0;document.getElementById('btn-stop').style.display='none';document.getElementById('fc-bar').style.display='none';var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';}
+function fcShuffle(){fcStop();for(var i=fcOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=fcOrder[i];fcOrder[i]=fcOrder[j];fcOrder[j]=tmp;}fcIdx=0;fcRender();}
+
+var FINAL=[
+  {q:'「ハルシネーション」の説明として正しいものはどれですか。',
+   opts:['生成AIが個人情報を外部に送信する現象です。','生成AIが事実ではない情報を、正確であるかのように生成する現象です。','SNSの投稿が大量の批判にさらされる炎上現象のことです。','AIウイルスがコンピュータに感染する現象です。'],
+   ans:1,
+   exp:'ハルシネーション（幻覚）とは、生成AIが事実ではない情報（存在しない論文・人物・法律など）を自信満々に正確な情報として生成する現象です。生成AIを使う際は、出力内容を必ず一次情報源で確認することが重要です。'},
+  {q:'SNSの「デジタルタトゥー」の説明として正しいものはどれですか。',
+   opts:['SNSのプロフィールに写真を設定することです。','一度インターネットに投稿した情報は完全には消去できない、という性質をタトゥーにたとえた言葉です。','SNS企業がユーザのデータを広告に活用することです。','スマートフォンのロック画面に表示される通知のことです。'],
+   ans:1,
+   exp:'デジタルタトゥーとは、一度インターネットに投稿した情報は削除しても完全には消えないことをタトゥー（消えない刺青）にたとえた言葉です。キャッシュ・スクリーンショット・アーカイブサイトなどに残り続けるため、不適切な投稿は長期にわたって問題になる可能性があります。'},
+  {q:'生成AIを適切に活用する方法として最も正しいものはどれですか。',
+   opts:['AIが生成した情報は常に正確なので、事実確認は不要です。','AIに個人情報を入力して回答の精度を高めます。','AIの出力内容を別の信頼できる情報源で確認してから使用します。','AIが生成した文章をそのままレポートとして提出します。'],
+   ans:2,
+   exp:'生成AIはハルシネーション（事実でない情報の生成）が起こることがあります。そのため、AIの出力内容は必ず別の信頼できる情報源（政府公式サイト・学術論文・大手メディアなど）で確認してから使用することが重要です。個人情報の入力・AIの出力そのままの提出はいずれも問題があります。'},
+  {q:'SNSのアルゴリズムが自分の好みに合った情報だけを表示し続けることで、視野が狭まる現象を何といいますか。',
+   opts:['デジタルタトゥー','ハルシネーション','フィルターバブル','ディープフェイク'],
+   ans:2,
+   exp:'フィルターバブルとは、SNSのアルゴリズムがユーザの過去の行動（いいね・閲覧履歴など）をもとに、好みに合った情報だけを表示し続けることで、異なる意見や情報が届きにくくなる現象です。自分の意見だけが正しいという偏った見方につながる危険があります。'},
+  {q:'情報の信頼性を確認する方法として、誤っているものはどれですか。',
+   opts:['政府機関や大学・大手メディアなど信頼性の高い情報源を確認します。','複数の異なる情報源で同じ内容を確認します。','フォロワーが多いSNSアカウントの情報は正確なので確認不要です。','情報がいつ発信されたか（鮮度）を確認します。'],
+   ans:2,
+   exp:'フォロワーが多くても情報が正確であるとは限りません。フォロワー数と情報の正確性は無関係です。情報の信頼性は「①信頼できる情報源か②複数の情報源で確認できるか③情報の新しさ④発信者の意図」などで判断します。有名人・インフルエンサーの発信でも事実確認は必要です。'}
+];
+var finalState={answers:[]};
+function initFinal(){finalState={answers:Array(FINAL.length).fill(null)};document.getElementById('final-score').style.display='none';renderFinal();}
+function renderFinal(){
+  var html='';
+  FINAL.forEach(function(q,i){
+    html+='<div class="fq-block" id="fq-'+i+'"><div class="fq-num">問'+(i+1)+'</div><div class="fq-q">'+q.q+'</div><div class="fq-opts">'
+      +q.opts.map(function(o,j){return '<button class="fq-opt" id="fq-'+i+'-'+j+'" onclick="answerFinal('+i+','+j+')">'+(['①','②','③','④'][j])+' '+o+'</button>';}).join('')
+      +'</div><div id="fq-res-'+i+'"></div></div>';
+  });
+  html+='<div style="text-align:center;margin-top:10px"><button class="final-retry" onclick="checkFinal()" id="btn-check" style="background:#0ea5e9">✅ 採点する</button><button class="quiz-retry" style="margin-left:10px" onclick="initFinal()">🔄 やり直す</button></div>';
+  document.getElementById('final-container').innerHTML=html;
+}
+function answerFinal(qi,chosen){
+  finalState.answers[qi]=chosen;
+  var opts=document.querySelectorAll('#fq-'+qi+' .fq-opt');
+  opts.forEach(function(b){b.style.background='';b.style.border='1.5px solid #93c5fd';});
+  opts[chosen].style.background='#dbeafe';opts[chosen].style.border='2px solid #185FA5';
+}
+function checkFinal(){
+  var score=0;
+  FINAL.forEach(function(q,i){
+    var chosen=finalState.answers[i];
+    var opts=document.querySelectorAll('#fq-'+i+' .fq-opt');
+    opts.forEach(function(b){b.disabled=true;});
+    var res=document.getElementById('fq-res-'+i);
+    if(chosen===null){res.innerHTML='<div class="fq-result ng">未回答です。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」でした。<br><small>'+q.exp+'</small></div>';opts[q.ans].classList.add('correct');}
+    else if(chosen===q.ans){score++;opts[chosen].classList.add('correct');res.innerHTML='<div class="fq-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';}
+    else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');res.innerHTML='<div class="fq-result ng">❌ 不正解。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  });
+  var scoreEl=document.getElementById('final-score');scoreEl.style.display='block';
+  document.getElementById('score-num').textContent=score+' / '+FINAL.length+' 問正解';
+  var msg='';
+  if(score===FINAL.length){msg='🎉 全問正解です！すばらしい出来です。';burst();}
+  else if(score>=4){msg='✅ 合格です！惜しかった問題を復習しましょう。';burst();}
+  else if(score>=3){msg='📖 あと少しです。間違えた問題をもう一度確認しましょう。';}
+  else{msg='📖 もう一度テキストを読み直してから挑戦してみましょう。';}
+  document.getElementById('score-msg').textContent=msg;
+  scoreEl.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('btn-check').style.display='none';
+}
+initFinal();
+</script>
+<div style="text-align:center;margin:26px 0 10px">
+  <a href="kouninjoho_index.html" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px">🏠 単元表に戻る</a>
+</div>
+  <script src="https://realizefield.github.io/gamba-kounin-seito/gamba-ai.js" defer></script>
+</body>
+</html>

@@ -258,19 +258,19 @@ const CHAPTERS = [
   {
     "no": 5, "title": "問題解決", "subtitle": "Problem Solving", "icon": "🧩",
     "units": [
-      {"id":"ch5u1","num":"①","title":"問題解決の流れ","main":"joho5.html#u1"},
-      {"id":"ch5u2","num":"②","title":"情報の収集","main":"joho5.html#u2"},
-      {"id":"ch5u3","num":"③","title":"検索と論理演算","main":"joho5.html#u3"},
-      {"id":"ch5u4","num":"④","title":"情報の整理","main":"joho5.html#u4"},
-      {"id":"ch5u5","num":"⑤","title":"論理的な文章構成","main":"joho5.html#u5"},
-      {"id":"ch5u6","num":"⑥","title":"表現の工夫","main":"joho5.html#u6"},
-      {"id":"ch5u7","num":"⑦","title":"データの種類","main":"joho5.html#u7"},
-      {"id":"ch5u8","num":"⑧","title":"度数分布表とヒストグラム","main":"joho5.html#u8"},
-      {"id":"ch5u9","num":"⑨","title":"代表値","main":"joho5.html#u9"},
-      {"id":"ch5u10","num":"⑩","title":"分散と標準偏差","main":"joho5.html#u10"},
-      {"id":"ch5u11","num":"⑪","title":"散布図と相関","main":"joho5.html#u11"},
-      {"id":"ch5u12","num":"⑫","title":"クロス集計","main":"joho5.html#u12"},
-      {"id":"ch5u13","num":"⑬","title":"統計とデータ活用","main":"joho5.html#u13"}
+      {"id":"ch5u1","num":"①","title":"問題解決の流れ","main":"joho5.html#unit1"},
+      {"id":"ch5u2","num":"②","title":"情報の収集","main":"joho5.html#unit2"},
+      {"id":"ch5u3","num":"③","title":"検索と論理演算","main":"joho5.html#unit3"},
+      {"id":"ch5u4","num":"④","title":"情報の整理","main":"joho5.html#unit4"},
+      {"id":"ch5u5","num":"⑤","title":"論理的な文章構成","main":"joho5.html#unit5"},
+      {"id":"ch5u6","num":"⑥","title":"表現の工夫","main":"joho5.html#unit6"},
+      {"id":"ch5u7","num":"⑦","title":"データの種類","main":"joho5.html#unit7"},
+      {"id":"ch5u8","num":"⑧","title":"度数分布表とヒストグラム","main":"joho5.html#unit8"},
+      {"id":"ch5u9","num":"⑨","title":"代表値","main":"joho5.html#unit9"},
+      {"id":"ch5u10","num":"⑩","title":"分散と標準偏差","main":"joho5.html#unit10"},
+      {"id":"ch5u11","num":"⑪","title":"散布図と相関","main":"joho5.html#unit11"},
+      {"id":"ch5u12","num":"⑫","title":"クロス集計","main":"joho5.html#unit12"},
+      {"id":"ch5u13","num":"⑬","title":"統計とデータ活用","main":"joho5.html#unit13"}
     ]
   },
   {
@@ -281,9 +281,9 @@ const CHAPTERS = [
       {"id":"ch6u3","num":"③","title":"変数(箱のたとえ)","main":"joho6.html#u3"},
       {"id":"ch6u4","num":"④","title":"比較演算子","main":"joho6.html#u4"},
       {"id":"ch6u5","num":"⑤","title":"分岐構造","main":"joho6.html#u5"},
-      {"id":"ch6u6","num":"⑥","title":"繰り返し処理","main":"joho6.html#u6"},
-      {"id":"ch6u7","num":"⑦","title":"関数","main":"joho6.html#u7"},
-      {"id":"ch6u8","num":"⑧","title":"実践(高認類題)","main":"joho6.html#u8"}
+      {"id":"ch6u6","num":"⑥","title":"繰り返し処理","main":"","soon":true},
+      {"id":"ch6u7","num":"⑦","title":"関数","main":"","soon":true},
+      {"id":"ch6u8","num":"⑧","title":"実践(高認類題)","main":"","soon":true}
     ]
   },
   {
@@ -325,8 +325,8 @@ function buildChapters() {
       <div class="unit-body">
         <div class="sec-grid">
           ${ch.units.map(u => `
-            <div class="sec-card ch-${ch.no}" data-id="${u.id}">
-              <a href="${u.main}">
+            <div class="sec-card ch-${ch.no}${u.soon?' is-soon':''}" data-id="${u.id}">
+              <a href="${u.main}"${u.soon?' onclick="return false" style="pointer-events:none;color:#9aa3af"':''}>
                 <div class="sc-hd">
                   <span class="sc-num">${u.num}</span>
                   <span class="sc-title">${u.title}</span>
@@ -334,7 +334,9 @@ function buildChapters() {
               </a>
               <div class="sc-body">
                 <div class="sc-btn-row">
-                  <a class="sc-btn sc-btn-learn" href="${u.main}">学習を始める</a>
+                  ${u.soon
+                    ? '<span class="sc-btn sc-btn-learn" style="background:#e5e7eb;color:#9aa3af;cursor:default;pointer-events:none">準備中</span>'
+                    : `<a class="sc-btn sc-btn-learn" href="${u.main}">学習を始める</a>`}
                 </div>
               </div>
               <div class="abc-row">
@@ -458,5 +460,9 @@ buildChapters();
 applyStoredStatus();
 updateSummary();
 </script>
+  <script src="https://realizefield.github.io/gamba-kounin-seito/gamba-ai.js" defer></script>
+<div style="text-align:center;margin:26px 0 12px">
+  <a href="index.html" style="display:inline-block;background:#0891b2;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px">🏠 高認 情報Ⅰ 単元表に戻る</a>
+</div>
 </body>
 </html>

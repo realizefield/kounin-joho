@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2進法と進数変換</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f0fdfa;color:#1e293b;line-height:1.8;padding:16px;font-size:14px;max-width:860px;margin:0 auto}
+h1{text-align:center;font-size:21px;color:#0f172a;padding:18px 0 6px;font-weight:bold}
+.subtitle{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.tip{text-align:center;font-size:12px;color:#0e7490;background:#cffafe;border-radius:20px;padding:5px 18px;margin:0 auto 10px;display:block;max-width:460px;border:1px solid #67e8f9}
+.toc{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:5px solid #0e7490}
+.toc-title{font-size:14px;font-weight:bold;color:#0e7490;margin-bottom:10px}
+.toc-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #cffafe;font-size:13px}
+.toc-item:last-child{border-bottom:none;padding-bottom:0}
+.toc-num{background:#0e7490;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0}
+.toc-label{flex:1}
+.stars{color:#f59e0b;letter-spacing:1px;font-size:13px;flex-shrink:0}
+.star-note{font-size:11px;color:#64748b;margin-top:8px}
+.section{background:#fff;border-radius:16px;padding:20px 18px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+.sec-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sec-num{background:#0e7490;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0}
+.sec-title{font-size:15px;font-weight:bold;color:#0f172a;border-bottom:2px solid #cffafe;padding-bottom:4px;flex:1}
+.sec-stars{color:#f59e0b;font-size:14px;flex-shrink:0}
+.analog{font-size:13px;background:#fef9c3;border-left:4px solid #facc15;padding:10px 14px;border-radius:6px;margin-bottom:14px;color:#78350f;line-height:1.8}
+.body-text{font-size:13px;line-height:1.8;margin-bottom:12px}
+.term{display:inline-block;background:#cffafe;color:#0e7490;border-radius:4px;padding:1px 7px;cursor:pointer;font-weight:bold;border-bottom:2px dotted #0e7490;white-space:nowrap;user-select:none}
+.term:hover{background:#a5f3fc}
+#popup-layer{display:none;position:absolute;z-index:9999;background:#1e293b;color:#f8fafc;border-radius:12px;padding:14px 18px;width:280px;font-size:12px;line-height:1.7;box-shadow:0 10px 30px rgba(0,0,0,0.35);pointer-events:none}
+#popup-layer.above::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#1e293b}
+#popup-layer.below::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-bottom-color:#1e293b}
+.pop-en{font-size:11px;color:#94a3b8;margin-bottom:3px}
+.pop-main{font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:6px}
+.pop-eg{font-size:12px;color:#cbd5e1;border-top:1px solid #334155;padding-top:6px;margin-top:4px}
+
+/* ===== n進法 図解 ===== */
+.shinkoku-wrap{background:#f0fdfa;border:1.5px solid #67e8f9;border-radius:12px;padding:14px 16px;margin:12px 0}
+.shinkoku-title{font-size:12px;font-weight:bold;color:#0e7490;margin-bottom:10px}
+.koma-row{display:flex;gap:4px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px}
+.koma{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0}
+.koma-one{background:#0e7490;color:#fff}
+.koma-group{background:#fef3c7;border:2px solid #f59e0b;border-radius:6px;padding:4px 6px;display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.koma-label{font-size:12px;color:#0c4a6e;font-weight:bold;margin-left:4px}
+.arrow-right{font-size:18px;color:#0e7490;margin:0 6px}
+.koma-big{background:#0ea5e9;color:#fff;border-radius:6px;padding:4px 10px;font-size:13px;font-weight:bold}
+
+/* ===== 位の名前ボックス ===== */
+.kurai-wrap{overflow-x:auto;margin:12px 0}
+.kurai-table{border-collapse:collapse;font-size:13px;min-width:400px}
+.kurai-table th{background:#0e7490;color:#fff;padding:8px 10px;text-align:center;font-weight:bold;border:1px solid #0e7490}
+.kurai-table td{padding:8px 10px;text-align:center;border:1px solid #cffafe;line-height:1.6}
+.kurai-table tr:nth-child(even) td{background:#f0fdfa}
+.kurai-highlight{background:#cffafe !important;font-weight:bold;color:#0c4a6e}
+
+/* ===== 使える数字ボックス ===== */
+.suji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:12px 0}
+.suji-card{border-radius:10px;padding:12px 14px;border:2px solid}
+.suji-card-title{font-size:12px;font-weight:bold;margin-bottom:6px}
+.suji-nums{display:flex;gap:4px;flex-wrap:wrap}
+.suji-num{border-radius:4px;padding:3px 8px;font-size:13px;font-weight:bold;font-family:'Courier New',monospace}
+.sc-2{background:#cffafe;border-color:#0e7490}
+.sc-2 .suji-card-title{color:#0e7490}
+.sc-2 .suji-num{background:#0e7490;color:#fff}
+.sc-10{background:#fef3c7;border-color:#f59e0b}
+.sc-10 .suji-card-title{color:#92400e}
+.sc-10 .suji-num{background:#f59e0b;color:#fff}
+.sc-3{background:#f0fdf4;border-color:#16a34a}
+.sc-3 .suji-card-title{color:#14532d}
+.sc-3 .suji-num{background:#16a34a;color:#fff}
+.sc-5{background:#faf5ff;border-color:#7c3aed}
+.sc-5 .suji-card-title{color:#5b21b6}
+.sc-5 .suji-num{background:#7c3aed;color:#fff}
+.sc-16{background:#fff5f5;border-color:#dc2626}
+.sc-16 .suji-card-title{color:#991b1b}
+.sc-16 .suji-num{background:#dc2626;color:#fff}
+
+/* ===== 位の重み ===== */
+.ichi-wrap{background:#f0fdfa;border-radius:12px;padding:14px;margin:12px 0;border:1.5px solid #67e8f9;overflow-x:auto}
+.ichi-title{font-size:12px;font-weight:bold;color:#0e7490;margin-bottom:10px}
+.digit-row{display:flex;gap:4px;align-items:flex-end;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.digit-box{border-radius:8px;min-width:52px;padding:8px 6px;text-align:center;border:2px solid;flex-shrink:0}
+.digit-val{font-size:20px;font-weight:bold;font-family:'Courier New',monospace}
+.digit-kurai{font-size:10px;margin-top:4px;line-height:1.4}
+.db-teal{background:#cffafe;border-color:#0e7490;color:#0e7490}
+.db-amber{background:#fef3c7;border-color:#f59e0b;color:#92400e}
+.keisan-result{font-size:13px;color:#0c4a6e;margin-top:10px;background:#fff;border-radius:8px;padding:10px 12px;border-left:4px solid #0e7490}
+
+/* ===== 筆算ボックス ===== */
+.hissan-outer{background:#f8fafc;border-radius:12px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0}
+.hissan-title{font-size:12px;font-weight:bold;color:#0e7490;margin-bottom:10px}
+.hissan-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.hissan-block{background:#fff;border-radius:10px;padding:12px;border:1.5px solid #cffafe}
+.hissan-label{font-size:11px;font-weight:bold;color:#0e7490;margin-bottom:6px}
+.hissan-body{font-family:'Courier New',monospace;font-size:13px;line-height:2;white-space:pre;overflow-x:auto}
+.hissan-note{font-size:11px;color:#475569;margin-top:6px;line-height:1.6}
+.amari-mark{color:#dc2626;font-weight:bold}
+.yomu-mark{color:#0e7490;font-weight:bold}
+
+/* ===== ステップ説明 ===== */
+.step-flow{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.step-item{display:flex;align-items:flex-start;gap:12px;background:#f0fdfa;border-radius:10px;padding:11px 14px;font-size:13px;line-height:1.7;border-left:4px solid #0e7490}
+.step-num{background:#0e7490;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;flex-shrink:0;margin-top:1px}
+
+/* ===== 例題ボックス ===== */
+.reidai-box{background:#fffbeb;border:2px solid #fcd34d;border-radius:12px;padding:14px 16px;margin:12px 0}
+.reidai-title{font-size:13px;font-weight:bold;color:#92400e;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.reidai-q{font-size:13px;color:#1e293b;margin-bottom:10px;line-height:1.8}
+.reidai-ans{font-size:13px;background:#f0fdfa;border-radius:8px;padding:10px 12px;border-left:4px solid #0e7490;line-height:1.9;font-family:'Courier New',monospace;white-space:pre-wrap}
+
+/* ===== 2カラム ===== */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+@media(max-width:520px){.cols{grid-template-columns:1fr}}
+.col-card{background:#f0fdfa;border-radius:10px;padding:13px;border:1.5px solid #67e8f9}
+.col-title{font-size:13px;font-weight:bold;margin-bottom:8px;color:#0e7490}
+
+/* ===== 試験ポイント ===== */
+.exam-box{background:#f0fdfa;border:2px solid #67e8f9;border-radius:10px;padding:14px 16px;margin-top:14px}
+.exam-title{font-size:13px;font-weight:bold;color:#0e7490;margin-bottom:8px}
+.exam-item{font-size:13px;color:#0c4a6e;margin-bottom:6px;padding-left:18px;position:relative;line-height:1.6}
+.exam-item::before{content:'\2713';position:absolute;left:0;color:#0e7490;font-weight:bold}
+
+/* ===== まとめ表 ===== */
+.summary-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.summary-table th{background:#0e7490;color:#fff;padding:8px 10px;text-align:left;font-weight:bold}
+.summary-table td{padding:8px 10px;border-bottom:1px solid #cffafe;vertical-align:top;line-height:1.6}
+.summary-table tr:nth-child(even) td{background:#f0fdfa}
+.connect-box{margin-top:18px;padding:14px;background:#cffafe;border-radius:10px;font-size:13px;border-left:4px solid #0e7490;line-height:1.8}
+
+/* ===== ミニテスト ===== */
+.quiz-toggle{width:100%;background:#0e7490;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.quiz-toggle:hover{background:#0c647a}
+.quiz-toggle .arrow{transition:transform 0.25s;font-size:16px}
+.quiz-toggle.open .arrow{transform:rotate(180deg)}
+.quiz-body{display:none;background:#f0fdfa;border:2px solid #67e8f9;border-radius:0 0 10px 10px;padding:16px}
+.quiz-body.open{display:block}
+.quiz-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;line-height:1.7}
+.quiz-type{font-size:11px;color:#64748b;margin-bottom:8px;font-style:italic}
+.quiz-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.quiz-opt{background:#fff;border:1.5px solid #67e8f9;border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.quiz-opt:hover{background:#cffafe;border-color:#0e7490}
+.quiz-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.quiz-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.quiz-result{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:10px;line-height:1.7}
+.quiz-result.ok{background:#dcfce7;color:#14532d;border:1.5px solid #16a34a}
+.quiz-result.ng{background:#fee2e2;color:#7f1d1d;border:1.5px solid #dc2626}
+.quiz-retry{background:#64748b;color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;cursor:pointer;margin-top:4px}
+.quiz-retry:hover{background:#475569}
+.quiz-progress{font-size:12px;color:#64748b;margin-bottom:8px}
+.quiz-nav{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.btn-next{background:#0e7490;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:12px;cursor:pointer;font-weight:bold}
+.btn-next:hover{background:#0c647a}
+.btn-next:disabled{background:#cbd5e1;cursor:default}
+
+/* ===== フラッシュカード ===== */
+.fc-open-btn{width:100%;background:#0e7490;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.fc-open-btn:hover{background:#0c647a}
+#fc-overlay{display:none;position:absolute;top:0;left:0;width:100%;background:rgba(0,0,0,0.55);z-index:10000;padding-top:30px}
+#fc-overlay.show{display:flex;flex-direction:column;align-items:center}
+#fc-modal{background:#fff;border-radius:20px;padding:24px 20px 20px;width:min(96vw,480px);box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative}
+.fc-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:#64748b}
+.fc-header{font-size:13px;font-weight:bold;color:#0e7490;margin-bottom:14px;text-align:center}
+.fc-card{min-height:190px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:22px 18px;text-align:center;background:linear-gradient(135deg,#0e7490 0%,#06b6d4 100%);color:#fff;user-select:none;margin-bottom:14px}
+.fc-card-front{width:100%}
+.fc-card-back{width:100%;display:none}
+.fc-card.flipped .fc-card-front{display:none}
+.fc-card.flipped .fc-card-back{display:block}
+.fc-card.flipped{background:linear-gradient(135deg,#14532d 0%,#0e7490 100%)}
+.fc-word{font-size:20px;font-weight:bold;margin-bottom:8px}
+.fc-hint{font-size:12px;opacity:0.85;margin-top:6px}
+.fc-en{font-size:12px;color:#a5f3fc;margin-bottom:5px}
+.fc-def{font-size:13px;font-weight:bold;margin-bottom:6px}
+.fc-eg{font-size:12px;opacity:0.88;border-top:1px solid rgba(255,255,255,0.3);padding-top:7px;margin-top:5px}
+.fc-counter{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.fc-auto-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:10px;overflow:hidden;display:none}
+.fc-auto-bar-inner{height:100%;background:#0e7490;border-radius:2px}
+.fc-controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.fc-btn{border:none;border-radius:8px;padding:8px 13px;font-size:12px;font-weight:bold;cursor:pointer}
+.fc-btn-prev{background:#f1f5f9;color:#475569}
+.fc-btn-next{background:#0e7490;color:#fff}
+.fc-btn-auto2{background:#f59e0b;color:#fff}
+.fc-btn-auto3{background:#ef4444;color:#fff}
+.fc-btn-stop{background:#64748b;color:#fff;display:none}
+.fc-btn-shuffle{background:#10b981;color:#fff}
+.fc-stars{color:#a5f3fc;font-size:12px;margin-top:4px}
+
+/* ===== 確認問題 ===== */
+.final-section{background:#fff;border-radius:16px;padding:20px 18px 28px;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,0.1);border-top:5px solid #0e7490}
+.final-title{font-size:16px;font-weight:bold;color:#0e7490;margin-bottom:6px}
+.final-sub{font-size:12px;color:#64748b;margin-bottom:16px}
+.fq-block{background:#f0fdfa;border:1.5px solid #67e8f9;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.fq-num{font-size:11px;color:#0e7490;font-weight:bold;margin-bottom:4px}
+.fq-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:10px;line-height:1.7}
+.fq-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.fq-opt{background:#fff;border:1.5px solid #67e8f9;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.fq-opt:hover{background:#cffafe;border-color:#0e7490}
+.fq-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.fq-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.fq-result{font-size:12px;padding:8px 12px;border-radius:6px;margin-top:4px;line-height:1.6}
+.fq-result.ok{background:#dcfce7;color:#14532d}
+.fq-result.ng{background:#fee2e2;color:#7f1d1d}
+.final-score{text-align:center;padding:18px;background:#f0fdfa;border-radius:12px;border:2px solid #67e8f9;margin-top:16px;display:none}
+.score-num{font-size:32px;font-weight:bold;color:#0e7490}
+.score-msg{font-size:14px;color:#0c4a6e;margin-top:6px}
+.final-retry{background:#0e7490;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer;margin-top:12px;font-weight:bold}
+.final-retry:hover{background:#0c647a}
+#confetti-canvas{position:absolute;top:0;left:0;width:100%;height:3000px;pointer-events:none;z-index:99999;display:none}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div id="popup-layer"><div class="pop-en" id="pop-en"></div><div class="pop-main" id="pop-main"></div><div class="pop-eg" id="pop-eg"></div></div>
+
+<h1>&#128290; 2進法と進数変換</h1>
+<p class="subtitle">江原予備校&#12288;情報&#8544;&#12288;第4章①</p>
+<p class="tip">&#128161; ティール色の語句をクリック（またはタップ）すると説明が表示されます。</p>
+
+<div class="toc">
+  <div class="toc-title">&#128218; この単元の構成</div>
+  <div class="toc-item"><div class="toc-num">1</div><div class="toc-label">n進法の考え方 &#8212; 10進法・2進法・3進法のしくみ</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">2</div><div class="toc-label">各位の名前と使える数字 &#8212; ビット・バイトの基礎</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">3</div><div class="toc-label">10進数 &#8594; n進数への変換（÷nの筆算）</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">4</div><div class="toc-label">n進数 &#8594; 10進数への変換（位の重みで計算）</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">5</div><div class="toc-label">8進数・16進数との変換</div><div class="stars">&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">6</div><div class="toc-label">用語まとめ一覧&#43;フラッシュカード（12語）</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="toc-item"><div class="toc-num">&#9999;</div><div class="toc-label">確認問題（高認試験類題）全5問</div><div class="stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="star-note">&#9733;&#9733;&#9733; 最重要（必ず出ます）&#12288;&#9733;&#9733; 重要（よく出ます）&#12288;&#9733; 知識として押さえます</div>
+</div>
+
+<!-- ===== セクション1：n進法の考え方 ===== -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">1</div><div class="sec-title">n進法の考え方 &#8212; 10進法・2進法・3進法のしくみ</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：「いくつ集まったら次の位に繰り上がるか」が進法の違いです。10進法は10個、2進法は2個、3進法は3個集まると次の位へ上がります。</div>
+
+  <p class="body-text">私たちが日常で使っている数は <strong>10進法</strong> です。「1が10個で10、10が10個で100…」というしくみです。コンピュータは電気のON（1）とOFF（0）しかわからないため <strong>2進法</strong> を使います。</p>
+
+  <!-- 10進法の図解 -->
+  <div class="shinkoku-wrap">
+    <div class="shinkoku-title">&#9312; 10進法のしくみ &#8212; 10個集まると次の位へ</div>
+    <div style="font-size:13px;color:#0c4a6e;margin-bottom:8px">1が<strong>10個</strong>集まると「10」になります</div>
+    <div class="koma-row">
+      <div class="koma-group">
+        <div class="koma koma-one">1</div><div class="koma koma-one">1</div><div class="koma koma-one">1</div><div class="koma koma-one">1</div><div class="koma koma-one">1</div>
+        <div class="koma koma-one">1</div><div class="koma koma-one">1</div><div class="koma koma-one">1</div><div class="koma koma-one">1</div><div class="koma koma-one">1</div>
+      </div>
+      <div class="arrow-right">&#8594;</div>
+      <div class="koma-big">10</div>
+      <div class="koma-label">（1の位から10の位へ繰り上がる）</div>
+    </div>
+    <div class="koma-row" style="margin-top:8px">
+      <div class="koma-group">
+        <div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div>
+        <div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div><div class="koma-big" style="font-size:12px">10</div>
+      </div>
+      <div class="arrow-right">&#8594;</div>
+      <div class="koma-big" style="background:#0369a1">100</div>
+      <div class="koma-label">（10の位から100の位へ繰り上がる）</div>
+    </div>
+  </div>
+
+  <!-- 2進法の図解 -->
+  <div class="shinkoku-wrap" style="border-color:#06b6d4">
+    <div class="shinkoku-title">&#9313; 2進法のしくみ &#8212; 2個集まると次の位へ（テキスト〔1〕より）</div>
+    <div style="font-size:13px;color:#0c4a6e;margin-bottom:8px">2進法では1が<strong>2個</strong>集まると「10」になります</div>
+    <div class="koma-row">
+      <div class="koma koma-one">1</div>
+      <div class="koma koma-one">1</div>
+      <div class="arrow-right">&#8594;</div>
+      <div class="koma-big">10<sub>(2)</sub></div>
+      <div class="koma-label" style="font-size:12px">1と1で10<sub>(2)</sub>（2進数の「10」&#61;10進数の「2」）</div>
+    </div>
+    <div class="koma-row" style="margin-top:8px">
+      <div class="koma-big" style="font-size:12px">10</div>
+      <div class="koma-big" style="font-size:12px">10</div>
+      <div class="arrow-right">&#8594;</div>
+      <div class="koma-big" style="background:#0369a1">100<sub>(2)</sub></div>
+      <div class="koma-label" style="font-size:12px">10と10で100<sub>(2)</sub>（2進数の「100」&#61;10進数の「4」）</div>
+    </div>
+    <div class="koma-row" style="margin-top:8px">
+      <div class="koma-big" style="font-size:12px;background:#0369a1">100</div>
+      <div class="koma-big" style="font-size:12px;background:#0369a1">100</div>
+      <div class="arrow-right">&#8594;</div>
+      <div class="koma-big" style="background:#164e63">1000<sub>(2)</sub></div>
+      <div class="koma-label" style="font-size:12px">100と100で1000<sub>(2)</sub>（2進数の「1000」&#61;10進数の「8」）</div>
+    </div>
+    <div style="background:#cffafe;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:13px;color:#0c4a6e">
+      &#128281; <strong>ポイント：</strong>2進数は「0と1しか使わない」ので、1の次はすぐに繰り上がって<strong>10</strong>になります。<br>
+      10進数でいえば「2」のことです。混同しないよう 1101<sub>(2)</sub> のように右下に<sub>(2)</sub>を書いて区別します。
+    </div>
+  </div>
+
+  <!-- 3進法の図解 -->
+  <div class="shinkoku-wrap" style="border-color:#16a34a">
+    <div class="shinkoku-title">&#9314; 3進法のしくみ &#8212; 3個集まると次の位へ（テキスト〔2〕より）</div>
+    <div style="font-size:13px;color:#14532d;margin-bottom:8px">3進法では1が<strong>3個</strong>集まると「10」になります</div>
+    <div class="koma-row">
+      <div class="koma koma-one" style="background:#16a34a">1</div>
+      <div class="koma koma-one" style="background:#16a34a">1</div>
+      <div class="koma koma-one" style="background:#16a34a">1</div>
+      <div class="arrow-right" style="color:#16a34a">&#8594;</div>
+      <div class="koma-big" style="background:#16a34a">10<sub>(3)</sub></div>
+      <div class="koma-label">1&#43;1&#43;1&#61;10<sub>(3)</sub>（3進数の「10」&#61;10進数の「3」）</div>
+    </div>
+    <div class="koma-row" style="margin-top:8px">
+      <div class="koma-big" style="background:#16a34a;font-size:12px">10</div>
+      <div class="koma-big" style="background:#16a34a;font-size:12px">10</div>
+      <div class="koma-big" style="background:#16a34a;font-size:12px">10</div>
+      <div class="arrow-right" style="color:#16a34a">&#8594;</div>
+      <div class="koma-big" style="background:#14532d">100<sub>(3)</sub></div>
+      <div class="koma-label">（3進数の「100」&#61;10進数の「9」）</div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item"><strong>n進法</strong>&#61;n個集まると次の位に繰り上がる数の数え方です。</div>
+    <div class="exam-item">2進法は「0と1の2種類」しか使いません。コンピュータはこの2進法を使っています。</div>
+    <div class="exam-item">2進数の「10」は10進数の「2」、2進数の「100」は10進数の「4」です。</div>
+    <div class="exam-item">n進数は右下に<sub>(n)</sub>を書いて区別します（例：1101<sub>(2)</sub>、1234<sub>(5)</sub>）。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q1')">&#9999; ミニテスト &#8212; n進法の考え方（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q1-body"><div id="q1-container"></div></div>
+</div>
+
+<!-- ===== セクション2：各位の名前・使える数字 ===== -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">2</div><div class="sec-title">各位の名前と使える数字 &#8212; ビット・バイトの基礎</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：10進数の「7263」を見ると「千の位が7、百の位が2、十の位が6、一の位が3」と読めます。2進数でも同じように「各桁に名前」があり、右から順に「1の位・2の位・4の位・8の位…」と2倍ずつ大きくなります。</div>
+
+  <!-- 位の名前 -->
+  <div class="ichi-wrap">
+    <div class="ichi-title">&#128290; 10進数・2進数の各位の名前（テキスト◎各位の名のつけ方より）</div>
+    <div style="font-size:12px;color:#475569;margin-bottom:8px">10進数 <strong>7263</strong> の場合：</div>
+    <div class="digit-row">
+      <div class="digit-box db-amber"><div class="digit-val">7</div><div class="digit-kurai">10³の位<br>&#61;1000の位</div></div>
+      <div class="digit-box db-amber"><div class="digit-val">2</div><div class="digit-kurai">10²の位<br>&#61;100の位</div></div>
+      <div class="digit-box db-amber"><div class="digit-val">6</div><div class="digit-kurai">10¹の位<br>&#61;10の位</div></div>
+      <div class="digit-box db-amber"><div class="digit-val">3</div><div class="digit-kurai">10⁰の位<br>&#61;1の位</div></div>
+    </div>
+    <div style="font-size:12px;color:#475569;margin:10px 0 8px">2進数 <strong>10111</strong> の場合：</div>
+    <div class="digit-row">
+      <div class="digit-box db-teal"><div class="digit-val">1</div><div class="digit-kurai">2⁴の位<br>&#61;16の位</div></div>
+      <div class="digit-box db-teal"><div class="digit-val">0</div><div class="digit-kurai">2³の位<br>&#61;8の位</div></div>
+      <div class="digit-box db-teal"><div class="digit-val">1</div><div class="digit-kurai">2²の位<br>&#61;4の位</div></div>
+      <div class="digit-box db-teal"><div class="digit-val">1</div><div class="digit-kurai">2¹の位<br>&#61;2の位</div></div>
+      <div class="digit-box db-teal"><div class="digit-val">1</div><div class="digit-kurai">2⁰の位<br>&#61;1の位</div></div>
+    </div>
+    <div class="keisan-result">&#9654; 10111<sub>(2)</sub> &#61; 1×16 &#43; 0×8 &#43; 1×4 &#43; 1×2 &#43; 1×1 &#61; <strong>23<sub>(10)</sub></strong></div>
+  </div>
+
+  <!-- 使える数字一覧 -->
+  <p class="body-text" style="margin-top:14px">各進法で「使える数字」は決まっています。n進法では 0 〜 (n-1) の数字しか使えません。</p>
+  <div class="suji-grid">
+    <div class="suji-card sc-10">
+      <div class="suji-card-title">10進法（10種類）</div>
+      <div class="suji-nums">
+        <span class="suji-num">0</span><span class="suji-num">1</span><span class="suji-num">2</span><span class="suji-num">3</span><span class="suji-num">4</span>
+        <span class="suji-num">5</span><span class="suji-num">6</span><span class="suji-num">7</span><span class="suji-num">8</span><span class="suji-num">9</span>
+      </div>
+    </div>
+    <div class="suji-card sc-2">
+      <div class="suji-card-title">2進法（2種類のみ）</div>
+      <div class="suji-nums">
+        <span class="suji-num">0</span><span class="suji-num">1</span>
+      </div>
+      <div style="font-size:11px;color:#0e7490;margin-top:6px">&#9654; 0と1しか使えません！</div>
+    </div>
+    <div class="suji-card sc-3">
+      <div class="suji-card-title">3進法（3種類）</div>
+      <div class="suji-nums">
+        <span class="suji-num">0</span><span class="suji-num">1</span><span class="suji-num">2</span>
+      </div>
+    </div>
+    <div class="suji-card sc-5">
+      <div class="suji-card-title">5進法（5種類）</div>
+      <div class="suji-nums">
+        <span class="suji-num">0</span><span class="suji-num">1</span><span class="suji-num">2</span><span class="suji-num">3</span><span class="suji-num">4</span>
+      </div>
+    </div>
+    <div class="suji-card sc-16">
+      <div class="suji-card-title">16進法（16種類）</div>
+      <div class="suji-nums">
+        <span class="suji-num">0</span><span class="suji-num">1</span><span class="suji-num">2</span><span class="suji-num">3</span><span class="suji-num">4</span><span class="suji-num">5</span><span class="suji-num">6</span><span class="suji-num">7</span>
+        <span class="suji-num">8</span><span class="suji-num">9</span><span class="suji-num">A</span><span class="suji-num">B</span><span class="suji-num">C</span><span class="suji-num">D</span><span class="suji-num">E</span><span class="suji-num">F</span>
+      </div>
+      <div style="font-size:11px;color:#991b1b;margin-top:6px">&#9654; 10&#61;A、11&#61;B、12&#61;C、13&#61;D、14&#61;E、15&#61;F</div>
+    </div>
+  </div>
+
+  <!-- ビット・バイト -->
+  <div class="cols" style="margin-top:14px">
+    <div class="col-card">
+      <div class="col-title">&#128276; 2進数の位の重み（必須の暗記）</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr style="background:#cffafe"><td style="padding:4px 5px;font-weight:bold;text-align:center">2⁷</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2⁶</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2⁵</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2⁴</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2³</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2²</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2¹</td><td style="padding:4px 5px;font-weight:bold;text-align:center">2⁰</td></tr>
+        <tr><td style="padding:4px 5px;text-align:center">128</td><td style="padding:4px 5px;text-align:center">64</td><td style="padding:4px 5px;text-align:center">32</td><td style="padding:4px 5px;text-align:center">16</td><td style="padding:4px 5px;text-align:center">8</td><td style="padding:4px 5px;text-align:center">4</td><td style="padding:4px 5px;text-align:center">2</td><td style="padding:4px 5px;text-align:center">1</td></tr>
+      </table>
+      <div style="font-size:11px;color:#475569;margin-top:6px">右から1・2・4・8・16・32・64・128（2倍ずつ増えます）</div>
+    </div>
+    <div class="col-card">
+      <div class="col-title">&#128190; データ量の単位</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr style="background:#cffafe"><td style="padding:4px 8px;font-weight:bold">単位</td><td style="padding:4px 8px;font-weight:bold">大きさ</td></tr>
+        <tr><td style="padding:4px 8px">1<span class="term" data-en="bit（ビット）&#61;binary digit" data-main="ビット（bit）" data-eg="&#128172; 2進数の1桁です。0か1の2値しか取れません。コンピュータが扱う情報の最小単位です。">ビット</span>（bit）</td><td style="padding:4px 8px">0か1の1桁</td></tr>
+        <tr style="background:#f0fdfa"><td style="padding:4px 8px">1<span class="term" data-en="byte（バイト）&#61;8bits" data-main="バイト（byte）" data-eg="&#128172; 8ビットをひとまとめにした単位です。1バイト&#61;8ビット。英数字1文字を表せます。">バイト</span>（B）</td><td style="padding:4px 8px">8ビット</td></tr>
+        <tr><td style="padding:4px 8px">1KB（キロバイト）</td><td style="padding:4px 8px">1024バイト</td></tr>
+        <tr style="background:#f0fdfa"><td style="padding:4px 8px">1MB（メガバイト）</td><td style="padding:4px 8px">1024KB</td></tr>
+        <tr><td style="padding:4px 8px">1GB（ギガバイト）</td><td style="padding:4px 8px">1024MB</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">n進法で使える数字は「0から(n-1)まで」です（2進法&#61;0と1のみ、5進法&#61;0〜4のみ）。</div>
+    <div class="exam-item">2進数の位の重みは右から 2⁰&#61;1、2¹&#61;2、2²&#61;4、2³&#61;8、2⁴&#61;16… と2倍ずつ増えます。</div>
+    <div class="exam-item">ビット&#61;2進数1桁。バイト&#61;8ビット。1KB&#61;1024バイト。</div>
+    <div class="exam-item">n進数は右下に<sub>(n)</sub>を書きます（例：1101<sub>(2)</sub>）。<span class="term" data-en="Base / Radix（ベース・レイディックス）" data-main="底（てい）" data-eg="&#128172; 位取りのもととなる数のことです。2進法の底は2、5進法の底は5です。テキストでは「底（てい）」と呼びます。">底（てい）</span>とは位取りのもととなる数のことです。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q2')">&#9999; ミニテスト &#8212; 各位の名前・使える数字（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q2-body"><div id="q2-container"></div></div>
+</div>
+
+<!-- ===== セクション3：10進→n進 ===== -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">3</div><div class="sec-title">10進数 &#8594; n進数への変換（÷nの筆算）</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：10進数をn進数に変換するには「nで割り続けて余りを下から読む」方法が確実です。テキストの例題を使って手順を確認しましょう。</div>
+
+  <div class="step-flow">
+    <div class="step-item"><div class="step-num">1</div><div>変換したい10進数をnで割り、<strong>商と余り</strong>を書きます。</div></div>
+    <div class="step-item"><div class="step-num">2</div><div>商がまだnより大きければ、さらにnで割り続けます。</div></div>
+    <div class="step-item"><div class="step-num">3</div><div>商が<strong>0</strong>になるまで繰り返します。</div></div>
+    <div class="step-item"><div class="step-num">4</div><div>余りを<strong style="color:#dc2626">下から順に</strong>読むとn進数になります（最後の商も最上位の桁）。</div></div>
+  </div>
+
+  <!-- テキスト例題1：筆算4例 -->
+  <div class="hissan-outer">
+    <div class="hissan-title">&#128290; 【例題1】テキスト例題 &#8212; 余りを下から読む（&#10071;重要）</div>
+    <div class="hissan-cols">
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9312; 13<sub>(10)</sub> &#8594; 2進数</div>
+        <div class="hissan-body">2 ）13
+2 ） 6  …<span class="amari-mark">1</span>  &#8593;
+2 ） 3  …<span class="amari-mark">0</span>  &#8593;
+2 ） 1  …<span class="amari-mark">1</span>  &#8593;
+    0  …<span class="amari-mark">1</span>  &#8593; &#9650;下から読む</div>
+        <div class="hissan-note">&#9654; 余りを下から読むと <strong class="yomu-mark">1101</strong><br>答え：<strong>1101<sub>(2)</sub></strong></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9313; 23<sub>(10)</sub> &#8594; 3進数</div>
+        <div class="hissan-body">3 ）23
+3 ） 7  …<span class="amari-mark">2</span>  &#8593;
+3 ） 2  …<span class="amari-mark">1</span>  &#8593;
+    0  …<span class="amari-mark">2</span>  &#8593; &#9650;下から読む</div>
+        <div class="hissan-note">&#9654; 余りを下から読むと <strong class="yomu-mark">212</strong><br>答え：<strong>212<sub>(3)</sub></strong></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9314; 37<sub>(10)</sub> &#8594; 5進数</div>
+        <div class="hissan-body">5 ）37
+5 ） 7  …<span class="amari-mark">2</span>  &#8593;
+5 ） 1  …<span class="amari-mark">2</span>  &#8593;
+    0  …<span class="amari-mark">1</span>  &#8593; &#9650;下から読む</div>
+        <div class="hissan-note">&#9654; 余りを下から読むと <strong class="yomu-mark">122</strong><br>答え：<strong>122<sub>(5)</sub></strong></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9315; 194<sub>(10)</sub> &#8594; 5進数（テキスト例）</div>
+        <div class="hissan-body">5 ）194
+5 ） 38 …<span class="amari-mark">4</span>  &#8593;
+5 ）  7 …<span class="amari-mark">3</span>  &#8593;
+5 ）  1 …<span class="amari-mark">2</span>  &#8593;
+     0 …<span class="amari-mark">1</span>  &#8593; &#9650;下から読む</div>
+        <div class="hissan-note">&#9654; 余りを下から読むと <strong class="yomu-mark">1234</strong><br>答え：<strong>1234<sub>(5)</sub></strong>（「イチニサンシ」）</div>
+      </div>
+
+    </div>
+    <div style="background:#fee2e2;border-radius:8px;padding:8px 12px;margin-top:10px;font-size:13px;color:#7f1d1d;border-left:4px solid #dc2626">
+      &#9888; <strong>よくある間違い：</strong>余りを「上から」読んでしまうミスが多いです。必ず<strong>下から</strong>読みます！
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">10進数 → n進数の変換&#61;「nで割り続けて余りを<strong>下から</strong>読む」。</div>
+    <div class="exam-item">商が0になるまで割り続けます。途中でやめてはいけません。</div>
+    <div class="exam-item">n進数は右下に<sub>(n)</sub>を書いて10進数と区別します（例：1101<sub>(2)</sub>）。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q3')">&#9999; ミニテスト &#8212; 10進数→n進数変換（3問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q3-body"><div id="q3-container"></div></div>
+</div>
+
+<!-- ===== セクション4：n進→10進 ===== -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">4</div><div class="sec-title">n進数 &#8594; 10進数への変換（位の重みで計算）</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：n進数を10進数に変換するには「各桁の数字 × その位の重み」をすべて足し算します。お金の計算と同じです。1000円札が何枚・100円玉が何枚…という計算に似ています。</div>
+
+  <p class="body-text">n進数の各桁に「位の重み（nの累乗）」を掛けて合計します。</p>
+
+  <!-- テキスト例題2 -->
+  <div class="hissan-outer">
+    <div class="hissan-title">&#128290; 【例題2】テキスト例題 &#8212; 位の重みを掛けて足す</div>
+    <div class="hissan-cols">
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9312; 1101<sub>(2)</sub> &#8594; 10進数</div>
+        <div style="margin-bottom:8px">
+          <div class="digit-row" style="overflow:visible">
+            <div class="digit-box db-teal" style="min-width:44px"><div class="digit-val" style="font-size:17px">1</div><div class="digit-kurai">2³&#61;8</div></div>
+            <div class="digit-box db-teal" style="min-width:44px"><div class="digit-val" style="font-size:17px">1</div><div class="digit-kurai">2²&#61;4</div></div>
+            <div class="digit-box db-teal" style="min-width:44px"><div class="digit-val" style="font-size:17px">0</div><div class="digit-kurai">2¹&#61;2</div></div>
+            <div class="digit-box db-teal" style="min-width:44px"><div class="digit-val" style="font-size:17px">1</div><div class="digit-kurai">2⁰&#61;1</div></div>
+          </div>
+        </div>
+        <div class="hissan-note">1×8 &#43; 1×4 &#43; 0×2 &#43; 1×1<br>&#61; 8&#43;4&#43;0&#43;1 &#61; <strong class="yomu-mark">13</strong></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9313; 3421<sub>(5)</sub> &#8594; 10進数</div>
+        <div class="hissan-body">3×5³ &#43; 4×5² &#43; 2×5 &#43; 1×1
+&#61; 3×125 &#43; 4×25 &#43; 10 &#43; 1
+&#61; 375 &#43; 100 &#43; 10 &#43; 1
+&#61; <span class="yomu-mark">486</span></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9314; 1011<sub>(2)</sub> &#8594; 10進数</div>
+        <div class="hissan-body">1×2³ &#43; 0×2² &#43; 1×2 &#43; 1×1
+&#61; 8 &#43; 0 &#43; 2 &#43; 1
+&#61; <span class="yomu-mark">11</span></div>
+        <div class="hissan-note">&#128281; 「1が立っている位の重みだけ足す」と計算が速くなります。1011<sub>(2)</sub>なら 8&#43;2&#43;1&#61;11</div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9315; 1201<sub>(3)</sub> &#8594; 10進数</div>
+        <div class="hissan-body">1×3³ &#43; 2×3² &#43; 0×3 &#43; 1×1
+&#61; 27 &#43; 18 &#43; 0 &#43; 1
+&#61; <span class="yomu-mark">46</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;&#9733;</div>
+    <div class="exam-item">n進数 → 10進数の変換&#61;「各桁 × 位の重み（nの累乗）」の合計です。</div>
+    <div class="exam-item">2進数の位の重みは右から 2⁰&#61;1、2¹&#61;2、2²&#61;4、2³&#61;8、2⁴&#61;16…</div>
+    <div class="exam-item">「1の立っている位の重みだけ足す」と速く計算できます。</div>
+    <div class="exam-item">5進数の位の重みは右から 1、5、25、125、625…（5の累乗）です。</div>
+  </div>
+  <button class="quiz-toggle" onclick="toggleQuiz('q4')">&#9999; ミニテスト &#8212; n進数→10進数変換（2問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q4-body"><div id="q4-container"></div></div>
+</div>
+
+<!-- ===== セクション5：8進・16進 ===== -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">5</div><div class="sec-title">8進数・16進数との変換</div><div class="sec-stars">&#9733;&#9733;</div></div>
+  <div class="analog">&#128172; たとえ：2進数は桁数が多くなって読みにくいので、3桁ずつまとめると8進数、4桁ずつまとめると16進数に変換できます。</div>
+
+  <div class="cols">
+    <div class="col-card">
+      <div class="col-title">2進数 &#8596; 8進数（3桁ずつ）</div>
+      <div style="font-size:12px;color:#475569;line-height:1.8">
+        2進数を右から<strong>3桁ずつ</strong>区切り、各3桁を8進数1桁に変換します。<br><br>
+        例：<code style="background:#cffafe;padding:1px 4px">101 110<sub>(2)</sub></code><br>
+        101<sub>(2)</sub>&#61;5、110<sub>(2)</sub>&#61;6<br>
+        &#8594; <strong>56<sub>(8)</sub></strong>
+      </div>
+    </div>
+    <div class="col-card">
+      <div class="col-title">2進数 &#8596; 16進数（4桁ずつ）</div>
+      <div style="font-size:12px;color:#475569;line-height:1.8">
+        2進数を右から<strong>4桁ずつ</strong>区切り、各4桁を16進数1桁に変換します。<br><br>
+        例：<code style="background:#cffafe;padding:1px 4px">1010 1111<sub>(2)</sub></code><br>
+        1010<sub>(2)</sub>&#61;10&#61;A、1111<sub>(2)</sub>&#61;15&#61;F<br>
+        &#8594; <strong>AF<sub>(16)</sub></strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="hissan-outer">
+    <div class="hissan-title">&#128290; 16進数の対応表（10&gt;Aに注意）</div>
+    <div style="overflow-x:auto">
+      <table style="border-collapse:collapse;font-size:12px;min-width:500px;width:100%">
+        <tr style="background:#0e7490;color:#fff"><td style="padding:6px 8px;font-weight:bold">10進</td><td style="padding:6px 4px;text-align:center">0</td><td style="padding:6px 4px;text-align:center">1</td><td style="padding:6px 4px;text-align:center">2</td><td style="padding:6px 4px;text-align:center">3</td><td style="padding:6px 4px;text-align:center">4</td><td style="padding:6px 4px;text-align:center">5</td><td style="padding:6px 4px;text-align:center">6</td><td style="padding:6px 4px;text-align:center">7</td><td style="padding:6px 4px;text-align:center">8</td><td style="padding:6px 4px;text-align:center">9</td><td style="padding:6px 4px;text-align:center;background:#dc2626">10</td><td style="padding:6px 4px;text-align:center;background:#dc2626">11</td><td style="padding:6px 4px;text-align:center;background:#dc2626">12</td><td style="padding:6px 4px;text-align:center;background:#dc2626">13</td><td style="padding:6px 4px;text-align:center;background:#dc2626">14</td><td style="padding:6px 4px;text-align:center;background:#dc2626">15</td></tr>
+        <tr style="background:#f0fdfa"><td style="padding:6px 8px;font-weight:bold;background:#0e7490;color:#fff">16進</td><td style="padding:6px 4px;text-align:center">0</td><td style="padding:6px 4px;text-align:center">1</td><td style="padding:6px 4px;text-align:center">2</td><td style="padding:6px 4px;text-align:center">3</td><td style="padding:6px 4px;text-align:center">4</td><td style="padding:6px 4px;text-align:center">5</td><td style="padding:6px 4px;text-align:center">6</td><td style="padding:6px 4px;text-align:center">7</td><td style="padding:6px 4px;text-align:center">8</td><td style="padding:6px 4px;text-align:center">9</td><td style="padding:6px 4px;text-align:center;font-weight:bold;color:#dc2626">A</td><td style="padding:6px 4px;text-align:center;font-weight:bold;color:#dc2626">B</td><td style="padding:6px 4px;text-align:center;font-weight:bold;color:#dc2626">C</td><td style="padding:6px 4px;text-align:center;font-weight:bold;color:#dc2626">D</td><td style="padding:6px 4px;text-align:center;font-weight:bold;color:#dc2626">E</td><td style="padding:6px 4px;text-align:center;font-weight:bold;color:#dc2626">F</td></tr>
+        <tr><td style="padding:6px 8px;font-weight:bold;background:#0e7490;color:#fff">2進</td><td style="padding:6px 4px;text-align:center;font-size:11px">0000</td><td style="padding:6px 4px;text-align:center;font-size:11px">0001</td><td style="padding:6px 4px;text-align:center;font-size:11px">0010</td><td style="padding:6px 4px;text-align:center;font-size:11px">0011</td><td style="padding:6px 4px;text-align:center;font-size:11px">0100</td><td style="padding:6px 4px;text-align:center;font-size:11px">0101</td><td style="padding:6px 4px;text-align:center;font-size:11px">0110</td><td style="padding:6px 4px;text-align:center;font-size:11px">0111</td><td style="padding:6px 4px;text-align:center;font-size:11px">1000</td><td style="padding:6px 4px;text-align:center;font-size:11px">1001</td><td style="padding:6px 4px;text-align:center;font-size:11px">1010</td><td style="padding:6px 4px;text-align:center;font-size:11px">1011</td><td style="padding:6px 4px;text-align:center;font-size:11px">1100</td><td style="padding:6px 4px;text-align:center;font-size:11px">1101</td><td style="padding:6px 4px;text-align:center;font-size:11px">1110</td><td style="padding:6px 4px;text-align:center;font-size:11px">1111</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 16進数 例題ブロック -->
+  <div class="hissan-outer" style="margin-top:16px">
+    <div class="hissan-title">&#128290; 例題：16進数の変換（3パターン）</div>
+    <div class="hissan-cols">
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9312; 2進数 &#8594; 16進数（4桁ずつまとめる）</div>
+        <div class="hissan-body">10101111<sub>(2)</sub> を16進数に変換する
+
+右から4桁ずつ区切る
+  <span class="yomu-mark">1010</span> | <span class="yomu-mark">1111</span>
+
+1010<sub>(2)</sub> = 1×8+0×4+1×2+0 = <span class="amari-mark">10 = A</span>
+1111<sub>(2)</sub> = 1×8+1×4+1×2+1 = <span class="amari-mark">15 = F</span>
+
+答え：<strong>AF<sub>(16)</sub></strong></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9313; 16進数 &#8594; 2進数（4桁に展開）</div>
+        <div class="hissan-body">B4<sub>(16)</sub> を2進数に変換する
+
+各桁を2進数4桁に展開する
+  B = 11<sub>(10)</sub> = <span class="amari-mark">1011</span>
+  4 = 4<sub>(10)</sub>  = <span class="amari-mark">0100</span>
+
+答え：<strong>10110100<sub>(2)</sub></strong></div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9314; 10進数 &#8594; 16進数（÷16の筆算）</div>
+        <div class="hissan-body">175<sub>(10)</sub> を16進数に変換する
+
+16 ）175
+16 ） 10 …<span class="amari-mark">15 = F</span>  &#8593;
+     0  …<span class="amari-mark">10 = A</span>  &#8593;
+
+余りを下から読むと A, F
+答え：<strong>AF<sub>(16)</sub></strong></div>
+        <div class="hissan-note">&#128281; 10進数175&#61;16×10&#43;15&#61;AF<sub>(16)</sub><br>余りが10以上の場合はA〜Fに変換します。</div>
+      </div>
+
+      <div class="hissan-block">
+        <div class="hissan-label">&#9315; 16進数 &#8594; 10進数（位の重みで計算）</div>
+        <div class="hissan-body">3C<sub>(16)</sub> を10進数に変換する
+
+3 × 16¹ + C × 16⁰
+= 3 × 16  + 12 × 1
+= 48 + 12
+= <span class="yomu-mark">60</span>
+
+答え：<strong>60<sub>(10)</sub></strong></div>
+        <div class="hissan-note">&#128281; C&#61;12 なので 12×1&#61;12。<br>16進数の各桁の重みは右から 1・16・256…</div>
+      </div>
+
+    </div>
+    <div style="background:#cffafe;border-radius:8px;padding:9px 12px;margin-top:10px;font-size:13px;color:#0c4a6e">
+      <strong>&#128281; まとめ：16進数変換の3パターン</strong><br>
+      &#9312; 2進数&#8594;16進数：右から<strong>4桁ずつ</strong>まとめて各4桁を16進1桁に変換します。<br>
+      &#9313; 16進数&#8594;2進数：各桁を<strong>2進数4桁</strong>に展開します。<br>
+      &#9314; 10進数&#8594;16進数：<strong>16で割り続けて余りを下から</strong>読みます（余り10以上はA〜Fに変換）。
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">&#128221; ここが試験に出ます &#9733;&#9733;</div>
+    <div class="exam-item">2進数&#8596;8進数&#61;3桁ずつまとめる（または分解する）。</div>
+    <div class="exam-item">2進数&#8596;16進数&#61;4桁ずつまとめる（または分解する）。</div>
+    <div class="exam-item">16進数では10&#61;A、11&#61;B、12&#61;C、13&#61;D、14&#61;E、15&#61;Fと表します。</div>
+    <div class="exam-item">10進数&#8594;16進数&#61;16で割り続けて余りを下から読みます。余りが10以上のときはA〜Fに変換します。</div>
+    <div class="exam-item">16進数の位の重みは右から 16⁰&#61;1、16¹&#61;16、16²&#61;256 です。</div>
+  </div>
+
+  <button class="quiz-toggle" onclick="toggleQuiz('q5')">&#9999; ミニテスト &#8212; 16進数の変換（3問）<span class="arrow">&#9660;</span></button>
+  <div class="quiz-body" id="q5-body"><div id="q5-container"></div></div>
+</div>
+
+<!-- ===== セクション6：まとめ ===== -->
+<div class="section">
+  <div class="sec-header"><div class="sec-num">6</div><div class="sec-title">用語まとめ一覧</div><div class="sec-stars">&#9733;&#9733;&#9733;</div></div>
+  <button class="fc-open-btn" onclick="fcOpen()">&#127183; フラッシュカードで暗記する（12語）</button>
+  <table class="summary-table" style="margin-top:16px">
+    <tr><th>用語</th><th>英語・読み方</th><th>一言でいうと</th><th>重要度</th></tr>
+    <tr><td><strong>n進法</strong></td><td>n-ary Number System</td><td>n個集まると次の位に繰り上がる数の数え方です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>2進法</strong></td><td>Binary Number System バイナリ</td><td>0と1だけを使う数の数え方です。コンピュータの基本です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>底（てい）</strong></td><td>Base / Radix</td><td>位取りのもととなる数です。2進法の底は2です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+    <tr><td><strong>ビット</strong></td><td>bit &#61; binary digit</td><td>2進数の1桁。0か1の2値です。情報の最小単位です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>バイト</strong></td><td>byte</td><td>8ビット&#61;1バイト。ファイルサイズの基本単位です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>KB・MB・GB</strong></td><td>Kilo/Mega/Gigabyte</td><td>1KB&#61;1024B、1MB&#61;1024KB、1GB&#61;1024MBです。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>位の重み</strong></td><td>Weight / Place Value</td><td>各桁が表す値です。2進数は右から1・2・4・8・16…</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>10進→2進変換</strong></td><td>Decimal to Binary</td><td>2で割り続けて余りを下から読みます。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>2進→10進変換</strong></td><td>Binary to Decimal</td><td>各桁×位の重みをすべて合計します。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;&#9733;</td></tr>
+    <tr><td><strong>16進数</strong></td><td>Hexadecimal ヘキサデシマル</td><td>0〜Fの16種類。2進数4桁&#61;16進数1桁です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+    <tr><td><strong>8進数</strong></td><td>Octal オクタル</td><td>0〜7の8種類。2進数3桁&#61;8進数1桁です。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+    <tr><td><strong>bps</strong></td><td>bits per second</td><td>通信速度の単位です。1秒間に何ビット送れるかを表します。</td><td style="text-align:center;color:#f59e0b">&#9733;&#9733;</td></tr>
+  </table>
+  <div class="connect-box">
+    <strong>&#129513; 第4章のつながり</strong><br>
+    この単元で学んだ「ビット・バイトの変換」と「2進数の位の重み」は、次の単元「ディジタル化・データ量計算」の土台になります。「1画素&#61;24ビット&#61;3バイト」「16ビット量子化&#61;2バイト」のような計算で必ず使います。変換の手順をしっかり身につけましょう。
+  </div>
+</div>
+
+<!-- フラッシュカード -->
+<div id="fc-overlay" onclick="fcOverlayClick(event)">
+  <div id="fc-modal">
+    <button class="fc-close" onclick="fcClose()">&#10005;</button>
+    <div class="fc-header">&#127183; フラッシュカード &#8212; 2進法と進数変換</div>
+    <div class="fc-counter" id="fc-counter">1 / 12</div>
+    <div class="fc-auto-bar" id="fc-bar"><div class="fc-auto-bar-inner" id="fc-bar-inner" style="width:0%"></div></div>
+    <div class="fc-card" id="fc-card" onclick="fcFlip()">
+      <div class="fc-card-front"><div class="fc-word" id="fc-word"></div><div class="fc-stars" id="fc-stars"></div><div class="fc-hint">&#128070; タップして答えを見る</div></div>
+      <div class="fc-card-back"><div class="fc-en" id="fc-en"></div><div class="fc-def" id="fc-def"></div><div class="fc-eg" id="fc-eg"></div></div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn fc-btn-prev" onclick="fcPrev()">&#9664; 前へ</button>
+      <button class="fc-btn fc-btn-next" onclick="fcNext()">次へ &#9654;</button>
+      <button class="fc-btn fc-btn-auto2" onclick="fcAuto(2)">&#8987; 2秒自動</button>
+      <button class="fc-btn fc-btn-auto3" onclick="fcAuto(3)">&#8987; 3秒自動</button>
+      <button class="fc-btn fc-btn-stop" id="btn-stop" onclick="fcStop()">&#9209; 停止</button>
+      <button class="fc-btn fc-btn-shuffle" onclick="fcShuffle()">&#128256; シャッフル</button>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#94a3b8">カードをタップすると表裏が切り替わります</div>
+  </div>
+</div>
+
+<!-- 確認問題 -->
+<div class="final-section">
+  <div class="final-title">&#9999; 確認問題（高認試験類題）&#12288;&#9733;&#9733;&#9733;</div>
+  <div class="final-sub">全5問・4択&#47;合格ライン：4問以上正解</div>
+  <div id="final-container"></div>
+  <div class="final-score" id="final-score">
+    <div class="score-num" id="score-num"></div>
+    <div class="score-msg" id="score-msg"></div>
+    <br><button class="final-retry" onclick="initFinal()">&#128260; もう一度挑戦する</button>
+  </div>
+</div>
+<p style="text-align:center;font-size:12px;color:#94a3b8;padding:16px 0">江原予備校&#12288;情報&#8544;&#12288;第4章①&#12288;&#47;&#12288;2進法と進数変換</p>
+
+<script>
+(function(){
+  var layer=document.getElementById('popup-layer');
+  var pEn=document.getElementById('pop-en'),pMain=document.getElementById('pop-main'),pEg=document.getElementById('pop-eg');
+  var cur=null;
+  function show(el){pEn.textContent=el.dataset.en||'';pMain.textContent=el.dataset.main||'';pEg.textContent=el.dataset.eg||'';layer.style.display='block';place(el);cur=el;}
+  function place(el){
+    var r=el.getBoundingClientRect(),pw=280,ph=layer.offsetHeight||130;
+    var sY=window.scrollY||document.documentElement.scrollTop;
+    var sX=window.scrollX||document.documentElement.scrollLeft;
+    var left=r.left+sX+r.width/2-pw/2;
+    left=Math.max(8,Math.min(left,document.body.offsetWidth-pw-8));
+    layer.style.left=left+'px';
+    var topA=r.top+sY-ph-14;
+    if(topA>=sY+8){layer.style.top=topA+'px';layer.className='above';}
+    else{layer.style.top=(r.bottom+sY+14)+'px';layer.className='below';}
+  }
+  function hide(){layer.style.display='none';cur=null;}
+  document.querySelectorAll('.term').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();if(cur===el){hide();return;}show(el);});});
+  document.addEventListener('click',function(){hide();});
+  window.addEventListener('scroll',function(){if(cur)place(cur);},{passive:true});
+  window.addEventListener('resize',function(){if(cur)place(cur);});
+})();
+
+function burst(){
+  var cv=document.getElementById('confetti-canvas');cv.style.display='block';
+  var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=document.body.scrollHeight;
+  var pieces=[],colors=['#0e7490','#06b6d4','#10b981','#f59e0b','#a78bfa','#67e8f9'];
+  for(var i=0;i<90;i++)pieces.push({x:Math.random()*cv.width,y:window.scrollY-20-Math.random()*100,w:6+Math.random()*6,h:10+Math.random()*8,color:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*360,vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,vr:(Math.random()-0.5)*8});
+  var start=null;
+  function draw(ts){
+    if(!start)start=ts;ctx.clearRect(0,0,cv.width,cv.height);var alive=false;
+    pieces.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y<cv.height+20)alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    if(alive&&ts-start<3000)requestAnimationFrame(draw);else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+  }
+  requestAnimationFrame(draw);
+}
+
+var MINI={
+  q1:[
+    {type:'4択　正しいものはどれですか。',
+     q:'2進法での「1と1を足す」と何になりますか。',
+     opts:['2','2(2)','10(2)','11(2)'],
+     ans:2,
+     exp:'2進法では「2」という数字は存在しません。1と1を足すと次の位に繰り上がり「10(2)」になります。これは10進数の「2」に相当します。2進法では「2個集まったら次の位へ繰り上がる」のがルールです。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'コンピュータが2進法を使う理由として最も正しいものはどれですか。',
+     opts:['人間が計算しやすいからです。','10進法より計算が速いからです。','電気のON（1）とOFF（0）の2つの状態で情報を表現できるからです。','画像を表示するのに適しているからです。'],
+     ans:2,
+     exp:'コンピュータ内部は電気回路で動いており、電気が流れている（ON）を1、流れていない（OFF）を0として表現します。このため0と1の2種類だけを使う2進法がコンピュータの基本となっています。'}
+  ],
+  q2:[
+    {type:'4択　誤っているものはどれですか。',
+     q:'各進法で使える数字の説明として、誤っているものはどれですか。',
+     opts:['2進法で使える数字は0と1の2種類だけです。','3進法で使える数字は0・1・2の3種類です。','5進法で使える数字は0・1・2・3・4・5の6種類です。','16進法では10をA、15をFで表します。'],
+     ans:2,
+     exp:'5進法で使える数字は「0から(n-1)まで」なので、0・1・2・3・4の5種類です。5は使えません（5になると次の位に繰り上がるため）。n進法では必ず0〜(n-1)の数字を使います。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'1バイトは何ビットですか。',
+     opts:['4ビット','8ビット','16ビット','32ビット'],
+     ans:1,
+     exp:'1バイト（byte）＝8ビット（bit）です。ビットは2進数の1桁で0か1の2値しか取れません。バイトは8ビットをひとまとめにした単位です。ファイルサイズはバイト（B・KB・MB・GB）で表します。'}
+  ],
+  q3:[
+    {type:'4択　正しいものはどれですか。',
+     q:'10進数の「13」を2進数に変換した結果として正しいものはどれですか。',
+     opts:['1011(2)','1101(2)','1110(2)','10011(2)'],
+     ans:1,
+     exp:'2で割り続けます。13÷2＝6余り1→6÷2＝3余り0→3÷2＝1余り1→1÷2＝0余り1。余りを下から読むと「1101」。これがテキスト例題1(1)の答えです。検算：8+4+0+1=13 ✅'},
+    {type:'4択　正しいものはどれですか。',
+     q:'10進数の「37」を5進数に変換した結果として正しいものはどれですか。',
+     opts:['222(5)','112(5)','122(5)','212(5)'],
+     ans:2,
+     exp:'5で割り続けます。37÷5＝7余り2→7÷5＝1余り2→1÷5＝0余り1。余りを下から読むと「122」。これがテキスト例題1(3)の答えです。検算：1×25+2×5+2×1=25+10+2=37 ✅'},
+    {type:'4択　正しいものはどれですか。',
+     q:'10進数の「41」を2進数に変換した結果として正しいものはどれですか。',
+     opts:['101001(2)','100101(2)','101100(2)','100011(2)'],
+     ans:0,
+     exp:'2で割り続けます。41÷2=20余1→20÷2=10余0→10÷2=5余0→5÷2=2余1→2÷2=1余0→1÷2=0余1。余りを下から読むと「101001」。これがテキスト練習1(4)の答えです。検算：32+0+8+0+0+1=41 ✅'}
+  ],
+  q5:[
+    {type:'4択　正しいものはどれですか。',
+     q:'2進数「11001010(2)」を16進数に変換した結果として正しいものはどれですか。',
+     opts:['CA(16)','AC(16)','9A(16)','C9(16)'],
+     ans:0,
+     exp:'右から4桁ずつ区切ります。1100|1010。1100(2)=12=C、1010(2)=10=A。よってCA(16)です。「4桁ずつまとめて各4桁を16進1桁に変換する」手順を練習しましょう。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'16進数「AF(16)」を10進数に変換した結果として正しいものはどれですか。',
+     opts:['160','165','175','185'],
+     ans:2,
+     exp:'A=10、F=15なので、10×16¹+15×16⁰=10×16+15×1=160+15=175です。16進数の位の重みは右から1・16・256です。A〜Fを10〜15の数値に読み替えてから計算します。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'10進数「60」を16進数に変換した結果として正しいものはどれですか。',
+     opts:['3B(16)','3C(16)','4A(16)','4B(16)'],
+     ans:1,
+     exp:'60÷16=3余り12。余りの12=C。余りを下から読むと3C。よって3C(16)です。検算：3×16+12×1=48+12=60 ✅　余りが10以上になったらA〜Fに変換することを忘れずに。'}
+  ],
+  q4:[
+    {type:'4択　正しいものはどれですか。',
+     q:'2進数「1011(2)」を10進数に変換した結果として正しいものはどれですか。',
+     opts:['9','10','11','12'],
+     ans:2,
+     exp:'1×2³+0×2²+1×2¹+1×2⁰＝8+0+2+1＝11です。テキスト練習2(1)の問題です。「1が立っている位の重みだけ足す」と考えると、位の重みは右から1・2・4・8なので、1011は8+2+1=11と素早く計算できます。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'5進数「3421(5)」を10進数に変換した結果として正しいものはどれですか。',
+     opts:['411','486','521','376'],
+     ans:1,
+     exp:'3×5³+4×5²+2×5+1×1＝3×125+4×25+10+1＝375+100+10+1＝486です。テキスト例題2(1)の問題です。5の累乗は右から1・5・25・125と覚えましょう。'}
+  ]
+};
+
+var miniState={};
+function toggleQuiz(id){
+  var btn=document.querySelector('[onclick="toggleQuiz(\''+id+'\')"]');
+  var body=document.getElementById(id+'-body');
+  var open=body.classList.contains('open');
+  if(open){body.classList.remove('open');btn.classList.remove('open');}
+  else{body.classList.add('open');btn.classList.add('open');if(!miniState[id])initMini(id);}
+}
+function initMini(id){miniState[id]={idx:0,score:0,done:false};renderMini(id);}
+function renderMini(id){
+  var s=miniState[id],qs=MINI[id],q=qs[s.idx];
+  document.getElementById(id+'-container').innerHTML=
+    '<div class="quiz-progress">問題 '+(s.idx+1)+' / '+qs.length+'</div>'
+    +'<div class="quiz-type">【'+q.type+'】</div>'
+    +'<div class="quiz-q">'+q.q+'</div>'
+    +'<div class="quiz-opts" id="'+id+'-opts">'
+    +q.opts.map(function(o,i){return '<button class="quiz-opt" onclick="answerMini(\''+id+'\','+i+')">'+(['①','②','③','④'][i])+' '+o+'</button>';}).join('')
+    +'</div><div id="'+id+'-result"></div>'
+    +'<div class="quiz-nav"><button class="btn-next" id="'+id+'-next" onclick="nextMini(\''+id+'\')" disabled>次の問題 →</button>'
+    +'<button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 やり直す</button></div>';
+}
+function answerMini(id,chosen){
+  var s=miniState[id];if(s.done)return;s.done=true;
+  var q=MINI[id][s.idx];
+  var opts=document.querySelectorAll('#'+id+'-opts .quiz-opt');
+  opts.forEach(function(b){b.disabled=true;});
+  if(chosen===q.ans){s.score++;opts[chosen].classList.add('correct');document.getElementById(id+'-result').innerHTML='<div class="quiz-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';burst();}
+  else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');document.getElementById(id+'-result').innerHTML='<div class="quiz-result ng">❌ 不正解です。<br>正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  var nb=document.getElementById(id+'-next');nb.disabled=false;nb.textContent=s.idx<MINI[id].length-1?'次の問題 →':'結果を見る';
+}
+function nextMini(id){
+  var s=miniState[id];s.idx++;s.done=false;
+  if(s.idx<MINI[id].length){renderMini(id);}
+  else{
+    var pass=(s.score===MINI[id].length);
+    document.getElementById(id+'-container').innerHTML='<div class="quiz-result '+(pass?'ok':'ng')+'" style="font-size:14px;text-align:center;padding:16px">'+(pass?'🎉 全問正解です！':s.score+' / '+MINI[id].length+' 問正解でした。もう一度確認しましょう。')+'</div><div style="text-align:center;margin-top:10px"><button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 もう一度挑戦する</button></div>';
+    if(pass)burst();
+  }
+}
+
+var FC_DATA=[
+  {word:'2進法',stars:'☆☆☆',en:'Binary Number System バイナリ',def:'0と1だけを使う数の数え方です。コンピュータの基本です。',eg:'💬 電気のON(1)とOFF(0)に対応しています。2個集まると次の位へ繰り上がります。'},
+  {word:'n進法',stars:'☆☆☆',en:'n-ary Number System',def:'n個集まると次の位に繰り上がる数の数え方の総称です。',eg:'💬 2進法は2個、5進法は5個で繰り上がります。'},
+  {word:'底（てい）',stars:'☆☆',en:'Base / Radix（ベース・レイディックス）',def:'位取りのもととなる数です。n進法の底はnです。',eg:'💬 2進法の底は2、5進法の底は5です。n進数は右下に(n)を書いて表します。'},
+  {word:'ビット（bit）',stars:'☆☆☆',en:'bit = binary digit（バイナリ・ディジット）',def:'2進数の1桁。0か1の2値です。情報の最小単位です。',eg:'💬 8ビット＝1バイトです。'},
+  {word:'バイト（byte）',stars:'☆☆☆',en:'byte（バイト）',def:'8ビット＝1バイト。ファイルサイズの基本単位です。',eg:'💬 1KB=1024バイト、1MB=1024KBです。'},
+  {word:'位の重み',stars:'☆☆☆',en:'Weight / Place Value',def:'各桁が表す値です。2進数は右から1・2・4・8・16…',eg:'💬 2⁰=1、2¹=2、2²=4、2³=8、2⁴=16と2倍ずつ増えます。'},
+  {word:'10進→2進変換',stars:'☆☆☆',en:'Decimal to Binary Conversion',def:'2で割り続けて余りを「下から」読みます。',eg:'💬 13→余り1,0,1,1→下から読むと1101(2)。上からではなく必ず下から！'},
+  {word:'2進→10進変換',stars:'☆☆☆',en:'Binary to Decimal Conversion',def:'各桁×位の重みをすべて合計します。',eg:'💬 1011(2)=1×8+0×4+1×2+1×1=11。「1が立っている位の重みだけ足す」と速い。'},
+  {word:'1KB',stars:'☆☆☆',en:'Kilobyte キロバイト',def:'1KB = 1024バイト（2¹⁰バイト）です。',eg:'💬 1000ではなく1024です（2の10乗）。'},
+  {word:'1MB',stars:'☆☆☆',en:'Megabyte メガバイト',def:'1MB = 1024KBです。',eg:'💬 スマホの写真1枚は数MB程度です。'},
+  {word:'16進数',stars:'☆☆',en:'Hexadecimal ヘキサデシマル',def:'0〜Fの16種類を使う数の数え方です。2進数4桁＝16進数1桁。',eg:'💬 10=A、11=B、12=C、13=D、14=E、15=F。'},
+  {word:'8進数',stars:'☆☆',en:'Octal オクタル',def:'0〜7の8種類を使う数の数え方です。2進数3桁＝8進数1桁。',eg:'💬 3桁ずつまとめて変換できます。'},
+];
+var fcIdx=0,fcOrder=FC_DATA.map(function(_,i){return i;}),fcTimer=null,fcBarTimer=null,fcAutoSec=0;
+function fcOpen(){document.getElementById('fc-overlay').classList.add('show');fcStop();fcIdx=0;fcOrder=FC_DATA.map(function(_,i){return i;});fcRender();}
+function fcClose(){document.getElementById('fc-overlay').classList.remove('show');fcStop();}
+function fcOverlayClick(e){if(e.target===document.getElementById('fc-overlay'))fcClose();}
+function fcRender(){
+  var d=FC_DATA[fcOrder[fcIdx]];
+  document.getElementById('fc-card').classList.remove('flipped');
+  document.getElementById('fc-word').textContent=d.word;
+  document.getElementById('fc-stars').textContent=d.stars;
+  document.getElementById('fc-en').textContent=d.en;
+  document.getElementById('fc-def').textContent=d.def;
+  document.getElementById('fc-eg').textContent=d.eg;
+  document.getElementById('fc-counter').textContent=(fcIdx+1)+' / '+fcOrder.length;
+}
+function fcFlip(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcNext(){fcIdx=(fcIdx+1)%fcOrder.length;fcRender();if(fcAutoSec>0)fcStartBar();}
+function fcPrev(){fcIdx=(fcIdx-1+fcOrder.length)%fcOrder.length;fcRender();}
+function fcAuto(sec){fcStop();fcAutoSec=sec;document.getElementById('btn-stop').style.display='inline-block';document.getElementById('fc-bar').style.display='block';fcStartBar();}
+function fcStartBar(){
+  document.getElementById('fc-card').classList.remove('flipped');
+  var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';
+  var h=fcAutoSec*500,f=fcAutoSec*1000;
+  setTimeout(function(){bar.style.transition='width '+f+'ms linear';bar.style.width='100%';},30);
+  fcTimer=setTimeout(function(){document.getElementById('fc-card').classList.add('flipped');},h);
+  fcBarTimer=setTimeout(function(){fcNext();},f);
+}
+function fcStop(){clearTimeout(fcTimer);clearTimeout(fcBarTimer);fcAutoSec=0;document.getElementById('btn-stop').style.display='none';document.getElementById('fc-bar').style.display='none';var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';}
+function fcShuffle(){fcStop();for(var i=fcOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=fcOrder[i];fcOrder[i]=fcOrder[j];fcOrder[j]=tmp;}fcIdx=0;fcRender();}
+
+var FINAL=[
+  {q:'2進数「10110(2)」を10進数に変換した結果として正しいものはどれですか。',
+   opts:['20','21','22','23'],
+   ans:2,
+   exp:'1×2⁴+0×2³+1×2²+1×2¹+0×2⁰＝16+0+4+2+0＝22です。「1が立っている位の重みだけ足す」と考えると、16の位・4の位・2の位に1が立っているので16+4+2=22です。'},
+  {q:'10進数の「19」を2進数に変換した結果として正しいものはどれですか。',
+   opts:['10011(2)','10111(2)','11001(2)','10001(2)'],
+   ans:0,
+   exp:'19÷2=9余1→9÷2=4余1→4÷2=2余0→2÷2=1余0→1÷2=0余1。余りを下から読むと10011。検算：16+0+0+2+1=19 ✅「余りを下から読む」ことを忘れずに。'},
+  {q:'5進法で使える数字として正しいものはどれですか。',
+   opts:['0・1・2・3・4・5の6種類','0・1・2・3・4の5種類','0・1・2・3の4種類','0・1・2の3種類'],
+   ans:1,
+   exp:'n進法で使える数字は「0から(n-1)まで」です。5進法では0・1・2・3・4の5種類で、5は使えません。5個集まると次の位に繰り上がって「10(5)」となります。'},
+  {q:'1KBを正確に表すバイト数として正しいものはどれですか。',
+   opts:['100バイト','1000バイト','1024バイト','2048バイト'],
+   ans:2,
+   exp:'1KB（キロバイト）＝1024バイトです。1024＝2¹⁰です。コンピュータは2進法を使うため、データ量の単位は1000ではなく1024（2の10乗）を基準にしています。'},
+  {q:'2進数「1111(2)」を16進数に変換した結果として正しいものはどれですか。',
+   opts:['D(16)','E(16)','F(16)','10(16)'],
+   ans:2,
+   exp:'1111(2)＝1×8+1×4+1×2+1×1＝15(10)。16進数では15＝Fです。（10=A、11=B、12=C、13=D、14=E、15=F）4桁すべて1なら2⁴-1=15=Fと覚えましょう。'}
+];
+var finalState={answers:[]};
+function initFinal(){finalState={answers:Array(FINAL.length).fill(null)};document.getElementById('final-score').style.display='none';renderFinal();}
+function renderFinal(){
+  var html='';
+  FINAL.forEach(function(q,i){
+    html+='<div class="fq-block" id="fq-'+i+'"><div class="fq-num">問'+(i+1)+'</div><div class="fq-q">'+q.q+'</div><div class="fq-opts">'
+      +q.opts.map(function(o,j){return '<button class="fq-opt" id="fq-'+i+'-'+j+'" onclick="answerFinal('+i+','+j+')">'+(['①','②','③','④'][j])+' '+o+'</button>';}).join('')
+      +'</div><div id="fq-res-'+i+'"></div></div>';
+  });
+  html+='<div style="text-align:center;margin-top:10px"><button class="final-retry" onclick="checkFinal()" id="btn-check" style="background:#0ea5e9">✅ 採点する</button><button class="quiz-retry" style="margin-left:10px" onclick="initFinal()">🔄 やり直す</button></div>';
+  document.getElementById('final-container').innerHTML=html;
+}
+function answerFinal(qi,chosen){
+  finalState.answers[qi]=chosen;
+  var opts=document.querySelectorAll('#fq-'+qi+' .fq-opt');
+  opts.forEach(function(b){b.style.background='';b.style.border='1.5px solid #67e8f9';});
+  opts[chosen].style.background='#cffafe';opts[chosen].style.border='2px solid #0e7490';
+}
+function checkFinal(){
+  var score=0;
+  FINAL.forEach(function(q,i){
+    var chosen=finalState.answers[i];
+    var opts=document.querySelectorAll('#fq-'+i+' .fq-opt');
+    opts.forEach(function(b){b.disabled=true;});
+    var res=document.getElementById('fq-res-'+i);
+    if(chosen===null){res.innerHTML='<div class="fq-result ng">未回答です。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」でした。<br><small>'+q.exp+'</small></div>';opts[q.ans].classList.add('correct');}
+    else if(chosen===q.ans){score++;opts[chosen].classList.add('correct');res.innerHTML='<div class="fq-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';}
+    else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');res.innerHTML='<div class="fq-result ng">❌ 不正解。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  });
+  var scoreEl=document.getElementById('final-score');scoreEl.style.display='block';
+  document.getElementById('score-num').textContent=score+' / '+FINAL.length+' 問正解';
+  var msg='';
+  if(score===FINAL.length){msg='🎉 全問正解です！すばらしい出来です。';burst();}
+  else if(score>=4){msg='✅ 合格です！惜しかった問題を復習しましょう。';burst();}
+  else if(score>=3){msg='📖 あと少しです。間違えた問題をもう一度確認しましょう。';}
+  else{msg='📖 もう一度テキストを読み直してから挑戦してみましょう。';}
+  document.getElementById('score-msg').textContent=msg;
+  scoreEl.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('btn-check').style.display='none';
+}
+initFinal();
+</script>
+<div style="text-align:center;margin:26px 0 10px">
+  <a href="kouninjoho_index.html" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px">🏠 単元表に戻る</a>
+</div>
+  <script src="https://realizefield.github.io/gamba-kounin-seito/gamba-ai.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情報セキュリティの基礎</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',sans-serif;background:#f0f4f8;color:#1e293b;line-height:1.8;padding:16px;font-size:14px;max-width:860px;margin:0 auto}
+h1{text-align:center;font-size:21px;color:#0f172a;padding:18px 0 6px;font-weight:bold}
+.subtitle{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.tip{text-align:center;font-size:12px;color:#0369a1;background:#e0f2fe;border-radius:20px;padding:5px 18px;margin:0 auto 10px;display:block;max-width:420px}
+
+/* 目次 */
+.toc{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.07);border-left:5px solid #dc2626}
+.toc-title{font-size:14px;font-weight:bold;color:#dc2626;margin-bottom:10px}
+.toc-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.toc-item:last-child{border-bottom:none;padding-bottom:0}
+.toc-num{background:#dc2626;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0}
+.toc-label{flex:1}
+.stars{color:#f59e0b;letter-spacing:1px;font-size:13px;flex-shrink:0}
+.star-note{font-size:11px;color:#64748b;margin-top:8px}
+
+/* セクション */
+.section{background:#fff;border-radius:16px;padding:20px 18px 24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+.sec-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sec-num{background:#dc2626;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;flex-shrink:0}
+.sec-title{font-size:15px;font-weight:bold;color:#0f172a;border-bottom:2px solid #fee2e2;padding-bottom:4px;flex:1}
+.sec-stars{color:#f59e0b;font-size:14px;flex-shrink:0}
+.analog{font-size:13px;background:#fef9c3;border-left:4px solid #facc15;padding:10px 14px;border-radius:6px;margin-bottom:14px;color:#78350f;line-height:1.8}
+.body-text{font-size:13px;line-height:1.8;margin-bottom:12px}
+
+/* ポップアップ */
+.term{display:inline-block;background:#fee2e2;color:#991b1b;border-radius:4px;padding:1px 7px;cursor:pointer;font-weight:bold;border-bottom:2px dotted #dc2626;white-space:nowrap;user-select:none}
+.term:hover{background:#fecaca}
+#popup-layer{display:none;position:absolute;z-index:9999;background:#1e293b;color:#f8fafc;border-radius:12px;padding:14px 18px;width:280px;font-size:12px;line-height:1.7;box-shadow:0 10px 30px rgba(0,0,0,0.35);pointer-events:none}
+#popup-layer.above::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:#1e293b}
+#popup-layer.below::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-bottom-color:#1e293b}
+.pop-en{font-size:11px;color:#94a3b8;margin-bottom:3px}
+.pop-main{font-size:13px;font-weight:bold;color:#e2e8f0;margin-bottom:6px}
+.pop-eg{font-size:12px;color:#cbd5e1;border-top:1px solid #334155;padding-top:6px;margin-top:4px}
+
+/* 3要素カード */
+.three-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0}
+@media(max-width:540px){.three-cols{grid-template-columns:1fr}}
+.req-card{border-radius:12px;padding:14px;text-align:center}
+.req-card .req-icon{font-size:28px;margin-bottom:6px}
+.req-card .req-name{font-size:13px;font-weight:bold;margin-bottom:4px}
+.req-card .req-en{font-size:10px;margin-bottom:6px;opacity:0.8}
+.req-card .req-desc{font-size:11px;line-height:1.6}
+.card-c{background:#eff6ff;border:2px solid #93c5fd;color:#1e40af}
+.card-i{background:#f0fdf4;border:2px solid #86efac;color:#14532d}
+.card-a{background:#fef3c7;border:2px solid #fcd34d;color:#92400e}
+
+/* 2カラム */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+@media(max-width:520px){.cols{grid-template-columns:1fr}}
+.col-card{background:#f8fafc;border-radius:10px;padding:14px;border:1.5px solid #e2e8f0}
+.col-title{font-size:13px;font-weight:bold;margin-bottom:8px;color:#0f172a;display:flex;align-items:center;gap:6px}
+
+/* 脅威リスト */
+.threat-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.threat-item{display:flex;align-items:flex-start;gap:10px;background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:11px 13px}
+.threat-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.threat-body{flex:1}
+.threat-name{font-size:13px;font-weight:bold;color:#991b1b;margin-bottom:2px}
+.threat-desc{font-size:12px;color:#475569;line-height:1.6}
+
+/* 対策リスト */
+.taisaku-list{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.taisaku-item{display:flex;align-items:flex-start;gap:10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:11px 13px}
+.taisaku-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.taisaku-body{flex:1}
+.taisaku-name{font-size:13px;font-weight:bold;color:#14532d;margin-bottom:2px}
+.taisaku-desc{font-size:12px;color:#475569;line-height:1.6}
+
+/* パスワード強度 */
+.pw-bar-wrap{margin:10px 0}
+.pw-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:12px}
+.pw-label{width:120px;flex-shrink:0;color:#475569}
+.pw-bar{flex:1;height:16px;border-radius:8px;position:relative;overflow:hidden;background:#e2e8f0}
+.pw-fill{height:100%;border-radius:8px;transition:width 0.3s}
+.pw-score{width:40px;text-align:right;font-weight:bold;flex-shrink:0}
+
+/* 試験ポイント */
+.exam-box{background:#faf5ff;border:2px solid #c4b5fd;border-radius:10px;padding:14px 16px;margin-top:14px}
+.exam-title{font-size:13px;font-weight:bold;color:#6d28d9;margin-bottom:8px}
+.exam-item{font-size:13px;color:#4c1d95;margin-bottom:6px;padding-left:18px;position:relative;line-height:1.6}
+.exam-item::before{content:'✓';position:absolute;left:0;color:#7c3aed;font-weight:bold}
+
+/* まとめ表 */
+.summary-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+.summary-table th{background:#dc2626;color:#fff;padding:8px 10px;text-align:left;font-weight:bold}
+.summary-table td{padding:8px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top;line-height:1.6}
+.summary-table tr:nth-child(even) td{background:#f8fafc}
+.connect-box{margin-top:18px;padding:14px;background:#fee2e2;border-radius:10px;font-size:13px;border-left:4px solid #dc2626;line-height:1.8}
+
+/* ミニテスト */
+.quiz-toggle{width:100%;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+.quiz-toggle:hover{background:#b91c1c}
+.quiz-toggle .arrow{transition:transform 0.25s;font-size:16px}
+.quiz-toggle.open .arrow{transform:rotate(180deg)}
+.quiz-body{display:none;background:#fff5f5;border:2px solid #fca5a5;border-radius:0 0 10px 10px;padding:16px}
+.quiz-body.open{display:block}
+.quiz-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:12px;line-height:1.7}
+.quiz-type{font-size:11px;color:#64748b;margin-bottom:8px;font-style:italic}
+.quiz-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.quiz-opt{background:#fff;border:1.5px solid #cbd5e1;border-radius:8px;padding:9px 13px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.quiz-opt:hover{background:#fee2e2;border-color:#f87171}
+.quiz-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.quiz-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.quiz-result{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:10px;line-height:1.7}
+.quiz-result.ok{background:#dcfce7;color:#14532d;border:1.5px solid #16a34a}
+.quiz-result.ng{background:#fee2e2;color:#7f1d1d;border:1.5px solid #dc2626}
+.quiz-retry{background:#64748b;color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;cursor:pointer;margin-top:4px}
+.quiz-retry:hover{background:#475569}
+.quiz-progress{font-size:12px;color:#64748b;margin-bottom:8px}
+.quiz-nav{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.btn-next{background:#dc2626;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:12px;cursor:pointer;font-weight:bold}
+.btn-next:hover{background:#b91c1c}
+.btn-next:disabled{background:#cbd5e1;cursor:default}
+
+/* フラッシュカード */
+.fc-open-btn{width:100%;background:#dc2626;color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:13px;font-weight:bold;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.fc-open-btn:hover{background:#b91c1c}
+#fc-overlay{display:none;position:absolute;top:0;left:0;width:100%;background:rgba(0,0,0,0.55);z-index:10000;justify-content:flex-start;padding-top:30px}
+#fc-overlay.show{display:flex;flex-direction:column;align-items:center}
+#fc-modal{background:#fff;border-radius:20px;padding:24px 20px 20px;width:min(96vw,480px);box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative}
+.fc-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:#64748b}
+.fc-close:hover{color:#1e293b}
+.fc-header{font-size:13px;font-weight:bold;color:#dc2626;margin-bottom:14px;text-align:center}
+.fc-card{min-height:190px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:22px 18px;text-align:center;background:linear-gradient(135deg,#dc2626 0%,#f59e0b 100%);color:#fff;position:relative;user-select:none;margin-bottom:14px}
+.fc-card:active{transform:scale(0.98)}
+.fc-card-front{width:100%}
+.fc-card-back{width:100%;display:none}
+.fc-card.flipped .fc-card-front{display:none}
+.fc-card.flipped .fc-card-back{display:block}
+.fc-card.flipped{background:linear-gradient(135deg,#14532d 0%,#0369a1 100%)}
+.fc-word{font-size:22px;font-weight:bold;margin-bottom:8px}
+.fc-hint{font-size:12px;opacity:0.85;margin-top:6px}
+.fc-en{font-size:12px;color:#fde68a;margin-bottom:5px}
+.fc-def{font-size:13px;font-weight:bold;margin-bottom:6px}
+.fc-eg{font-size:12px;opacity:0.88;border-top:1px solid rgba(255,255,255,0.3);padding-top:7px;margin-top:5px}
+.fc-counter{text-align:center;font-size:12px;color:#64748b;margin-bottom:10px}
+.fc-auto-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:10px;overflow:hidden;display:none}
+.fc-auto-bar-inner{height:100%;background:#dc2626;border-radius:2px}
+.fc-controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.fc-btn{border:none;border-radius:8px;padding:8px 13px;font-size:12px;font-weight:bold;cursor:pointer}
+.fc-btn-prev{background:#f1f5f9;color:#475569}
+.fc-btn-next{background:#dc2626;color:#fff}
+.fc-btn-auto2{background:#f59e0b;color:#fff}
+.fc-btn-auto3{background:#ef4444;color:#fff}
+.fc-btn-stop{background:#64748b;color:#fff;display:none}
+.fc-btn-shuffle{background:#10b981;color:#fff}
+.fc-stars{color:#fde68a;font-size:12px;margin-top:4px}
+
+/* 確認問題 */
+.final-section{background:#fff;border-radius:16px;padding:20px 18px 28px;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,0.1);border-top:5px solid #dc2626}
+.final-title{font-size:16px;font-weight:bold;color:#dc2626;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.final-sub{font-size:12px;color:#64748b;margin-bottom:16px}
+.fq-block{background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.fq-num{font-size:11px;color:#dc2626;font-weight:bold;margin-bottom:4px}
+.fq-q{font-size:13px;font-weight:bold;color:#1e293b;margin-bottom:10px;line-height:1.7}
+.fq-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.fq-opt{background:#fff;border:1.5px solid #cbd5e1;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:13px;text-align:left;transition:all 0.15s;line-height:1.6}
+.fq-opt:hover{background:#fff5f5;border-color:#f87171}
+.fq-opt.correct{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:bold}
+.fq-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.fq-result{font-size:12px;padding:8px 12px;border-radius:6px;margin-top:4px;line-height:1.6}
+.fq-result.ok{background:#dcfce7;color:#14532d}
+.fq-result.ng{background:#fee2e2;color:#7f1d1d}
+.final-score{text-align:center;padding:18px;background:#fff5f5;border-radius:12px;border:2px solid #fca5a5;margin-top:16px;display:none}
+.score-num{font-size:32px;font-weight:bold;color:#dc2626}
+.score-msg{font-size:14px;color:#7f1d1d;margin-top:6px}
+.final-retry{background:#dc2626;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer;margin-top:12px;font-weight:bold}
+.final-retry:hover{background:#b91c1c}
+#confetti-canvas{position:absolute;top:0;left:0;width:100%;height:3000px;pointer-events:none;z-index:99999;display:none}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="popup-layer"><div class="pop-en" id="pop-en"></div><div class="pop-main" id="pop-main"></div><div class="pop-eg" id="pop-eg"></div></div>
+
+<h1>🛡 情報セキュリティの基礎</h1>
+<p class="subtitle">江原予備校　情報Ⅰ　第3章①</p>
+<p class="tip">💡 赤い語句をクリック（またはタップ）すると説明が表示されます。</p>
+
+<!-- 目次 -->
+<div class="toc">
+  <div class="toc-title">📚 この単元の構成</div>
+  <div class="toc-item"><div class="toc-num">1</div><div class="toc-label">情報セキュリティの3要素（CIA）</div><div class="stars">☆☆☆</div></div>
+  <div class="toc-item"><div class="toc-num">2</div><div class="toc-label">マルウェアの種類と感染経路</div><div class="stars">☆☆☆</div></div>
+  <div class="toc-item"><div class="toc-num">3</div><div class="toc-label">パスワード管理と不正アクセス</div><div class="stars">☆☆☆</div></div>
+  <div class="toc-item"><div class="toc-num">4</div><div class="toc-label">フィッシング詐欺とSNSの危険</div><div class="stars">☆☆☆</div></div>
+  <div class="toc-item"><div class="toc-num">5</div><div class="toc-label">個人でできる対策</div><div class="stars">☆☆☆</div></div>
+  <div class="toc-item"><div class="toc-num">6</div><div class="toc-label">用語まとめ一覧</div><div class="stars">☆☆☆</div></div>
+  <div class="toc-item"><div class="toc-num">✏</div><div class="toc-label">確認問題（高認試験類題）全5問</div><div class="stars">☆☆☆</div></div>
+  <div class="star-note">☆☆☆ 最重要（必ず出ます）　☆☆ 重要（よく出ます）　☆ 知識として押さえます</div>
+</div>
+
+
+<!-- ===== セクション1：3要素 ===== -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num">1</div>
+    <div class="sec-title">情報セキュリティの3要素（CIA）</div>
+    <div class="sec-stars">☆☆☆</div>
+  </div>
+  <div class="analog">💬 たとえ：銀行の金庫を守るには「本人しか開けられない（機密性）」「お金が正確にある（完全性）」「必要なときに使える（可用性）」の3つが必要です。情報セキュリティも同じ3つの要素で守ります。</div>
+  <p class="body-text"><span class="term" data-en="Information Security（インフォメーション・セキュリティ）" data-main="情報セキュリティ（じょうほうセキュリティ）" data-eg="💬 情報の「漏れ・改ざん・使えない」をすべて防ぐことです。個人・組織どちらにも関係します。">情報セキュリティ</span>とは、大切な情報を守るための取り組み全体を指します。守るべき3つの要素を頭文字から<strong>CIA</strong>と呼びます。</p>
+
+  <div class="three-cols">
+    <div class="req-card card-c">
+      <div class="req-icon">🔒</div>
+      <div class="req-name">機密性</div>
+      <div class="req-en">Confidentiality（コンフィデンシャリティ）</div>
+      <div class="req-desc">許可された人だけが情報にアクセスできる状態を保ちます。<br>例：パスワードで守られたファイル</div>
+    </div>
+    <div class="req-card card-i">
+      <div class="req-icon">✅</div>
+      <div class="req-name">完全性</div>
+      <div class="req-en">Integrity（インテグリティ）</div>
+      <div class="req-desc">情報が正確で改ざんされていない状態を保ちます。<br>例：送信したデータが途中で書き換えられていない</div>
+    </div>
+    <div class="req-card card-a">
+      <div class="req-icon">⚡</div>
+      <div class="req-name">可用性</div>
+      <div class="req-en">Availability（アベイラビリティ）</div>
+      <div class="req-desc">必要なときに情報やシステムを利用できる状態を保ちます。<br>例：サーバが止まらずいつでも使える</div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">📝 ここが試験に出ます　☆☆☆</div>
+    <div class="exam-item"><strong>機密性</strong>＝許可された人だけがアクセスできる（漏えい防止）</div>
+    <div class="exam-item"><strong>完全性</strong>＝情報が正確で改ざんされていない（改ざん防止）</div>
+    <div class="exam-item"><strong>可用性</strong>＝必要なときに使える（サービス停止の防止）</div>
+    <div class="exam-item">3つをまとめて「情報セキュリティの3要素」または「CIA」といいます。</div>
+  </div>
+
+  <button class="quiz-toggle" onclick="toggleQuiz('q1')">✏ ミニテスト — 3要素の確認（2問）<span class="arrow">▼</span></button>
+  <div class="quiz-body" id="q1-body"><div id="q1-container"></div></div>
+</div>
+
+
+<!-- ===== セクション2：マルウェア ===== -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num">2</div>
+    <div class="sec-title">マルウェアの種類と感染経路</div>
+    <div class="sec-stars">☆☆☆</div>
+  </div>
+  <div class="analog">💬 たとえ：マルウェアはコンピュータに忍び込む「悪い虫」です。種類によって動き方が違います。風邪ウイルスと同じで、感染経路を知ることで予防できます。</div>
+
+  <p class="body-text"><span class="term" data-en="Malware（マルウェア）= Malicious Software" data-main="マルウェア（まるうぇあ）" data-eg="💬 悪意のあるソフトウェアの総称です。ウイルス・ワーム・トロイの木馬などが含まれます。Malicious（悪意のある）＋Software の合成語です。">マルウェア</span>とは、悪意のあるプログラムの総称です。代表的な種類を覚えましょう。</p>
+
+  <div class="threat-list">
+    <div class="threat-item">
+      <div class="threat-icon">🦠</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Computer Virus（コンピュータ・ウイルス）" data-main="コンピュータウイルス" data-eg="💬 他のプログラムやファイルに寄生して増殖します。生物のウイルスと同じしくみで「宿主」が必要です。感染したファイルを開くことで広がります。">コンピュータウイルス</span></div>
+        <div class="threat-desc">他のプログラムに寄生して増殖します。感染したファイルを開くと広がります。自己増殖・潜伏・発症の3つの機能を持つものをウイルスといいます。</div>
+      </div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-icon">🐛</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Worm（ワーム）" data-main="ワーム" data-eg="💬 他のプログラムに寄生せず、自分だけで増殖してネットワークを通じて広がります。ウイルスと違い「宿主」が不要です。">ワーム</span></div>
+        <div class="threat-desc">単独で増殖し、ネットワークを通じて自動的に広がります。宿主となるプログラムが不要な点がウイルスと異なります。</div>
+      </div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-icon">🐴</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Trojan Horse（トロイの木馬）" data-main="トロイの木馬（トロイのもくば）" data-eg="💬 ギリシャ神話の「トロイの木馬」から名前がついています。無害なソフトのふりをして侵入し、内部から悪さをします。自己増殖はしません。">トロイの木馬</span></div>
+        <div class="threat-desc">有用なソフトのふりをして侵入し、個人情報を盗んだりバックドアを作ったりします。自己増殖はしません。</div>
+      </div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-icon">💰</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Ransomware（ランサムウェア）= Ransom（身代金）＋Software" data-main="ランサムウェア" data-eg="💬 Ransom（ランサム）は「身代金」という意味です。ファイルを人質にして金銭を要求するマルウェアです。病院や企業への攻撃で大きな被害が出ています。">ランサムウェア</span></div>
+        <div class="threat-desc">ファイルを暗号化してアクセスできなくし、解除と引き換えに金銭を要求します。近年の被害が特に深刻です。</div>
+      </div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-icon">🕵️</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Spyware（スパイウェア）" data-main="スパイウェア" data-eg="💬 スパイのように、ユーザに気づかれないまま個人情報やパスワードを収集して外部に送信します。">スパイウェア</span></div>
+        <div class="threat-desc">利用者に気づかれないまま、パスワードや個人情報などを収集して外部に送信します。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">📝 ここが試験に出ます　☆☆☆</div>
+    <div class="exam-item">マルウェアの総称＝ウイルス・ワーム・トロイの木馬・ランサムウェア・スパイウェアなどを含む悪意のあるプログラム全体</div>
+    <div class="exam-item">ウイルスは「他のプログラムに寄生して増殖」します。</div>
+    <div class="exam-item">ワームは「単独で増殖・ネットワーク経由で広がる」点がウイルスと異なります。</div>
+    <div class="exam-item">ランサムウェアは「ファイルを暗号化して身代金を要求」します。</div>
+  </div>
+
+  <button class="quiz-toggle" onclick="toggleQuiz('q2')">✏ ミニテスト — マルウェアの種類（3問）<span class="arrow">▼</span></button>
+  <div class="quiz-body" id="q2-body"><div id="q2-container"></div></div>
+</div>
+
+
+<!-- ===== セクション3：パスワード ===== -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num">3</div>
+    <div class="sec-title">パスワード管理と不正アクセス</div>
+    <div class="sec-stars">☆☆☆</div>
+  </div>
+  <div class="analog">💬 たとえ：パスワードは家の鍵です。短い鍵・簡単な鍵は開けられやすく危険です。長くて複雑な鍵（パスワード）ほど安全です。</div>
+
+  <p class="body-text">不正アクセスとは、許可なく他人のコンピュータやアカウントに侵入することです。代表的な攻撃手法として<span class="term" data-en="Brute Force Attack（ブルートフォース・アタック）" data-main="ブルートフォース攻撃（ブルートフォースこうげき）" data-eg="💬 Brute Force（ブルートフォース）は「力任せ」という意味です。パスワードを片っ端から試し続ける攻撃です。文字数が多いほど試す回数が爆発的に増えます。">ブルートフォース攻撃</span>（総当たり攻撃）があります。</p>
+
+  <div class="pw-bar-wrap">
+    <div style="font-size:12px;font-weight:bold;color:#475569;margin-bottom:8px">パスワードの強度イメージ（文字の組み合わせと長さ）</div>
+    <div class="pw-row"><div class="pw-label">数字4桁（例：1234）</div><div class="pw-bar"><div class="pw-fill" style="width:5%;background:#dc2626"></div></div><div class="pw-score" style="color:#dc2626">弱⚠</div></div>
+    <div class="pw-row"><div class="pw-label">英小文字8文字</div><div class="pw-bar"><div class="pw-fill" style="width:25%;background:#f59e0b"></div></div><div class="pw-score" style="color:#f59e0b">普通</div></div>
+    <div class="pw-row"><div class="pw-label">英大小+数字8文字</div><div class="pw-bar"><div class="pw-fill" style="width:55%;background:#16a34a"></div></div><div class="pw-score" style="color:#16a34a">強い</div></div>
+    <div class="pw-row"><div class="pw-label">英大小+数字+記号12文字</div><div class="pw-bar"><div class="pw-fill" style="width:95%;background:#0ea5e9"></div></div><div class="pw-score" style="color:#0ea5e9">最強</div></div>
+  </div>
+
+  <div class="cols">
+    <div class="col-card">
+      <div class="col-title">❌ 危険なパスワードの例</div>
+      <div class="body-text" style="font-size:12px;color:#991b1b">
+        ・「123456」「password」などの単純なもの<br>
+        ・自分の名前・生年月日<br>
+        ・複数のサービスで同じパスワードを使い回す<br>
+        ・短い（4〜6文字以下）パスワード
+      </div>
+    </div>
+    <div class="col-card">
+      <div class="col-title">✅ 安全なパスワードのポイント</div>
+      <div class="body-text" style="font-size:12px;color:#14532d">
+        ・英大文字・小文字・数字・記号を混ぜる<br>
+        ・12文字以上にする<br>
+        ・サービスごとに異なるパスワードを使う<br>
+        ・<span class="term" data-en="Two-Factor Authentication（2FA）" data-main="二段階認証（にだんかいにんしょう）" data-eg="💬 パスワードに加えて「スマホに届くコード」など第2の確認を行うしくみです。パスワードが盗まれても不正ログインを防げます。">二段階認証</span>を有効にする
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">📝 ここが試験に出ます　☆☆☆</div>
+    <div class="exam-item">ブルートフォース攻撃（総当たり攻撃）＝パスワードを片っ端から試す攻撃方法です。</div>
+    <div class="exam-item">パスワードは長く・複雑にするほど解読に時間がかかり安全になります。</div>
+    <div class="exam-item">二段階認証（2要素認証）を使うと、パスワードが漏えいしても不正アクセスを防ぎやすくなります。</div>
+    <div class="exam-item">不正アクセス禁止法により、許可なく他人のシステムに侵入する行為は違法です。</div>
+  </div>
+
+  <button class="quiz-toggle" onclick="toggleQuiz('q3')">✏ ミニテスト — パスワードと不正アクセス（2問）<span class="arrow">▼</span></button>
+  <div class="quiz-body" id="q3-body"><div id="q3-container"></div></div>
+</div>
+
+
+<!-- ===== セクション4：フィッシング ===== -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num">4</div>
+    <div class="sec-title">フィッシング詐欺とSNSの危険</div>
+    <div class="sec-stars">☆☆☆</div>
+  </div>
+  <div class="analog">💬 たとえ：フィッシング（Phishing）は「釣り（Fishing）」のたとえです。本物そっくりの偽サイトを「エサ」にして、パスワードや個人情報を「釣り上げる」詐欺です。</div>
+
+  <div class="threat-list">
+    <div class="threat-item">
+      <div class="threat-icon">🎣</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Phishing（フィッシング）" data-main="フィッシング詐欺（フィッシングさぎ）" data-eg="💬 「釣り（fishing）」から来ています。本物そっくりの偽メール・偽サイトでパスワードや個人情報を入力させて盗みます。">フィッシング詐欺</span></div>
+        <div class="threat-desc">本物そっくりの偽メールや偽サイトに誘導し、ID・パスワード・クレジットカード番号などを入力させて盗む攻撃です。「お客様のアカウントが停止されます」などの文面が多いです。</div>
+      </div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-icon">📱</div>
+      <div class="threat-body">
+        <div class="threat-name"><span class="term" data-en="Social Engineering（ソーシャル・エンジニアリング）" data-main="ソーシャルエンジニアリング" data-eg="💬 技術ではなく「人の心理」をついて情報を盗む方法の総称です。電話で「システム担当者です」と名乗りパスワードを聞き出すなどの手口があります。">ソーシャルエンジニアリング</span></div>
+        <div class="threat-desc">技術的な手段ではなく、人を騙したり心理的に操作したりすることで機密情報を入手する攻撃です。電話・なりすましメール・ゴミ箱あさりなどが含まれます。</div>
+      </div>
+    </div>
+    <div class="threat-item">
+      <div class="threat-icon">📲</div>
+      <div class="threat-body">
+        <div class="threat-name">SNS利用時のリスク</div>
+        <div class="threat-desc">個人情報の過度な公開・なりすまし被害・フェイクニュースの拡散・著作権侵害・プライバシー侵害などのリスクがあります。投稿前に「誰が見るか」を意識することが大切です。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">📝 ここが試験に出ます　☆☆☆</div>
+    <div class="exam-item">フィッシング詐欺＝偽メール・偽サイトで個人情報を盗む攻撃です。</div>
+    <div class="exam-item">本物そっくりのURLや画面でも、URLが微妙に違う場合は偽サイトです（例：g00gle.com など）。</div>
+    <div class="exam-item">ソーシャルエンジニアリング＝技術でなく「人の心理」をついて情報を入手する手法の総称です。</div>
+    <div class="exam-item">SNSへの個人情報の過度な公開は、なりすまし・ストーカー被害などにつながります。</div>
+  </div>
+
+  <button class="quiz-toggle" onclick="toggleQuiz('q4')">✏ ミニテスト — フィッシングとSNS（2問）<span class="arrow">▼</span></button>
+  <div class="quiz-body" id="q4-body"><div id="q4-container"></div></div>
+</div>
+
+
+<!-- ===== セクション5：個人対策 ===== -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num">5</div>
+    <div class="sec-title">個人でできる対策</div>
+    <div class="sec-stars">☆☆☆</div>
+  </div>
+  <div class="analog">💬 たとえ：情報セキュリティの対策は「家の防犯」と同じです。鍵をかける（パスワード）、防犯カメラ（ログ）、警報機（ファイアウォール）、定期的な点検（アップデート）などをすべて組み合わせて守ります。</div>
+
+  <div class="taisaku-list">
+    <div class="taisaku-item">
+      <div class="taisaku-icon">🔄</div>
+      <div class="taisaku-body">
+        <div class="taisaku-name"><span class="term" data-en="Software Update / Security Patch（セキュリティパッチ）" data-main="ソフトウェアの更新（アップデート）" data-eg="💬 ソフトウェアの弱点（脆弱性・セキュリティホール）が見つかったとき、修正するプログラムを当てることを「パッチを当てる」といいます。更新を怠ると攻撃の入口になります。">ソフトウェアを常に最新の状態に保つ</span></div>
+        <div class="taisaku-desc"><span class="term" data-en="Vulnerability / Security Hole（セキュリティホール）" data-main="脆弱性（ぜいじゃくせい）／セキュリティホール" data-eg="💬 ソフトウェアの欠陥や弱点のことです。放置すると攻撃者に悪用されます。OSやアプリのアップデートで修正されます。">脆弱性（セキュリティホール）</span>を悪用した攻撃を防ぐために、OSやアプリケーションを最新版に更新します。</div>
+      </div>
+    </div>
+    <div class="taisaku-item">
+      <div class="taisaku-icon">🛡️</div>
+      <div class="taisaku-body">
+        <div class="taisaku-name"><span class="term" data-en="Antivirus Software（アンチウイルス・ソフトウェア）" data-main="ウイルス対策ソフト" data-eg="💬 コンピュータに入り込もうとするマルウェアを検知・除去するソフトです。定義ファイル（パターンファイル）を常に最新にしておくことが大切です。">ウイルス対策ソフトを導入・更新する</span></div>
+        <div class="taisaku-desc">マルウェアを検知・除去します。定義ファイル（ウイルスのパターン情報）を最新に保つことで効果を発揮します。</div>
+      </div>
+    </div>
+    <div class="taisaku-item">
+      <div class="taisaku-icon">🧱</div>
+      <div class="taisaku-body">
+        <div class="taisaku-name"><span class="term" data-en="Firewall（ファイアウォール）" data-main="ファイアウォール" data-eg="💬 「防火壁」という意味です。社内ネットワークと外部インターネットの境界に設置し、不審な通信をブロックします。">ファイアウォールを設定する</span></div>
+        <div class="taisaku-desc">不正な通信を検知してブロックします。ネットワークへの入口に設けることで、外部からの不正アクセスを防ぎます。</div>
+      </div>
+    </div>
+    <div class="taisaku-item">
+      <div class="taisaku-icon">💾</div>
+      <div class="taisaku-body">
+        <div class="taisaku-name">定期的にバックアップを取る</div>
+        <div class="taisaku-desc">ランサムウェアなどの被害に備え、重要なデータは別の場所に定期的にバックアップを取ります。クラウドや外付けHDDが有効です。</div>
+      </div>
+    </div>
+    <div class="taisaku-item">
+      <div class="taisaku-icon">🔗</div>
+      <div class="taisaku-body">
+        <div class="taisaku-name">不審なリンクや添付ファイルを開かない</div>
+        <div class="taisaku-desc">フィッシングメールの添付ファイルやリンクを安易に開かないようにします。送信元が知人でも、なりすましの可能性があります。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-title">📝 ここが試験に出ます　☆☆☆</div>
+    <div class="exam-item">脆弱性（セキュリティホール）＝ソフトウェアの欠陥・弱点です。アップデートで修正します。</div>
+    <div class="exam-item">ファイアウォール＝不正な通信をブロックするしくみです（「防火壁」という意味）。</div>
+    <div class="exam-item">ウイルス対策ソフトは「定義ファイルを最新にする」ことで効果を発揮します。</div>
+    <div class="exam-item">バックアップ＝ランサムウェアなどによるデータ消失に備える対策です。</div>
+  </div>
+</div>
+
+
+<!-- ===== セクション6：まとめ表 ===== -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num">6</div>
+    <div class="sec-title">用語まとめ一覧</div>
+    <div class="sec-stars">☆☆☆</div>
+  </div>
+
+  <button class="fc-open-btn" onclick="fcOpen()">🃏 フラッシュカードで暗記する（12語）</button>
+
+  <table class="summary-table" style="margin-top:16px">
+    <tr><th>用語</th><th>英語・読み方</th><th>一言でいうと</th><th>重要度</th></tr>
+    <tr><td><strong>情報セキュリティ</strong></td><td>Information Security</td><td>情報の漏えい・改ざん・使用不能をすべて防ぐ取り組みです。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>機密性</strong></td><td>Confidentiality コンフィデンシャリティ</td><td>許可された人だけがアクセスできる状態です。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>完全性</strong></td><td>Integrity インテグリティ</td><td>情報が正確で改ざんされていない状態です。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>可用性</strong></td><td>Availability アベイラビリティ</td><td>必要なときに使える状態です。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>マルウェア</strong></td><td>Malware（Malicious Software）</td><td>悪意のあるプログラムの総称です。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>コンピュータウイルス</strong></td><td>Computer Virus</td><td>他のプログラムに寄生して増殖するマルウェアです。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>ランサムウェア</strong></td><td>Ransomware（身代金ウェア）</td><td>ファイルを暗号化して身代金を要求するマルウェアです。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>フィッシング詐欺</strong></td><td>Phishing（釣り）</td><td>偽メール・偽サイトで個人情報を盗む攻撃です。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>ブルートフォース攻撃</strong></td><td>Brute Force Attack（力任せ攻撃）</td><td>パスワードを片っ端から試す攻撃です。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>ファイアウォール</strong></td><td>Firewall（防火壁）</td><td>不正な通信をブロックするしくみです。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>脆弱性</strong></td><td>Vulnerability セキュリティホール</td><td>ソフトウェアの欠陥・弱点です。アップデートで修正します。</td><td style="text-align:center;color:#f59e0b">☆☆☆</td></tr>
+    <tr><td><strong>二段階認証</strong></td><td>Two-Factor Authentication（2FA）</td><td>パスワード＋第2の確認で不正ログインを防ぐしくみです。</td><td style="text-align:center;color:#f59e0b">☆☆</td></tr>
+  </table>
+
+  <div class="connect-box" style="margin-top:18px">
+    <strong>🧩 この単元のつながり</strong><br>
+    情報セキュリティの目的は「機密性・完全性・可用性（CIA）」の3つを守ることです。そのためにマルウェア対策・パスワード管理・フィッシング対策・ファイアウォール設定などの対策を組み合わせて実施します。次の単元「暗号化と認証の仕組み」では、機密性と完全性を技術的に守る方法を詳しく学びます。
+  </div>
+</div>
+
+
+<!-- ===== フラッシュカード モーダル ===== -->
+<div id="fc-overlay" onclick="fcOverlayClick(event)">
+  <div id="fc-modal">
+    <button class="fc-close" onclick="fcClose()">✕</button>
+    <div class="fc-header">🃏 フラッシュカード — 情報セキュリティの基礎</div>
+    <div class="fc-counter" id="fc-counter">1 / 12</div>
+    <div class="fc-auto-bar" id="fc-bar"><div class="fc-auto-bar-inner" id="fc-bar-inner" style="width:0%"></div></div>
+    <div class="fc-card" id="fc-card" onclick="fcFlip()">
+      <div class="fc-card-front">
+        <div class="fc-word" id="fc-word"></div>
+        <div class="fc-stars" id="fc-stars"></div>
+        <div class="fc-hint">👆 タップして答えを見る</div>
+      </div>
+      <div class="fc-card-back">
+        <div class="fc-en" id="fc-en"></div>
+        <div class="fc-def" id="fc-def"></div>
+        <div class="fc-eg" id="fc-eg"></div>
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn fc-btn-prev" onclick="fcPrev()">◀ 前へ</button>
+      <button class="fc-btn fc-btn-next" onclick="fcNext()">次へ ▶</button>
+      <button class="fc-btn fc-btn-auto2" onclick="fcAuto(2)">⏱ 2秒自動</button>
+      <button class="fc-btn fc-btn-auto3" onclick="fcAuto(3)">⏱ 3秒自動</button>
+      <button class="fc-btn fc-btn-stop" id="btn-stop" onclick="fcStop()">⏹ 停止</button>
+      <button class="fc-btn fc-btn-shuffle" onclick="fcShuffle()">🔀 シャッフル</button>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#94a3b8">カードをタップすると表裏が切り替わります</div>
+  </div>
+</div>
+
+
+<!-- ===== 確認問題 ===== -->
+<div class="final-section">
+  <div class="final-title">✏ 確認問題（高認試験類題）　☆☆☆</div>
+  <div class="final-sub">全5問・4択　／　合格ライン：4問以上正解</div>
+  <div id="final-container"></div>
+  <div class="final-score" id="final-score">
+    <div class="score-num" id="score-num"></div>
+    <div class="score-msg" id="score-msg"></div>
+    <br><button class="final-retry" onclick="initFinal()">🔄 もう一度挑戦する</button>
+  </div>
+</div>
+
+<p style="text-align:center;font-size:12px;color:#94a3b8;padding:16px 0">江原予備校　情報Ⅰ　第3章①　／　情報セキュリティの基礎</p>
+
+<script>
+/* ===== ポップアップ ===== */
+(function(){
+  var layer=document.getElementById('popup-layer');
+  var pEn=document.getElementById('pop-en'),pMain=document.getElementById('pop-main'),pEg=document.getElementById('pop-eg');
+  var cur=null;
+  function show(el){
+    pEn.textContent=el.dataset.en||'';pMain.textContent=el.dataset.main||'';pEg.textContent=el.dataset.eg||'';
+    layer.style.display='block';place(el);cur=el;
+  }
+  function place(el){
+    var r=el.getBoundingClientRect(),pw=280,ph=layer.offsetHeight||130;
+    var sY=window.scrollY||document.documentElement.scrollTop;
+    var sX=window.scrollX||document.documentElement.scrollLeft;
+    var left=r.left+sX+r.width/2-pw/2;
+    left=Math.max(8,Math.min(left,document.body.offsetWidth-pw-8));
+    layer.style.left=left+'px';
+    var topA=r.top+sY-ph-14;
+    if(topA>=sY+8){layer.style.top=topA+'px';layer.className='above';}
+    else{layer.style.top=(r.bottom+sY+14)+'px';layer.className='below';}
+  }
+  function hide(){layer.style.display='none';cur=null;}
+  document.querySelectorAll('.term').forEach(function(el){
+    el.addEventListener('click',function(e){e.stopPropagation();if(cur===el){hide();return;}show(el);});
+  });
+  document.addEventListener('click',function(){hide();});
+  window.addEventListener('scroll',function(){if(cur)place(cur);},{passive:true});
+  window.addEventListener('resize',function(){if(cur)place(cur);});
+})();
+
+/* ===== 花吹雪 ===== */
+function burst(){
+  var cv=document.getElementById('confetti-canvas');
+  cv.style.display='block';
+  var ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=document.body.scrollHeight;
+  var pieces=[];
+  var colors=['#dc2626','#f59e0b','#10b981','#3b82f6','#ec4899','#8b5cf6'];
+  for(var i=0;i<90;i++){pieces.push({x:Math.random()*cv.width,y:window.scrollY-20-Math.random()*100,w:6+Math.random()*6,h:10+Math.random()*8,color:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*360,vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,vr:(Math.random()-0.5)*8});}
+  var start=null;
+  function draw(ts){
+    if(!start)start=ts;ctx.clearRect(0,0,cv.width,cv.height);
+    var alive=false;
+    pieces.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y<cv.height+20)alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    if(alive&&ts-start<3000)requestAnimationFrame(draw);else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none';}
+  }
+  requestAnimationFrame(draw);
+}
+
+/* ===== ミニテストデータ ===== */
+var MINI={
+  q1:[
+    {type:'4択　正しいものはどれですか。',
+     q:'情報セキュリティの3要素「CIA」の「A」が表すものはどれですか。',
+     opts:['認証（Authentication）','可用性（Availability）','アクセス制御（Access Control）','匿名性（Anonymity）'],
+     ans:1,
+     exp:'CIAは機密性（Confidentiality）・完全性（Integrity）・可用性（Availability）の頭文字です。可用性とは「必要なときに情報やシステムを利用できる状態」を指します。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'情報セキュリティの3要素についての説明として、誤っているものはどれですか。',
+     opts:['機密性とは、許可された人だけが情報にアクセスできる状態を指します。','完全性とは、情報が正確で改ざんされていない状態を指します。','可用性とは、情報を必要なときに利用できる状態を指します。','完全性とは、すべての人が情報を自由に閲覧できる状態を指します。'],
+     ans:3,
+     exp:'完全性（Integrity）は「情報が正確で改ざんされていない状態」です。「すべての人が自由に閲覧できる状態」は可用性でも完全性でもなく、むしろ機密性に反する状態です。'}
+  ],
+  q2:[
+    {type:'4択　正しいものはどれですか。',
+     q:'マルウェアの説明として正しいものはどれですか。',
+     opts:['マルウェアはウイルスのみを指す言葉です。','マルウェアとは悪意のあるプログラムの総称で、ウイルス・ワーム・ランサムウェアなどが含まれます。','マルウェアはネットワーク機器の不具合で自然に発生します。','マルウェアはウイルス対策ソフトで必ず完全に防ぐことができます。'],
+     ans:1,
+     exp:'マルウェア（Malware）はMalicious Software（悪意のあるソフトウェア）の略で、コンピュータウイルス・ワーム・トロイの木馬・ランサムウェア・スパイウェアなど悪意のあるプログラム全体の総称です。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'ランサムウェアの説明として誤っているものはどれですか。',
+     opts:['感染するとファイルが暗号化されてアクセスできなくなります。','ファイルの復号と引き換えに金銭を要求します。','自己増殖してネットワーク上に自動的に広がる機能を持ちます（ワームとは異なります）。','バックアップを取っていれば被害を最小限に抑えられます。'],
+     ans:2,
+     exp:'ランサムウェアの特徴は「ファイルを暗号化して身代金を要求する」ことです。自己増殖してネットワークを自動的に広がるのはワームの特徴です。ランサムウェアは自己増殖機能を必ずしも持ちません。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'コンピュータウイルスとワームの違いとして正しいものはどれですか。',
+     opts:['ウイルスは単独で増殖でき、ワームは他のプログラムに寄生して増殖します。','ウイルスは他のプログラムに寄生して増殖し、ワームは単独で増殖してネットワーク経由で広がります。','ウイルスとワームはまったく同じものです。','ワームはファイルを暗号化して身代金を要求します。'],
+     ans:1,
+     exp:'コンピュータウイルスは他のプログラムやファイルに「寄生」して増殖します。ワームは宿主となるプログラムが不要で、単独でネットワークを経由して自動的に広がります。この違いが試験に出やすいポイントです。'}
+  ],
+  q3:[
+    {type:'4択　誤っているものはどれですか。',
+     q:'安全なパスワードの条件として誤っているものはどれですか。',
+     opts:['英大文字・小文字・数字・記号を組み合わせます。','12文字以上の長さにします。','複数のサービスで同じパスワードを使い回すと管理が楽になり安全です。','二段階認証を併用します。'],
+     ans:2,
+     exp:'複数のサービスで同じパスワードを使い回すのは非常に危険です。1つのサービスからパスワードが漏えいした場合、他のすべてのサービスも不正アクセスされる「パスワードリスト攻撃」の被害に遭います。'},
+    {type:'4択　正しいものはどれですか。',
+     q:'ブルートフォース攻撃（総当たり攻撃）の対策として最も適切なものはどれですか。',
+     opts:['パスワードを短くして覚えやすくします。','パスワードに数字だけを使います。','パスワードを長くして英数字・記号を組み合わせ、二段階認証を設定します。','同じパスワードを長く使い続けます。'],
+     ans:2,
+     exp:'ブルートフォース攻撃は全パターンを試す攻撃です。パスワードが長く複雑なほど、解読に膨大な時間がかかり実質的に防ぐことができます。また二段階認証を設定すれば、パスワードが破られても不正ログインを防げます。'}
+  ],
+  q4:[
+    {type:'4択　正しいものはどれですか。',
+     q:'フィッシング詐欺の説明として正しいものはどれですか。',
+     opts:['フィッシング詐欺とはウイルスをメールに添付して送る攻撃です。','フィッシング詐欺とは本物そっくりの偽メール・偽サイトで個人情報を盗む攻撃です。','フィッシング詐欺とはパスワードを片っ端から試す攻撃です。','フィッシング詐欺とはファイルを暗号化して身代金を要求する攻撃です。'],
+     ans:1,
+     exp:'フィッシング詐欺（Phishing）は「釣り（Fishing）」が語源です。本物そっくりの偽メールや偽サイトに誘導し、ID・パスワード・クレジットカード情報などを入力させて盗む手口です。'},
+    {type:'4択　誤っているものはどれですか。',
+     q:'ソーシャルエンジニアリングの説明として誤っているものはどれですか。',
+     opts:['人を騙したり心理的に操作したりして情報を入手する攻撃の総称です。','電話で「システム担当者です」と偽りパスワードを聞き出す手口が含まれます。','高度な技術を必要とするため、個人では対策が難しい攻撃です。','ゴミ箱に捨てた書類から情報を得る「トラッシング」も含まれます。'],
+     ans:2,
+     exp:'ソーシャルエンジニアリングは技術を使わず「人の心理」をついて情報を盗む方法です。むしろ高度な技術は不要で、「電話でなりすます」「ゴミ箱を漁る」など単純な手口が多いです。対策は「不審な問い合わせに安易に応じない」意識が重要です。'}
+  ]
+};
+
+/* ===== ミニテスト制御 ===== */
+var miniState={};
+function toggleQuiz(id){
+  var btn=document.querySelector('[onclick="toggleQuiz(\''+id+'\')"]');
+  var body=document.getElementById(id+'-body');
+  var open=body.classList.contains('open');
+  if(open){body.classList.remove('open');btn.classList.remove('open');}
+  else{body.classList.add('open');btn.classList.add('open');if(!miniState[id])initMini(id);}
+}
+function initMini(id){miniState[id]={idx:0,score:0,done:false};renderMini(id);}
+function renderMini(id){
+  var s=miniState[id],qs=MINI[id],q=qs[s.idx];
+  var con=document.getElementById(id+'-container');
+  con.innerHTML='<div class="quiz-progress">問題 '+(s.idx+1)+' / '+qs.length+'</div>'
+    +'<div class="quiz-type">【'+q.type+'】</div>'
+    +'<div class="quiz-q">'+q.q+'</div>'
+    +'<div class="quiz-opts" id="'+id+'-opts">'
+    +q.opts.map(function(o,i){return '<button class="quiz-opt" onclick="answerMini(\''+id+'\','+i+')">'+(['①','②','③','④'][i])+' '+o+'</button>';}).join('')
+    +'</div><div id="'+id+'-result"></div>'
+    +'<div class="quiz-nav"><button class="btn-next" id="'+id+'-next" onclick="nextMini(\''+id+'\')" disabled>次の問題 →</button>'
+    +'<button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 やり直す</button></div>';
+}
+function answerMini(id,chosen){
+  var s=miniState[id];if(s.done)return;s.done=true;
+  var q=MINI[id][s.idx];
+  var opts=document.querySelectorAll('#'+id+'-opts .quiz-opt');
+  opts.forEach(function(b){b.disabled=true;});
+  var res=document.getElementById(id+'-result');
+  if(chosen===q.ans){s.score++;opts[chosen].classList.add('correct');res.innerHTML='<div class="quiz-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';burst();}
+  else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');res.innerHTML='<div class="quiz-result ng">❌ 不正解です。<br>正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  var nb=document.getElementById(id+'-next');
+  nb.disabled=false;nb.textContent=s.idx<MINI[id].length-1?'次の問題 →':'結果を見る';
+}
+function nextMini(id){
+  var s=miniState[id];s.idx++;s.done=false;
+  if(s.idx<MINI[id].length){renderMini(id);}
+  else{
+    var pass=(s.score===MINI[id].length);
+    document.getElementById(id+'-container').innerHTML='<div class="quiz-result '+(pass?'ok':'ng')+'" style="font-size:14px;text-align:center;padding:16px">'+(pass?'🎉 全問正解です！':s.score+' / '+MINI[id].length+' 問正解でした。もう一度確認しましょう。')+'</div><div style="text-align:center;margin-top:10px"><button class="quiz-retry" onclick="initMini(\''+id+'\')">🔄 もう一度挑戦する</button></div>';
+    if(pass)burst();
+  }
+}
+
+/* ===== フラッシュカード ===== */
+var FC_DATA=[
+  {word:'情報セキュリティ',stars:'☆☆☆',en:'Information Security',def:'情報の漏えい・改ざん・使用不能をすべて防ぐ取り組みです。',eg:'💬 個人・企業どちらにも必要な考え方です。'},
+  {word:'機密性（C）',stars:'☆☆☆',en:'Confidentiality コンフィデンシャリティ',def:'許可された人だけが情報にアクセスできる状態です。',eg:'💬 パスワードやアクセス制御で守ります。'},
+  {word:'完全性（I）',stars:'☆☆☆',en:'Integrity インテグリティ',def:'情報が正確で改ざんされていない状態です。',eg:'💬 ディジタル署名やハッシュ化で守ります。'},
+  {word:'可用性（A）',stars:'☆☆☆',en:'Availability アベイラビリティ',def:'必要なときにシステムや情報を利用できる状態です。',eg:'💬 バックアップやサーバ冗長化で守ります。'},
+  {word:'マルウェア',stars:'☆☆☆',en:'Malware（悪意のあるソフトウェア）',def:'悪意のあるプログラムの総称です。',eg:'💬 ウイルス・ワーム・ランサムウェアなどが含まれます。'},
+  {word:'コンピュータウイルス',stars:'☆☆☆',en:'Computer Virus',def:'他のプログラムに寄生して増殖するマルウェアです。',eg:'💬 宿主となるプログラムが必要です。感染したファイルを開くと広がります。'},
+  {word:'ランサムウェア',stars:'☆☆☆',en:'Ransomware（身代金ウェア）',def:'ファイルを暗号化して身代金を要求するマルウェアです。',eg:'💬 Ransom＝身代金。バックアップが最大の対策です。'},
+  {word:'フィッシング詐欺',stars:'☆☆☆',en:'Phishing（釣り）',def:'偽メール・偽サイトで個人情報を盗む攻撃です。',eg:'💬 URLが本物と微妙に違います。必ずURLを確認しましょう。'},
+  {word:'ブルートフォース攻撃',stars:'☆☆☆',en:'Brute Force Attack（力任せ攻撃）',def:'パスワードをあらゆるパターンで試す攻撃です。',eg:'💬 パスワードを長く複雑にするほど現実的に防げます。'},
+  {word:'ファイアウォール',stars:'☆☆☆',en:'Firewall（防火壁）',def:'不正な通信を検知してブロックするしくみです。',eg:'💬 ネットワークの入口に設けます。'},
+  {word:'脆弱性',stars:'☆☆☆',en:'Vulnerability セキュリティホール',def:'ソフトウェアの欠陥・弱点です。',eg:'💬 アップデートで修正されます。放置すると攻撃の入口になります。'},
+  {word:'二段階認証',stars:'☆☆',en:'Two-Factor Authentication（2FA）',def:'パスワード＋第2の確認で不正ログインを防ぐしくみです。',eg:'💬 スマホに届くコードなどを使います。'},
+];
+var fcIdx=0,fcOrder=FC_DATA.map(function(_,i){return i;}),fcTimer=null,fcBarTimer=null,fcAutoSec=0;
+function fcOpen(){document.getElementById('fc-overlay').classList.add('show');fcStop();fcIdx=0;fcOrder=FC_DATA.map(function(_,i){return i;});fcRender();}
+function fcClose(){document.getElementById('fc-overlay').classList.remove('show');fcStop();}
+function fcOverlayClick(e){if(e.target===document.getElementById('fc-overlay'))fcClose();}
+function fcRender(){
+  var d=FC_DATA[fcOrder[fcIdx]];
+  document.getElementById('fc-card').classList.remove('flipped');
+  document.getElementById('fc-word').textContent=d.word;
+  document.getElementById('fc-stars').textContent=d.stars;
+  document.getElementById('fc-en').textContent=d.en;
+  document.getElementById('fc-def').textContent=d.def;
+  document.getElementById('fc-eg').textContent=d.eg;
+  document.getElementById('fc-counter').textContent=(fcIdx+1)+' / '+fcOrder.length;
+}
+function fcFlip(){document.getElementById('fc-card').classList.toggle('flipped');}
+function fcNext(){fcIdx=(fcIdx+1)%fcOrder.length;fcRender();if(fcAutoSec>0)fcStartBar();}
+function fcPrev(){fcIdx=(fcIdx-1+fcOrder.length)%fcOrder.length;fcRender();}
+function fcAuto(sec){fcStop();fcAutoSec=sec;document.getElementById('btn-stop').style.display='inline-block';document.getElementById('fc-bar').style.display='block';fcStartBar();}
+function fcStartBar(){
+  document.getElementById('fc-card').classList.remove('flipped');
+  var bar=document.getElementById('fc-bar-inner');
+  bar.style.transition='none';bar.style.width='0%';
+  var halfMs=fcAutoSec*500,fullMs=fcAutoSec*1000;
+  setTimeout(function(){bar.style.transition='width '+fullMs+'ms linear';bar.style.width='100%';},30);
+  fcTimer=setTimeout(function(){document.getElementById('fc-card').classList.add('flipped');},halfMs);
+  fcBarTimer=setTimeout(function(){fcNext();},fullMs);
+}
+function fcStop(){clearTimeout(fcTimer);clearTimeout(fcBarTimer);fcAutoSec=0;document.getElementById('btn-stop').style.display='none';document.getElementById('fc-bar').style.display='none';var bar=document.getElementById('fc-bar-inner');bar.style.transition='none';bar.style.width='0%';}
+function fcShuffle(){fcStop();for(var i=fcOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=fcOrder[i];fcOrder[i]=fcOrder[j];fcOrder[j]=tmp;}fcIdx=0;fcRender();}
+
+/* ===== 確認問題 ===== */
+var FINAL=[
+  {q:'情報セキュリティの3要素として正しい組み合わせはどれですか。',
+   opts:['機密性・可用性・信頼性','機密性・完全性・可用性','完全性・効率性・可用性','機密性・効率性・信頼性'],
+   ans:1,
+   exp:'情報セキュリティの3要素は「機密性（Confidentiality）・完全性（Integrity）・可用性（Availability）」です。頭文字をとって「CIA」とも呼ばれます。この3つをすべて守ることが情報セキュリティの目標です。'},
+  {q:'次の説明のうち、「完全性」の例として最も適切なものはどれですか。',
+   opts:['パスワードを設定して許可された人だけがファイルを開けるようにします。','送信したデータが途中で書き換えられていないことを確認します。','サーバを24時間稼働させて必要なときにいつでも使えるようにします。','ウイルス対策ソフトを導入してマルウェアの侵入を防ぎます。'],
+   ans:1,
+   exp:'完全性（Integrity）は「情報が正確で改ざんされていない状態を保つこと」です。データが途中で書き換えられていないことを確認するのが完全性の例です。①は機密性、③は可用性、④はセキュリティ対策の例です。'},
+  {q:'次のマルウェアの説明のうち、「ランサムウェア」の説明として正しいものはどれですか。',
+   opts:['他のプログラムに寄生して増殖するマルウェアです。','ネットワークを通じて単独で自動的に広がるマルウェアです。','ファイルを暗号化してアクセスできなくし、解除と引き換えに金銭を要求するマルウェアです。','有用なソフトのふりをして侵入し、個人情報を盗むマルウェアです。'],
+   ans:2,
+   exp:'ランサムウェア（Ransomware）はRansom（身代金）からきています。感染するとファイルが暗号化され、復号するための金銭を要求されます。①はウイルス、②はワーム、④はトロイの木馬の説明です。'},
+  {q:'フィッシング詐欺への対策として最も適切なものはどれですか。',
+   opts:['メールに記載されたURLはすぐにクリックします。','URLが本物と似ていれば安全なので、個人情報を入力します。','メールのリンクからではなく、ブラウザに直接URLを入力してサイトにアクセスします。','「緊急」「重要」などの件名のメールは必ず優先して確認します。'],
+   ans:2,
+   exp:'フィッシング詐欺は偽サイトに誘導して個人情報を盗む攻撃です。最も安全な対策は「メール内のリンクをクリックせず、ブラウザのアドレスバーに直接URLを入力する」ことです。公式アプリを使うことも有効です。'},
+  {q:'「脆弱性（セキュリティホール）」の説明として正しいものはどれですか。',
+   opts:['ネットワークへの不正なアクセスをブロックする機能のことです。','ソフトウェアに含まれる欠陥や弱点で、攻撃者に悪用される可能性があるものです。','コンピュータウイルスを検出して除去するソフトウェアのことです。','複数の認証を組み合わせて本人確認を強化するしくみのことです。'],
+   ans:1,
+   exp:'脆弱性（セキュリティホール）とはソフトウェアに含まれる欠陥や弱点のことです。攻撃者はこれを悪用してシステムに侵入します。OSやアプリケーションのアップデートを行うことで脆弱性が修正されます。①はファイアウォール、③はウイルス対策ソフト、④は二段階認証の説明です。'}
+];
+var finalState={answers:[]};
+function initFinal(){finalState={answers:Array(FINAL.length).fill(null)};document.getElementById('final-score').style.display='none';renderFinal();}
+function renderFinal(){
+  var html='';
+  FINAL.forEach(function(q,i){
+    html+='<div class="fq-block" id="fq-'+i+'"><div class="fq-num">問'+(i+1)+'</div><div class="fq-q">'+q.q+'</div><div class="fq-opts">'
+      +q.opts.map(function(o,j){return '<button class="fq-opt" id="fq-'+i+'-'+j+'" onclick="answerFinal('+i+','+j+')">'+(['①','②','③','④'][j])+' '+o+'</button>';}).join('')
+      +'</div><div id="fq-res-'+i+'"></div></div>';
+  });
+  html+='<div style="text-align:center;margin-top:10px"><button class="final-retry" onclick="checkFinal()" id="btn-check" style="background:#0ea5e9">✅ 採点する</button><button class="quiz-retry" style="margin-left:10px" onclick="initFinal()">🔄 やり直す</button></div>';
+  document.getElementById('final-container').innerHTML=html;
+}
+function answerFinal(qi,chosen){
+  finalState.answers[qi]=chosen;
+  var opts=document.querySelectorAll('#fq-'+qi+' .fq-opt');
+  opts.forEach(function(b){b.style.background='';b.style.border='1.5px solid #cbd5e1';});
+  opts[chosen].style.background='#fee2e2';opts[chosen].style.border='2px solid #dc2626';
+}
+function checkFinal(){
+  var score=0;
+  FINAL.forEach(function(q,i){
+    var chosen=finalState.answers[i];
+    var opts=document.querySelectorAll('#fq-'+i+' .fq-opt');
+    opts.forEach(function(b){b.disabled=true;});
+    var res=document.getElementById('fq-res-'+i);
+    if(chosen===null){res.innerHTML='<div class="fq-result ng">未回答です。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」でした。<br><small>'+q.exp+'</small></div>';opts[q.ans].classList.add('correct');}
+    else if(chosen===q.ans){score++;opts[chosen].classList.add('correct');res.innerHTML='<div class="fq-result ok">✅ 正解です！<br><small>'+q.exp+'</small></div>';}
+    else{opts[chosen].classList.add('wrong');opts[q.ans].classList.add('correct');res.innerHTML='<div class="fq-result ng">❌ 不正解。正解は「'+(['①','②','③','④'][q.ans])+' '+q.opts[q.ans]+'」です。<br><small>'+q.exp+'</small></div>';}
+  });
+  var scoreEl=document.getElementById('final-score');scoreEl.style.display='block';
+  document.getElementById('score-num').textContent=score+' / '+FINAL.length+' 問正解';
+  var msg='';
+  if(score===FINAL.length){msg='🎉 全問正解です！すばらしい出来です。';burst();}
+  else if(score>=4){msg='✅ 合格です！惜しかった問題を復習しましょう。';burst();}
+  else if(score>=3){msg='📖 あと少しです。間違えた問題をもう一度確認しましょう。';}
+  else{msg='📖 もう一度テキストを読み直してから挑戦してみましょう。';}
+  document.getElementById('score-msg').textContent=msg;
+  scoreEl.scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('btn-check').style.display='none';
+}
+initFinal();
+</script>
+<div style="text-align:center;margin:26px 0 10px">
+  <a href="kouninjoho_index.html" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:999px">🏠 単元表に戻る</a>
+</div>
+  <script src="https://realizefield.github.io/gamba-kounin-seito/gamba-ai.js" defer></script>
+</body>
+</html>
